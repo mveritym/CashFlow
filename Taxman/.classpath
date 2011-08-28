@@ -2,11 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Downloads/bukkit-0.0.1-SNAPSHOT.jar">
+	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Downloads/bukkit-0.0.1-SNAPSHOT.jar" sourcepath="C:/Documents and Settings/Mel/My Documents/Downloads/Bukkit-Bukkit-0.0.0-678-gd8c984f.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="http://jd.bukkit.org/apidocs"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/dist/Register.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/dist/Register.jar" sourcepath="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Downloads/GroupManager.jar" sourcepath="C:/Documents and Settings/Mel/My Documents/Downloads/gmcouto-GroupManager-7e7ef10/gmcouto-GroupManager-7e7ef10"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

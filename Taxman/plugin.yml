@@ -4,6 +4,6 @@ version: 0.1
 commands:
    tax:
       description: This is a demo command.
-      permission: taxman.basic
+      permission: cashflow.basic
       usage: |
     	   /<tax> [player]
