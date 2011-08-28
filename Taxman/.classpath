@@ -7,5 +7,6 @@
 			<attribute name="javadoc_location" value="http://jd.bukkit.org/apidocs"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/dist/Register.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
