@@ -3,8 +3,6 @@ package mveritym.cashflow;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -49,19 +47,25 @@ public class TaxManager {
         }
     }
     
-	public void createTax(CommandSender sender, String name, String percentOfBal, String taxReceiver) {
+	public void createTax(CommandSender sender, String name, String percentOfBal, String interval, String taxReceiver) {
 		String taxName = name;
 		double percentIncome = Double.parseDouble(percentOfBal);
-		Player receiverName = cashFlow.getServer().getPlayer(taxReceiver);
+		double taxInterval = Double.parseDouble(interval);
+		Player receiver = cashFlow.getServer().getPlayer(taxReceiver);
 	
 		if(taxes.containsKey(taxName)) {
 			sender.sendMessage(ChatColor.RED + "A tax with that name has already been created.");
 			return;
 		} else {
-			String[] taxValues = new String[2];
+			String[] taxValues = new String[3];
 			taxValues[0] = percentOfBal;
 			taxValues[1] = taxReceiver;
+			taxValues[2] = interval;
 			taxes.put(name, taxValues);
+			
+			conf.setProperty(taxName + ".percentIncome", percentIncome);
+			conf.setProperty(taxName + ".taxInterval", taxInterval);
+			conf.setProperty(taxName + ".receiver", receiver);
 		}
 	}
 }

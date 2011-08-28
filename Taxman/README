@@ -1,0 +1,10 @@
+*-----------------------------*
+*		CashFlow Plugin		  *
+*-----------------------------*
+
+Name: CashFlow
+Author: mveritym/Perichor
+Description: This plugin allows you to create and apply taxes and salaries
+	to any minecraft server with an economy plugin supported by the Register
+	plugin.
+		

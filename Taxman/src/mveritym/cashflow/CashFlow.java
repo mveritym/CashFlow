@@ -63,8 +63,9 @@ public class CashFlow extends JavaPlugin{
 					if(args.length == 3) {
 						String name = args[0];
 						String percentOfBal = args[1];
-						String receiverName = args[2];
-						taxManager.createTax(sender, name, percentOfBal, receiverName);
+						String interval = args[2];
+						String receiverName = args[3];
+						taxManager.createTax(sender, name, percentOfBal, interval, receiverName);
 						return true;
 					} else if (args.length > 3){
 						sender.sendMessage(ChatColor.RED + "Too many arguments.");
