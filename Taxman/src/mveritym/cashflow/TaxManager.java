@@ -94,7 +94,36 @@ public class TaxManager {
 			conf.setProperty(taxName + ".receiver", receiver);
 			
 			TaxManager.cashFlow.log.info("New tax " + taxName + " created successfully.");
-			sender.sendMessage(ChatColor.RED + "New tax " + taxName + " created successfully.");
+			sender.sendMessage(ChatColor.GREEN + "New tax " + taxName + " created successfully.");
+		}
+	}
+	
+	public void deleteTax(CommandSender sender, String name) {
+		String taxName = name;
+		if(taxes.containsKey(taxName)) {
+			taxes.remove(taxName);
+			try {
+				SLAPI.save(taxes, "taxData.bin");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			conf.removeProperty(taxName + ".percentIncome");
+			conf.removeProperty(taxName + ".taxInterval");
+			conf.removeProperty(taxName + ".receiver");
+			
+			TaxManager.cashFlow.log.info("Tax " + taxName + " deleted successfully.");
+			sender.sendMessage(ChatColor.GREEN + "Tax " + taxName + " deleted successfully.");
+		}
+	}
+	
+	public void listTaxes(CommandSender sender) {
+		if(taxes.size() != 0) {
+			for(String taxName : taxes.keySet()) {
+				sender.sendMessage(ChatColor.BLUE + taxName);
+			}
+		} else {
+			sender.sendMessage(ChatColor.BLUE + "No taxes to list.");
 		}
 	}
 }

@@ -78,6 +78,25 @@ public class CashFlow extends JavaPlugin{
 						sender.sendMessage(ChatColor.RED + "Not enough arguments.");
 						return false;
 					}
+				case deletetax:
+					if(args.length == 1) {
+						taxManager.deleteTax(sender, args[0]);
+						return true;
+					} else if(args.length > 1) {
+						sender.sendMessage(ChatColor.RED + "Too many arguments.");
+						return false;
+					} else {
+						sender.sendMessage(ChatColor.RED + "Not enough arguments.");
+						return false;
+					}
+				case listtaxes:
+					if(args.length != 0) {
+						sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
+						return false;
+					} else {
+						taxManager.listTaxes(sender);
+						return true;
+					}
 				default:
 					break;
 			}
