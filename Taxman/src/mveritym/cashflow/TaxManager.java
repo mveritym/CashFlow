@@ -16,14 +16,14 @@ public class TaxManager {
     protected File confFile;
     HashMap<String, String[]> taxes = new LinkedHashMap<String, String[]>();
     
-    public TaxManager(CashFlow cashFlow) {
+    @SuppressWarnings("unchecked")
+	public TaxManager(CashFlow cashFlow) {
     	TaxManager.cashFlow = cashFlow;
     	
     	File f = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
     	conf = null;
 
-        if (f.exists())
-        {
+        if (f.exists()) {
         	TaxManager.cashFlow.log.info("CashFlow config file loaded.");
         	conf = new Configuration(f);
         	conf.load();
@@ -37,8 +37,7 @@ public class TaxManager {
         
         f = new File(TaxManager.cashFlow.getDataFolder(), "users.yml");
         
-        if (f.exists())
-        {
+        if (f.exists()) {
             uconf = new Configuration(f);
             uconf.load();
         }
@@ -46,6 +45,24 @@ public class TaxManager {
             this.confFile = new File(TaxManager.cashFlow.getDataFolder(), "users.yml");
             TaxManager.uconf = new Configuration(confFile);
             uconf.save();
+        }
+        
+        f = new File(TaxManager.cashFlow.getDataFolder(), "taxData.bin");
+        
+        if (f.exists()) {
+        	TaxManager.cashFlow.log.info("Loading CashFlow tax data.");
+        	try {
+				taxes = (HashMap<String, String[]>)SLAPI.load("taxData.bin");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+        } else {
+        	TaxManager.cashFlow.log.info("No CashFlow tax data found. Creating data file.");
+        	try {
+				SLAPI.save(taxes, "taxData.bin");
+			} catch (Exception e) {
+				e.printStackTrace();
+			} 
         }
     }
     
@@ -58,6 +75,7 @@ public class TaxManager {
 	
 		if(taxes.containsKey(taxName)) {
 			sender.sendMessage(ChatColor.RED + "A tax with that name has already been created.");
+			TaxManager.cashFlow.log.info("Failed to create new tax - tax already exists.");
 			return;
 		} else {
 			String[] taxProperties = new String[3];
@@ -65,6 +83,11 @@ public class TaxManager {
 			taxProperties[1] = taxReceiver;
 			taxProperties[2] = interval;
 			taxes.put(name, taxProperties);
+			try {
+				SLAPI.save(taxes, "taxData.bin");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			
 			conf.setProperty(taxName + ".percentIncome", percentIncome);
 			conf.setProperty(taxName + ".taxInterval", taxInterval);

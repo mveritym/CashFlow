@@ -7,12 +7,17 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.Event.Priority;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import org.anjocaido.groupmanager.dataholder.worlds.WorldsHolder;
+
+import com.nijikokun.cashflowregister.payment.Method;
+import com.nijikokun.cashflowregister.payment.Methods;
 
 public class CashFlow extends JavaPlugin{
 
@@ -22,6 +27,8 @@ public class CashFlow extends JavaPlugin{
 	public PluginManager pluginManager = null;
 	private WorldsHolder worldsHolder;
 	private TaxManager taxManager = new TaxManager(this);
+	public Methods Methods = null;
+	public Method Method = null;
 	
 	public void onEnable() {		
 		config = getConfiguration();
@@ -29,11 +36,14 @@ public class CashFlow extends JavaPlugin{
 		info = getDescription();
 		pluginManager = getServer().getPluginManager();
 		
-		log.info(info.getName() + " " + info.getVersion() + " has been enabled.");
+		pluginManager.registerEvent(Event.Type.PLUGIN_ENABLE, new server(this), Priority.Monitor, this);
+        pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, new server(this), Priority.Monitor, this);
+        
+        log.info(info.getName() + " Plugin " + info.getVersion() + " has been enabled.");
 	}
 	
 	public void onDisable() {
-		log.info(info.getName() + " " + info.getVersion() + " has been disabled.");
+		log.info(info.getName() + " Plugin " + info.getVersion() + " has been disabled.");
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
@@ -67,10 +77,7 @@ public class CashFlow extends JavaPlugin{
 					} else {
 						sender.sendMessage(ChatColor.RED + "Not enough arguments.");
 						return false;
-					}	
-				case test:
-					sender.sendMessage(ChatColor.RED + "Testing!");
-					return true;
+					}
 				default:
 					break;
 			}

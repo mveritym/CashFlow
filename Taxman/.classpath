@@ -7,8 +7,13 @@
 			<attribute name="javadoc_location" value="http://jd.bukkit.org/apidocs"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/dist/Register.jar" sourcepath="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3"/>
 	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Downloads/GroupManager.jar" sourcepath="C:/Documents and Settings/Mel/My Documents/Downloads/gmcouto-GroupManager-7e7ef10/gmcouto-GroupManager-7e7ef10"/>
 	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Downloads/craftbukkit-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/lib/Essentials.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/lib/MultiCurrency.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/lib/BOSEconomy7.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/lib/iCo4.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/lib/iCo5.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/lib/iCo6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
