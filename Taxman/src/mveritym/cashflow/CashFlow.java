@@ -8,17 +8,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
-import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import org.anjocaido.groupmanager.GroupManager;
 import org.anjocaido.groupmanager.dataholder.worlds.WorldsHolder;
-import org.anjocaido.groupmanager.dataholder.OverloadedWorldHolder;
-import org.anjocaido.groupmanager.dataholder.WorldDataHolder;
-import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
-import org.anjocaido.groupmanager.utils.GroupManagerPermissions;
 
 public class CashFlow extends JavaPlugin{
 
@@ -60,7 +54,7 @@ public class CashFlow extends JavaPlugin{
 		if(playerCanDo || isConsole) {
 			switch(execCmd) {
 				case createtax:
-					if(args.length == 3) {
+					if(args.length == 4) {
 						String name = args[0];
 						String percentOfBal = args[1];
 						String interval = args[2];
@@ -73,7 +67,10 @@ public class CashFlow extends JavaPlugin{
 					} else {
 						sender.sendMessage(ChatColor.RED + "Not enough arguments.");
 						return false;
-					}					
+					}	
+				case test:
+					sender.sendMessage(ChatColor.RED + "Testing!");
+					return true;
 				default:
 					break;
 			}

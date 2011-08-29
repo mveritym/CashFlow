@@ -1,9 +1,14 @@
-name: Taxman
-main: mveritym.taxman.Taxman
+name: CashFlow
+main: mveritym.cashflow.CashFlow
 version: 0.1
 commands:
-   tax:
+   test:
       description: This is a demo command.
       permission: cashflow.basic
       usage: |
-    	   /<tax> [player]
+           /test
+   createtax:
+      description: Creates a tax.
+      permission: cashflow.basic
+      usage: |
+           /createtax [name of tax] [% of income] [interval] [receiving player]
