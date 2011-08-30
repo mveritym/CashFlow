@@ -1,8 +1,8 @@
 package mveritym.cashflow;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ListIterator;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -14,28 +14,17 @@ public class TaxManager {
     protected static Configuration conf;
     protected static Configuration uconf;
     protected File confFile;
-    HashMap<String, String[]> taxes = new LinkedHashMap<String, String[]>();
+    List<String> taxes;
+    ListIterator<String> iterator;
     
-    @SuppressWarnings("unchecked")
 	public TaxManager(CashFlow cashFlow) {
     	TaxManager.cashFlow = cashFlow;
-    	
-    	File f = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
     	conf = null;
-
-        if (f.exists()) {
-        	TaxManager.cashFlow.log.info("CashFlow config file loaded.");
-        	conf = new Configuration(f);
-        	conf.load();
-        }
-        else {
-        	TaxManager.cashFlow.log.info("No CashFlow config file found. Creating config file.");
-        	this.confFile = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
-            TaxManager.conf = new Configuration(confFile);            
-            conf.save();
-        }
+    	
+    	loadConf();
+    	taxes = conf.getStringList("taxes.list", null);    	
         
-        f = new File(TaxManager.cashFlow.getDataFolder(), "users.yml");
+        File f = new File(TaxManager.cashFlow.getDataFolder(), "users.yml");
         
         if (f.exists()) {
             uconf = new Configuration(f);
@@ -47,6 +36,7 @@ public class TaxManager {
             uconf.save();
         }
         
+        /*
         f = new File(TaxManager.cashFlow.getDataFolder(), "taxData.bin");
         
         if (f.exists()) {
@@ -59,10 +49,29 @@ public class TaxManager {
         } else {
         	TaxManager.cashFlow.log.info("No CashFlow tax data found. Creating data file.");
         	try {
-				SLAPI.save(taxes, "taxData.bin");
+				SLAPI.save(taxes, "plugins/CashFlow/taxData.bin");
 			} catch (Exception e) {
 				e.printStackTrace();
 			} 
+        }
+        */
+    }
+    
+    public void loadConf() {
+    	File f = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
+
+        if (f.exists()) {
+        	TaxManager.cashFlow.log.info("CashFlow config file loaded.");
+        	conf = new Configuration(f);
+        	conf.load();
+        }
+        else {
+        	TaxManager.cashFlow.log.info("No CashFlow config file found. Creating config file.");
+        	this.confFile = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
+            TaxManager.conf = new Configuration(confFile);  
+            List<String> tempList = null;
+            conf.setProperty("taxes.list", tempList);
+            conf.save();
         }
     }
     
@@ -72,58 +81,73 @@ public class TaxManager {
 		double percentIncome = Double.parseDouble(percentOfBal);
 		double taxInterval = Double.parseDouble(interval);
 		Player receiver = cashFlow.getServer().getPlayer(taxReceiver);
-	
-		if(taxes.containsKey(taxName)) {
-			sender.sendMessage(ChatColor.RED + "A tax with that name has already been created.");
-			TaxManager.cashFlow.log.info("Failed to create new tax - tax already exists.");
+		
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		iterator = taxes.listIterator();
+		
+		if(!checkArguments()) {
 			return;
-		} else {
-			String[] taxProperties = new String[3];
-			taxProperties[0] = percentOfBal;
-			taxProperties[1] = taxReceiver;
-			taxProperties[2] = interval;
-			taxes.put(name, taxProperties);
-			try {
-				SLAPI.save(taxes, "taxData.bin");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			conf.setProperty(taxName + ".percentIncome", percentIncome);
-			conf.setProperty(taxName + ".taxInterval", taxInterval);
-			conf.setProperty(taxName + ".receiver", receiver);
-			
-			TaxManager.cashFlow.log.info("New tax " + taxName + " created successfully.");
-			sender.sendMessage(ChatColor.GREEN + "New tax " + taxName + " created successfully.");
 		}
+		
+		while(iterator.hasNext()) {
+			if(iterator.next().equals(taxName)) {
+				sender.sendMessage(ChatColor.RED + "A tax with that name has already been created.");
+				TaxManager.cashFlow.log.info("Failed to create new tax - tax already exists.");
+				return;
+			}
+		}
+		
+		taxes.add(taxName);	
+		conf.setProperty("taxes.list", taxes);
+		conf.setProperty("taxes." + taxName + ".percentIncome", percentIncome);
+		conf.setProperty("taxes." + taxName + ".taxInterval", taxInterval);
+		conf.setProperty("taxes." + taxName + ".receiver", receiver);
+		conf.save();		
+		
+		TaxManager.cashFlow.log.info("New tax " + taxName + " created successfully.");
+		sender.sendMessage(ChatColor.GREEN + "New tax " + taxName + " created successfully.");
 	}
 	
 	public void deleteTax(CommandSender sender, String name) {
 		String taxName = name;
-		if(taxes.containsKey(taxName)) {
-			taxes.remove(taxName);
-			try {
-				SLAPI.save(taxes, "taxData.bin");
-			} catch (Exception e) {
-				e.printStackTrace();
+		
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		iterator = taxes.listIterator();
+		
+		while(iterator.hasNext()) {
+			if(iterator.next().equals(taxName)) {
+				taxes.remove(taxName);
+				conf.setProperty("taxes.list", taxes);
+				conf.removeProperty("taxes." + taxName);
+				conf.save();
+				
+				TaxManager.cashFlow.log.info("Tax " + taxName + " deleted successfully.");
+				sender.sendMessage(ChatColor.GREEN + "Tax " + taxName + " deleted successfully.");
+				return;
 			}
-			
-			conf.removeProperty(taxName + ".percentIncome");
-			conf.removeProperty(taxName + ".taxInterval");
-			conf.removeProperty(taxName + ".receiver");
-			
-			TaxManager.cashFlow.log.info("Tax " + taxName + " deleted successfully.");
-			sender.sendMessage(ChatColor.GREEN + "Tax " + taxName + " deleted successfully.");
 		}
+		
+		TaxManager.cashFlow.log.info("No tax, " + taxName);
+		sender.sendMessage(ChatColor.RED + "No tax, " + taxName);
 	}
 	
 	public void listTaxes(CommandSender sender) {
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		iterator = taxes.listIterator();
+		
 		if(taxes.size() != 0) {
-			for(String taxName : taxes.keySet()) {
-				sender.sendMessage(ChatColor.BLUE + taxName);
+			while(iterator.hasNext()) {
+				sender.sendMessage(ChatColor.BLUE + iterator.next());
 			}
 		} else {
-			sender.sendMessage(ChatColor.BLUE + "No taxes to list.");
+			sender.sendMessage(ChatColor.RED + "No taxes to list.");
 		}
+	}
+	
+	public boolean checkArguments() {
+		return true;
 	}
 }

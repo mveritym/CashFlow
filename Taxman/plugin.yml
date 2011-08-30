@@ -16,4 +16,21 @@ commands:
       description: Lists each tax.
       permission: cashflow.basic
       usage: |
-           /listalltaxes
+           /listtaxes
+permissions:
+    cashflow.*:
+        description: Allows access to all cashflow commands.
+        children:
+            cashflow.createtax: true
+            cashflow.deletetax: true
+            cashflow.listtax: true
+        default: false
+    cashflow.createtax:
+        description: Allows you to create a tax.
+        default: false
+    cashflow.deletetax:
+        description: Allows you to delete a tax.
+        default: false
+    cashflow.listtaxes:
+        description: Allows you to see a list of all taxes.
+        default: false
