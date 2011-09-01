@@ -9,7 +9,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
-import org.bukkit.util.config.Configuration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,7 +21,6 @@ import com.nijikokun.cashflowregister.payment.Methods;
 
 public class CashFlow extends JavaPlugin{
 
-	public Configuration config;
 	public Logger log = Logger.getLogger("Minecraft");
 	public PluginDescriptionFile info = null;
 	public PluginManager pluginManager = null;
@@ -30,20 +28,18 @@ public class CashFlow extends JavaPlugin{
 	public Methods Methods = null;
 	public Method Method = null;
 	
-	public void onEnable() {		
-		config = getConfiguration();
-		config.save();
+	public void onEnable() {
 		info = getDescription();
-		pluginManager = getServer().getPluginManager();
 		
+		pluginManager = getServer().getPluginManager();		
 		pluginManager.registerEvent(Event.Type.PLUGIN_ENABLE, new server(this), Priority.Monitor, this);
         pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, new server(this), Priority.Monitor, this);
         
-        log.info(info.getName() + " Plugin " + info.getVersion() + " has been enabled.");
+        log.info(info.getName() + " " + info.getVersion() + " has been enabled.");
 	}
 	
 	public void onDisable() {
-		log.info(info.getName() + " Plugin " + info.getVersion() + " has been disabled.");
+		log.info(info.getName() + " " + info.getVersion() + " has been disabled.");
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
@@ -64,11 +60,17 @@ public class CashFlow extends JavaPlugin{
 		if(playerCanDo || isConsole) {
 			switch(execCmd) {
 				case createtax:
-					if(args.length == 4) {
+					if(args.length == 4 || args.length == 3) {
 						String name = args[0];
 						String percentOfBal = args[1];
 						String interval = args[2];
-						String receiverName = args[3];
+						String receiverName;
+						if(args.length == 4) {
+							receiverName = args[3];
+						} else {
+							receiverName = "null";
+						}
+						
 						taxManager.createTax(sender, name, percentOfBal, interval, receiverName);
 						return true;
 					} else if (args.length > 3){
@@ -96,6 +98,14 @@ public class CashFlow extends JavaPlugin{
 					} else {
 						taxManager.listTaxes(sender);
 						return true;
+					}
+				case taxinfo:
+					if(args.length == 1) {
+						taxManager.taxInfo(sender, args[0]);
+						return true;
+					} else {
+						sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+						return false;
 					}
 				default:
 					break;

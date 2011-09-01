@@ -6,17 +6,22 @@ commands:
       description: Creates a tax.
       permission: cashflow.basic
       usage: |
-           /createtax [tax name] [% of income] [interval] [receiving player]
+           /createtax <tax name> <% of income> <interval> [receiving player]
    deletetax:
       description: Deletes a tax.
       permission: cashflow.basic
       usage: |
-           /deletetax [tax name]
+           /deletetax <tax name>
    listtaxes:
       description: Lists each tax.
       permission: cashflow.basic
       usage: |
            /listtaxes
+   taxinfo:
+      description: Lists information about the specified tax.
+      permission: cashflow.basic
+      usage: |
+           /taxinfo <tax name>
 permissions:
     cashflow.*:
         description: Allows access to all cashflow commands.
@@ -24,6 +29,7 @@ permissions:
             cashflow.createtax: true
             cashflow.deletetax: true
             cashflow.listtax: true
+            cashflow.taxinfo: true
         default: false
     cashflow.createtax:
         description: Allows you to create a tax.
@@ -33,4 +39,7 @@ permissions:
         default: false
     cashflow.listtaxes:
         description: Allows you to see a list of all taxes.
+        default: false
+    cashflow.taxinfo:
+        description: Allows you to see information about a specific tax.
         default: false

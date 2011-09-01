@@ -6,7 +6,6 @@ import java.util.ListIterator;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
 public class TaxManager {
@@ -60,7 +59,6 @@ public class TaxManager {
 		String taxName = name;
 		double percentIncome = Double.parseDouble(percentOfBal);
 		double taxInterval = Double.parseDouble(interval);
-		Player receiver = cashFlow.getServer().getPlayer(taxReceiver);
 		
 		loadConf();
 		taxes = conf.getStringList("taxes.list", null);
@@ -83,9 +81,7 @@ public class TaxManager {
 		conf.setProperty("taxes." + taxName + ".percentIncome", percentIncome);
 		conf.setProperty("taxes." + taxName + ".taxInterval", taxInterval);
 		conf.setProperty("taxes." + taxName + ".receiver", taxReceiver);
-		TaxManager.cashFlow.log.info("GETTING HERE");
-		conf.save();		
-		TaxManager.cashFlow.log.info("WOOHOO MADE IT!");
+		conf.save();
 		
 		TaxManager.cashFlow.log.info("New tax " + taxName + " created successfully.");
 		sender.sendMessage(ChatColor.GREEN + "New tax " + taxName + " created successfully.");
@@ -96,23 +92,34 @@ public class TaxManager {
 		
 		loadConf();
 		taxes = conf.getStringList("taxes.list", null);
-		iterator = taxes.listIterator();
 		
-		while(iterator.hasNext()) {
-			if(iterator.next().equals(taxName)) {
-				taxes.remove(taxName);
-				conf.setProperty("taxes.list", taxes);
-				conf.removeProperty("taxes." + taxName);
-				conf.save();
-				
-				TaxManager.cashFlow.log.info("Tax " + taxName + " deleted successfully.");
-				sender.sendMessage(ChatColor.GREEN + "Tax " + taxName + " deleted successfully.");
-				return;
-			}
+		if(taxes.contains(taxName)) {
+			taxes.remove(taxName);
+			conf.setProperty("taxes.list", taxes);
+			conf.removeProperty("taxes." + taxName);
+			conf.save();
+			
+			sender.sendMessage(ChatColor.GREEN + "Tax " + taxName + " deleted successfully.");
+		} else {
+			sender.sendMessage(ChatColor.RED + "No tax, " + taxName);
 		}
 		
-		TaxManager.cashFlow.log.info("No tax, " + taxName);
-		sender.sendMessage(ChatColor.RED + "No tax, " + taxName);
+		return;
+	}
+	
+	public void taxInfo(CommandSender sender, String taxName) {
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		
+		if(taxes.contains(taxName)) {
+			sender.sendMessage(ChatColor.BLUE + "Percent income: " + conf.getString("taxes." + taxName + ".percentIncome") + "%");
+			sender.sendMessage(ChatColor.BLUE + "Interval: " + conf.getString("taxes." + taxName + ".taxInterval") + " hours");
+			sender.sendMessage(ChatColor.BLUE + "Receiving player: " + conf.getString("taxes." + taxName + ".receiver"));
+		} else {
+			sender.sendMessage(ChatColor.RED + "No tax, " + taxName);
+		}
+		
+		return;
 	}
 	
 	public void listTaxes(CommandSender sender) {
