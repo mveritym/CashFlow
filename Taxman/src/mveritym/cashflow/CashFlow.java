@@ -10,11 +10,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.util.config.Configuration;
+//import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-
-//import org.anjocaido.groupmanager.dataholder.worlds.WorldsHolder;
 
 import com.nijikokun.cashflowregister.payment.Method;
 import com.nijikokun.cashflowregister.payment.Methods;
@@ -25,7 +24,6 @@ public class CashFlow extends JavaPlugin{
 	public Logger log = Logger.getLogger("Minecraft");
 	public PluginDescriptionFile info = null;
 	public PluginManager pluginManager = null;
-	//private WorldsHolder worldsHolder;
 	private TaxManager taxManager = new TaxManager(this);
 	public Methods Methods = null;
 	public Method Method = null;
@@ -35,6 +33,8 @@ public class CashFlow extends JavaPlugin{
 		config.save();
 		info = getDescription();
 		pluginManager = getServer().getPluginManager();
+		
+		//initPermissions();
 		
 		pluginManager.registerEvent(Event.Type.PLUGIN_ENABLE, new server(this), Priority.Monitor, this);
         pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, new server(this), Priority.Monitor, this);
@@ -53,7 +53,8 @@ public class CashFlow extends JavaPlugin{
 		
 		if(sender instanceof Player) {
 			senderPlayer = (Player) sender;
-			System.out.println(senderPlayer.isPermissionSet("cashflow." + cmd.getName()));
+			log.info("hasPermission: " + senderPlayer.hasPermission("cashflow." + cmd.getName()));
+			log.info("isOp:" + senderPlayer.isOp());
 			if(senderPlayer.isOp() || senderPlayer.hasPermission("cashflow." + cmd.getName())) {
 				playerCanDo = true;
 				log.info("playerCanDo: " + playerCanDo);
@@ -107,4 +108,18 @@ public class CashFlow extends JavaPlugin{
 		sender.sendMessage(ChatColor.RED + "You are not allowed to use that command.");
 	    return false;
 	}
+	
+	/*
+	private boolean initPermissions() {
+        Plugin test = this.getServer().getPluginManager().getPlugin("SomePermissionsPlugin");
+        if(test != null) {
+        	log.info("Permissons plugin found!");
+        	return true;
+        } else {
+        	log.info(" not found!");
+        	this.getPluginLoader().disablePlugin(this);
+        	return false;
+        }
+    }
+    */
 }

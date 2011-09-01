@@ -35,26 +35,6 @@ public class TaxManager {
             TaxManager.uconf = new Configuration(confFile);
             uconf.save();
         }
-        
-        /*
-        f = new File(TaxManager.cashFlow.getDataFolder(), "taxData.bin");
-        
-        if (f.exists()) {
-        	TaxManager.cashFlow.log.info("Loading CashFlow tax data.");
-        	try {
-				taxes = (HashMap<String, String[]>)SLAPI.load("taxData.bin");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-        } else {
-        	TaxManager.cashFlow.log.info("No CashFlow tax data found. Creating data file.");
-        	try {
-				SLAPI.save(taxes, "plugins/CashFlow/taxData.bin");
-			} catch (Exception e) {
-				e.printStackTrace();
-			} 
-        }
-        */
     }
     
     public void loadConf() {
@@ -102,8 +82,10 @@ public class TaxManager {
 		conf.setProperty("taxes.list", taxes);
 		conf.setProperty("taxes." + taxName + ".percentIncome", percentIncome);
 		conf.setProperty("taxes." + taxName + ".taxInterval", taxInterval);
-		conf.setProperty("taxes." + taxName + ".receiver", receiver);
+		conf.setProperty("taxes." + taxName + ".receiver", taxReceiver);
+		TaxManager.cashFlow.log.info("GETTING HERE");
 		conf.save();		
+		TaxManager.cashFlow.log.info("WOOHOO MADE IT!");
 		
 		TaxManager.cashFlow.log.info("New tax " + taxName + " created successfully.");
 		sender.sendMessage(ChatColor.GREEN + "New tax " + taxName + " created successfully.");
