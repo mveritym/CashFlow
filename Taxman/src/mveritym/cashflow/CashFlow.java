@@ -10,10 +10,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.util.config.Configuration;
-//import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import ru.tehkode.permissions.PermissionManager;
+import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 import com.nijikokun.cashflowregister.payment.Method;
 import com.nijikokun.cashflowregister.payment.Methods;
@@ -34,8 +36,6 @@ public class CashFlow extends JavaPlugin{
 		info = getDescription();
 		pluginManager = getServer().getPluginManager();
 		
-		//initPermissions();
-		
 		pluginManager.registerEvent(Event.Type.PLUGIN_ENABLE, new server(this), Priority.Monitor, this);
         pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, new server(this), Priority.Monitor, this);
         
@@ -53,15 +53,11 @@ public class CashFlow extends JavaPlugin{
 		
 		if(sender instanceof Player) {
 			senderPlayer = (Player) sender;
-			log.info("hasPermission: " + senderPlayer.hasPermission("cashflow." + cmd.getName()));
-			log.info("isOp:" + senderPlayer.isOp());
-			if(senderPlayer.isOp() || senderPlayer.hasPermission("cashflow." + cmd.getName())) {
+			if(senderPlayer.isOp() || checkPermission(senderPlayer, "cashflow." + cmd.getName())) {
 				playerCanDo = true;
-				log.info("playerCanDo: " + playerCanDo);
 			}
 		} else if (sender instanceof ConsoleCommandSender) {			
 			isConsole = true;
-			log.info("isConsole: " + isConsole);
 		}
 		
 		CashFlowCommands execCmd = CashFlowCommands.valueOf(cmd.getName());
@@ -109,17 +105,32 @@ public class CashFlow extends JavaPlugin{
 	    return false;
 	}
 	
-	/*
-	private boolean initPermissions() {
-        Plugin test = this.getServer().getPluginManager().getPlugin("SomePermissionsPlugin");
-        if(test != null) {
-        	log.info("Permissons plugin found!");
-        	return true;
+	private boolean checkPermission(Player player, String permissionNode) {        
+        if(this.getServer().getPluginManager().isPluginEnabled("PermissionsEx")){
+            PermissionManager permissions = PermissionsEx.getPermissionManager();
+            if(permissions.has(player, permissionNode)){
+            	return true;
+            } else {
+            	return false;
+            }
+        } else if(this.getServer().getPluginManager().isPluginEnabled("PermissionsBukkit")) {
+           if(player.hasPermission(permissionNode)) {
+        	   return true;
+           } else {
+        	   return false;
+           }
+        } else if(this.getServer().getPluginManager().isPluginEnabled("bPermissions")) {
+        	if(player.hasPermission(permissionNode)) {
+        		return true;
+        	} else {
+        		return false;
+        	}
         } else {
-        	log.info(" not found!");
+        	log.info("No permissions plugin detected. Disabling plugin.");
         	this.getPluginLoader().disablePlugin(this);
         	return false;
         }
-    }
-    */
+
+        
+    }	
 }

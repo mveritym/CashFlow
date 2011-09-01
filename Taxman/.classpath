@@ -14,5 +14,7 @@
 	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/lib/iCo4.jar"/>
 	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/lib/iCo5.jar"/>
 	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-af7bef3/lib/iCo6.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Downloads/PermissionsEx.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Downloads/bPermissions-1.2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
