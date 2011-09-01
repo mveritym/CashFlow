@@ -1,6 +1,8 @@
 package mveritym.cashflow;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -57,22 +59,28 @@ public class TaxManager {
 	public void createTax(CommandSender sender, String name, String percentOfBal, String interval, String taxReceiver) {
 		TaxManager.cashFlow.log.info("Creating new tax " + name + ".");
 		String taxName = name;
-		double percentIncome = Double.parseDouble(percentOfBal);
+		double percentIncome = Double.parseDouble(percentOfBal.split("%")[0]);
 		double taxInterval = Double.parseDouble(interval);
 		
 		loadConf();
 		taxes = conf.getStringList("taxes.list", null);
 		iterator = taxes.listIterator();
 		
-		if(!checkArguments()) {
+		if(percentIncome > 100 || percentIncome <= 0) {
+			sender.sendMessage(ChatColor.RED + "Please choose a % of income between 0 and 100");
 			return;
-		}
-		
-		while(iterator.hasNext()) {
-			if(iterator.next().equals(taxName)) {
-				sender.sendMessage(ChatColor.RED + "A tax with that name has already been created.");
-				TaxManager.cashFlow.log.info("Failed to create new tax - tax already exists.");
-				return;
+		} else if(taxInterval <= 0) {
+			sender.sendMessage(ChatColor.RED + "Please choose a tax interval greater than 0.");
+			return;
+		} else if(!isPlayer(taxReceiver)) {
+			sender.sendMessage(ChatColor.RED + "Player not found.");
+			return;
+		} else {
+			while(iterator.hasNext()) {
+				if(iterator.next().equals(taxName)) {
+					sender.sendMessage(ChatColor.RED + "A tax with that name has already been created.");
+					return;
+				}
 			}
 		}
 		
@@ -136,7 +144,18 @@ public class TaxManager {
 		}
 	}
 	
-	public boolean checkArguments() {
+	@SuppressWarnings("unused")
+	public boolean isPlayer(String playerName) {
+		if(TaxManager.cashFlow.getServer().getPlayer(playerName) != null) {
+			return true;
+		} else {
+			try {
+				FileInputStream test = new FileInputStream("world/players/" + playerName + ".dat");
+			} catch (FileNotFoundException e) {
+				return false;
+			}
+		}
 		return true;
 	}
+	
 }
