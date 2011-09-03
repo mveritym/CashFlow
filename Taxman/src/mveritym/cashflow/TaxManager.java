@@ -16,10 +16,12 @@ public class TaxManager {
     protected static Configuration uconf;
     protected File confFile;
     List<String> taxes;
+    List<String> payingGroups;
     ListIterator<String> iterator;
     
 	public TaxManager(CashFlow cashFlow) {
     	TaxManager.cashFlow = cashFlow;
+    	
     	conf = null;
     	
     	loadConf();
@@ -42,12 +44,11 @@ public class TaxManager {
     	File f = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
 
         if (f.exists()) {
-        	TaxManager.cashFlow.log.info("CashFlow config file loaded.");
         	conf = new Configuration(f);
         	conf.load();
         }
         else {
-        	TaxManager.cashFlow.log.info("No CashFlow config file found. Creating config file.");
+        	System.out.println("No CashFlow config file found. Creating config file.");
         	this.confFile = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
             TaxManager.conf = new Configuration(confFile);  
             List<String> tempList = null;
@@ -57,10 +58,10 @@ public class TaxManager {
     }
     
 	public void createTax(CommandSender sender, String name, String percentOfBal, String interval, String taxReceiver) {
-		TaxManager.cashFlow.log.info("Creating new tax " + name + ".");
 		String taxName = name;
 		double percentIncome = Double.parseDouble(percentOfBal.split("%")[0]);
 		double taxInterval = Double.parseDouble(interval);
+		List<String> payingGroups = null;
 		
 		loadConf();
 		taxes = conf.getStringList("taxes.list", null);
@@ -89,9 +90,9 @@ public class TaxManager {
 		conf.setProperty("taxes." + taxName + ".percentIncome", percentIncome);
 		conf.setProperty("taxes." + taxName + ".taxInterval", taxInterval);
 		conf.setProperty("taxes." + taxName + ".receiver", taxReceiver);
+		conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
 		conf.save();
-		
-		TaxManager.cashFlow.log.info("New tax " + taxName + " created successfully.");
+	
 		sender.sendMessage(ChatColor.GREEN + "New tax " + taxName + " created successfully.");
 	}
 	
@@ -123,6 +124,7 @@ public class TaxManager {
 			sender.sendMessage(ChatColor.BLUE + "Percent income: " + conf.getString("taxes." + taxName + ".percentIncome") + "%");
 			sender.sendMessage(ChatColor.BLUE + "Interval: " + conf.getString("taxes." + taxName + ".taxInterval") + " hours");
 			sender.sendMessage(ChatColor.BLUE + "Receiving player: " + conf.getString("taxes." + taxName + ".receiver"));
+			sender.sendMessage(ChatColor.BLUE + "Paying groups: " + conf.getStringList("taxes." + taxName + ".payingGroups", null));
 		} else {
 			sender.sendMessage(ChatColor.RED + "No tax, " + taxName);
 		}
@@ -156,6 +158,42 @@ public class TaxManager {
 			}
 		}
 		return true;
+	}
+
+	public void addTaxpayer(CommandSender sender, String taxName, String groupName) {
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		payingGroups = conf.getStringList("taxes." + taxName + ".payingGroups", null);
+		
+		if(!(taxes.contains(taxName))) {
+			sender.sendMessage(ChatColor.RED + "Tax not found.");
+		} else if(!(TaxManager.cashFlow.permsManager.isGroup(groupName))){
+			sender.sendMessage(ChatColor.RED + "Group not found.");
+		} else {
+			sender.sendMessage(ChatColor.GREEN + taxName + " applied successfully to " + groupName);
+			payingGroups.add(groupName);
+			conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
+			conf.save();
+		}
+		
+		return;
+	}
+	
+	public void removeTaxpayer(CommandSender sender, String taxName, String groupName) {
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		payingGroups = conf.getStringList("taxes." + taxName + ".payingGroups", null);
+		
+		if(!(taxes.contains(taxName))) {
+			sender.sendMessage(ChatColor.RED + "Tax not found.");
+		} else if(!(payingGroups.contains(groupName))) {
+			sender.sendMessage(ChatColor.RED + "Group not found.");
+		} else {
+			sender.sendMessage(ChatColor.GREEN + taxName + " removed successfully from " + groupName);
+			payingGroups.remove(groupName);
+			conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
+			conf.save();
+		}
 	}
 	
 }

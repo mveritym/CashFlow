@@ -2,6 +2,11 @@ name: CashFlow
 main: mveritym.cashflow.CashFlow
 version: 0.1
 commands:
+   addtaxpayer:
+      description: Applies specified tax to a group.
+      permission: cashflow.basic
+      usage: |
+           /addtaxpayer <tax name> <group name>
    createtax:
       description: Creates a tax.
       permission: cashflow.basic
@@ -17,6 +22,11 @@ commands:
       permission: cashflow.basic
       usage: |
            /listtaxes
+   removetaxpayer:
+      description: Removes a specified tax from a group.
+      permission: cashflow.basic
+      usage: |
+           /addtaxpayer <tax name> <group name>
    taxinfo:
       description: Lists information about the specified tax.
       permission: cashflow.basic
@@ -26,10 +36,15 @@ permissions:
     cashflow.*:
         description: Allows access to all cashflow commands.
         children:
+            cashflow.addtaxpayer: true
             cashflow.createtax: true
             cashflow.deletetax: true
             cashflow.listtax: true
+            cashflow.removetaxpayer: true
             cashflow.taxinfo: true
+        default: false
+    cashflow.applytax:
+        description: Allows you to apply a tax to a group.
         default: false
     cashflow.createtax:
         description: Allows you to create a tax.
@@ -39,6 +54,9 @@ permissions:
         default: false
     cashflow.listtaxes:
         description: Allows you to see a list of all taxes.
+        default: false
+    cashflow.removetaxpayer:
+        description: Allows you to remove a tax from a group.
         default: false
     cashflow.taxinfo:
         description: Allows you to see information about a specific tax.
