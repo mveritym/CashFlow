@@ -3,8 +3,12 @@ package mveritym.cashflow;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Timer;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -18,6 +22,8 @@ public class TaxManager {
     List<String> taxes;
     List<String> payingGroups;
     ListIterator<String> iterator;
+    Timer timer = new Timer();
+    Collection<Taxer> taxTasks = new ArrayList<Taxer>();
     
 	public TaxManager(CashFlow cashFlow) {
     	TaxManager.cashFlow = cashFlow;
@@ -91,6 +97,7 @@ public class TaxManager {
 		conf.setProperty("taxes." + taxName + ".taxInterval", taxInterval);
 		conf.setProperty("taxes." + taxName + ".receiver", taxReceiver);
 		conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
+		conf.setProperty("taxes." + taxName + ".lastPaid", null);
 		conf.save();
 	
 		sender.sendMessage(ChatColor.GREEN + "New tax " + taxName + " created successfully.");
@@ -167,9 +174,13 @@ public class TaxManager {
 		
 		if(!(taxes.contains(taxName))) {
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
-		} else if(!(TaxManager.cashFlow.permsManager.isGroup(groupName))){
+		}
+		/*
+		else if(!(TaxManager.cashFlow.permsManager.isGroup(groupName))){
 			sender.sendMessage(ChatColor.RED + "Group not found.");
-		} else {
+		}
+		*/ 
+		else {
 			sender.sendMessage(ChatColor.GREEN + taxName + " applied successfully to " + groupName);
 			payingGroups.add(groupName);
 			conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
@@ -193,6 +204,39 @@ public class TaxManager {
 			payingGroups.remove(groupName);
 			conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
 			conf.save();
+		}
+	}
+
+	public void startTax() {		
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		Double hours;
+		Date lastPaid;
+		
+		for(String taxName : taxes) {
+			hours = Double.parseDouble(conf.getString("taxes." + taxName + ".taxInterval"));
+			lastPaid = (Date) conf.getProperty("taxes." + taxName + ".lastPaid");
+			System.out.println(conf.getProperty("taxes." + taxName + ".lastPaid"));
+			Taxer taxer = new Taxer(this, taxName, hours, lastPaid);
+			taxTasks.add(taxer);
+		}
+	}
+	
+	public void payTax(String taxName) {
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		
+		conf.setProperty("taxes." + taxName + ".lastPaid", new Date());
+		System.out.println(conf.getProperty("taxes." + taxName + ".lastPaid"));
+		conf.save();
+		
+		
+		System.out.println(taxName);
+	}
+	
+	public void disableTax() {
+		for(Taxer taxTask : taxTasks) {
+			//taxTask.TaxTask.cancel();
 		}
 	}
 	

@@ -118,6 +118,22 @@ public class CashFlow extends JavaPlugin{
 						sender.sendMessage(ChatColor.RED + "Not enough arguments.");
 						return false;
 					}
+				case disabletaxes:
+					if(args.length == 0) {
+						taxManager.disableTax();
+						return true;
+					} else {
+						sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+						return false;
+					}
+				case enabletaxes:
+					if(args.length == 0) {
+						taxManager.startTax();
+						return true;
+					} else {
+						sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+						return false;
+					}
 				case listtaxes:
 					if(args.length != 0) {
 						sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
@@ -133,7 +149,7 @@ public class CashFlow extends JavaPlugin{
 					} else {
 						sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
 						return false;
-					} 
+					}				
 				case taxinfo:
 					if(args.length == 1) {
 						taxManager.taxInfo(sender, args[0]);

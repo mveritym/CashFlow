@@ -90,7 +90,6 @@ public class PermissionsManager {
 	
 	public boolean isGroup(String groupName) {
 		if(pluginName.equals("PermissionsEx")) {
-			System.out.println(pm.getGroup(groupName));
 			if(pm.getGroup(groupName) != null) {
 				return true;
 			} else {

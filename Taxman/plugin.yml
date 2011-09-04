@@ -17,6 +17,16 @@ commands:
       permission: cashflow.basic
       usage: |
            /deletetax <tax name>
+   disabletaxes:
+      description: Stops taxes from being paid.
+      permission: cashflow.basic
+      usage: |
+           /disabletaxes
+   enabletaxes:
+      description: Begins paying out taxes at the specified intervals.
+      permission: cashflow.basic
+      usage: |
+           /enabletaxes
    listtaxes:
       description: Lists each tax.
       permission: cashflow.basic
@@ -39,6 +49,8 @@ permissions:
             cashflow.addtaxpayer: true
             cashflow.createtax: true
             cashflow.deletetax: true
+            cashflow.disabletax: true
+            cashflow.enabletax: true
             cashflow.listtax: true
             cashflow.removetaxpayer: true
             cashflow.taxinfo: true
@@ -51,6 +63,12 @@ permissions:
         default: false
     cashflow.deletetax:
         description: Allows you to delete a tax.
+        default: false
+    cashflow.disabletax:
+        description: Allows you to disable tax paying.
+        default: false
+    cashflow.enabletax:
+        description: Allows you to enable tax paying.
         default: false
     cashflow.listtaxes:
         description: Allows you to see a list of all taxes.
