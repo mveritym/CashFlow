@@ -150,6 +150,33 @@ public class CommandManager {
 					sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
 					return false;
 				}
+			case delete:
+				if(args.length == 1) {
+					salaryManager.deleteSalary(sender, args[0]);
+					return true;
+				} else if(args.length > 1) {
+					sender.sendMessage(ChatColor.RED + "Too many arguments.");
+					return false;
+				} else {
+					sender.sendMessage(ChatColor.RED + "Not enough arguments.");
+					return false;
+				}
+			case list:
+				if(args.length != 0) {
+					sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
+					return false;
+				} else {
+					salaryManager.listSalaries(sender);
+					return true;
+				}	
+			case info:
+				if(args.length == 1) {
+					salaryManager.salaryInfo(sender, args[0]);
+					return true;
+				} else {
+					sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+					return false;
+				}
 			default:
 				return false;
 		}

@@ -19,6 +19,9 @@ commands:
       usage: |
           Usage:
           /<command> create <salaryname> <salary> <interval> [employer] - Creates a salary
+          /<command> delete <salaryname> - Deletes a salary
+          /<command> list - Lists each salary
+          /<command> info <salaryname> - Lists information about a salary
     enable:
       description: Starts timers for each tax and salary.
       permission: cashflow.enable

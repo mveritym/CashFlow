@@ -87,4 +87,55 @@ public class SalaryManager {
 	
 		sender.sendMessage(ChatColor.GREEN + "New salary " + salaryName + " created successfully.");
 	}
+	
+	public void deleteSalary(CommandSender sender, String name) {
+		String salaryName = name;
+		
+		loadConf();
+		salaries = conf.getStringList("salaries.list", null);
+		
+		if(salaries.contains(salaryName)) {
+			salaries.remove(salaryName);
+			conf.setProperty("salaries.list", salaries);
+			conf.removeProperty("salaries." + salaryName);
+			conf.save();
+			
+			sender.sendMessage(ChatColor.GREEN + "Salary " + salaryName + " deleted successfully.");
+		} else {
+			sender.sendMessage(ChatColor.RED + "No salary, " + salaryName);
+		}
+		
+		return;
+	}
+	
+	public void salaryInfo(CommandSender sender, String salaryName) {
+		loadConf();
+		salaries = conf.getStringList("salaries.list", null);
+		
+		if(salaries.contains(salaryName)) {
+			sender.sendMessage(ChatColor.BLUE + "Salary: " + conf.getString("salaries." + salaryName + ".salary"));
+			sender.sendMessage(ChatColor.BLUE + "Interval: " + conf.getString("salaries." + salaryName + ".salaryInterval") + " hours");
+			sender.sendMessage(ChatColor.BLUE + "Receiving player: " + conf.getString("salaries." + salaryName + ".employer"));
+			sender.sendMessage(ChatColor.BLUE + "Paying groups: " + conf.getStringList("salaries." + salaryName + ".paidGroups", null));
+			sender.sendMessage(ChatColor.BLUE + "Excepted users: " + conf.getStringList("salaries." + salaryName + ".exceptedPlayers", null));
+		} else {
+			sender.sendMessage(ChatColor.RED + "No salary, " + salaryName + ", found.");
+		}
+		
+		return;
+	}
+	
+	public void listSalaries(CommandSender sender) {
+		loadConf();
+		salaries = conf.getStringList("salaries.list", null);
+		iterator = salaries.listIterator();
+		
+		if(salaries.size() != 0) {
+			while(iterator.hasNext()) {
+				sender.sendMessage(ChatColor.BLUE + iterator.next());
+			}
+		} else {
+			sender.sendMessage(ChatColor.RED + "No salaries to list.");
+		}
+	}
 }
