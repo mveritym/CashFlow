@@ -3,13 +3,17 @@ package mveritym.cashflow;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Timer;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
+
+import com.nijikokun.cashflowregister.payment.Method.MethodAccount;
 
 public class SalaryManager {
 	
@@ -21,7 +25,7 @@ public class SalaryManager {
     List<String> paidGroups;
     ListIterator<String> iterator;
     Timer timer = new Timer();
-    //Collection<Taxer> taxTasks = new ArrayList<Taxer>();
+    Collection<Taxer> salaryTasks = new ArrayList<Taxer>();
 
 	public SalaryManager(CashFlow cashFlow) {
 		conf = null;
@@ -136,6 +140,143 @@ public class SalaryManager {
 			}
 		} else {
 			sender.sendMessage(ChatColor.RED + "No salaries to list.");
+		}
+	}
+	
+	public void applySalary(CommandSender sender, String salaryName, String groupName) {
+		loadConf();
+		salaries = conf.getStringList("salaries.list", null);
+		paidGroups = conf.getStringList("salaries." + salaryName + ".paidGroups", null);
+		
+		if(!(salaries.contains(salaryName))) {
+			sender.sendMessage(ChatColor.RED + "Salary not found.");
+		}
+		/*
+		else if(!(SalaryManager.cashFlow.permsManager.isGroup(groupName))){
+			sender.sendMessage(ChatColor.RED + "Group not found.");
+		}
+		*/ 
+		else {
+			sender.sendMessage(ChatColor.GREEN + salaryName + " applied successfully to " + groupName);
+			paidGroups.add(groupName);
+			conf.setProperty("salaries." + salaryName + ".paidGroups", paidGroups);
+			conf.save();
+		}
+		
+		return;
+	}
+	
+	public void removeSalary(CommandSender sender, String salaryName, String groupName) {
+		loadConf();
+		salaries = conf.getStringList("salaries.list", null);
+		paidGroups = conf.getStringList("taxes." + salaryName + ".payingGroups", null);
+		
+		if(!(salaries.contains(salaryName))) {
+			sender.sendMessage(ChatColor.RED + "Salary not found.");
+		} else if(!(paidGroups.contains(groupName))) {
+			sender.sendMessage(ChatColor.RED + "Group not found.");
+		} else {
+			sender.sendMessage(ChatColor.GREEN + salaryName + " removed successfully from " + groupName);
+			paidGroups.remove(groupName);
+			conf.setProperty("salaries." + salaryName + ".paidGroups", paidGroups);
+			conf.save();
+		}
+		
+		return;
+	}
+	
+	public void enable() {		
+		loadConf();
+		salaries = conf.getStringList("salaries.list", null);
+		Double hours;
+		Date lastPaid;
+		
+		for(String salaryName : salaries) {
+			hours = Double.parseDouble(conf.getString("salaries." + salaryName + ".salaryInterval"));
+			lastPaid = (Date) conf.getProperty("salaries." + salaryName + ".lastPaid");
+			System.out.println(conf.getProperty("salaries." + salaryName + ".lastPaid"));
+			Taxer taxer = new Taxer(this, salaryName, hours, lastPaid);
+			salaryTasks.add(taxer);
+		}
+	}
+	
+	public void disable() {
+		for(Taxer salaryTask : salaryTasks) {
+			salaryTask.cancel();
+		}
+	}
+	
+	public void addException(CommandSender sender, String salaryName, String userName) {
+		loadConf();
+		salaries = conf.getStringList("salaries.list", null);
+		List<String> exceptedPlayers = conf.getStringList("salaries." + salaryName + ".exceptedPlayers", null);
+		
+		if(!(salaries.contains(salaryName))) {
+			sender.sendMessage(ChatColor.RED + "Salary not found.");
+		} else if(salaries.contains(userName)) {
+			sender.sendMessage(ChatColor.RED + userName + " is already listed as excepted.");
+		} else {
+			sender.sendMessage(ChatColor.GREEN + userName + " added as an exception.");
+			exceptedPlayers.add(userName);
+			conf.setProperty("salaries." + salaryName + ".exceptedPlayers", exceptedPlayers);
+			conf.save();
+		}
+		
+		return;
+	}
+	
+	public void removeException(CommandSender sender, String salaryName, String userName) {
+		loadConf();
+		salaries = conf.getStringList("salaries.list", null);
+		List<String> exceptedPlayers = conf.getStringList("salaries." + salaryName + ".exceptedPlayers", null);
+		
+		if(!(salaries.contains(salaryName))) {
+			sender.sendMessage(ChatColor.RED + "Salary not found.");
+		} else if(!(exceptedPlayers.contains(userName))) {
+			sender.sendMessage(ChatColor.RED + "Player not found.");
+		} else {
+			sender.sendMessage(ChatColor.GREEN + userName + " removed as an exception.");
+			exceptedPlayers.remove(userName);
+			conf.setProperty("salaries." + salaryName + ".exceptedPlayers", exceptedPlayers);
+			conf.save();
+		}
+	}
+	
+	public void paySalary(String salaryName) {
+		System.out.println("Paying salary " + salaryName);
+		
+		loadConf();
+		salaries = conf.getStringList("salaries.list", null);
+		
+		conf.setProperty("salaries." + salaryName + ".lastPaid", new Date());
+		conf.save();
+		
+		List<String> groups = conf.getStringList("salaries." + salaryName + ".paidGroups", null);
+		List<String> exceptedPlayers = conf.getStringList("salaries." + salaryName + ".exceptedPlayers", null);
+		Double salary = Double.parseDouble(conf.getString("salaries." + salaryName + ".salary"));
+		String employer = conf.getString("salaries." + salaryName + ".employer");
+		
+		List<String> users = SalaryManager.cashFlow.permsManager.getUsers(groups, exceptedPlayers);
+		for(String user : users) {
+			if(SalaryManager.cashFlow.Method.hasAccount(user)) {
+				MethodAccount userAccount = SalaryManager.cashFlow.Method.getAccount(user);
+				userAccount.add(salary);
+				Player player = SalaryManager.cashFlow.getServer().getPlayer(user);
+				if(player != null) {
+					String message = "You have received $" + salary + " for your salary";
+					if(employer.equals("null")) {
+						message += ".";
+					} else {
+						message += " from " + employer + ".";
+					}
+					player.sendMessage(ChatColor.BLUE + message);
+				}
+				
+				if(!(employer.equals("null"))) {
+					MethodAccount employerAccount = SalaryManager.cashFlow.Method.getAccount(employer);
+					employerAccount.subtract(salary);
+				}
+			}
 		}
 	}
 }

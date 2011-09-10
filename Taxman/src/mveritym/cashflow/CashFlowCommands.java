@@ -11,6 +11,8 @@ public enum CashFlowCommands {
 	delete,
 	apply,
 	remove,
+	addexception,
+	removeexception,
 	list,
 	info
 }

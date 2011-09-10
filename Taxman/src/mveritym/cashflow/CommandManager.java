@@ -85,6 +85,22 @@ public class CommandManager {
 				sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
 				return false;
 			}
+		case addexception:
+			if(args.length == 2) {
+				taxManager.addException(sender, args[0], args[1]);
+				return true;
+			} else {
+				sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+				return false;
+			}
+		case removeexception:
+			if(args.length == 2) {
+				taxManager.removeException(sender, args[0], args[1]);
+				return true;
+			} else {
+				sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+				return false;
+			}
 		case list:
 			if(args.length != 0) {
 				sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
@@ -161,6 +177,38 @@ public class CommandManager {
 					sender.sendMessage(ChatColor.RED + "Not enough arguments.");
 					return false;
 				}
+			case apply:
+				if(args.length == 2) {
+					salaryManager.applySalary(sender, args[0], args[1]);
+					return true;
+				} else {
+					sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+					return false;
+				}
+			case remove:
+				if(args.length == 2) {
+					salaryManager.removeSalary(sender, args[0], args[1]);
+					return true;
+				} else {
+					sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+					return false;
+				}
+			case addexception:
+				if(args.length == 2) {
+					salaryManager.addException(sender, args[0], args[1]);
+					return true;
+				} else {
+					sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+					return false;
+				}
+			case removeexception:
+				if(args.length == 2) {
+					salaryManager.removeException(sender, args[0], args[1]);
+					return true;
+				} else {
+					sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+					return false;
+				}
 			case list:
 				if(args.length != 0) {
 					sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
@@ -184,14 +232,18 @@ public class CommandManager {
 	
 	public void enable() {
 		taxManager.enable();
+		salaryManager.enable();
 	}
 	
 	public void disable() {
 		taxManager.disable();
+		salaryManager.disable();
 	}
 	
 	public void restart() {
 		taxManager.disable();
+		salaryManager.disable();
 		taxManager.enable();
+		salaryManager.enable();
 	}
 }

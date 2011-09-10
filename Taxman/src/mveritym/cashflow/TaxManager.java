@@ -246,9 +246,39 @@ public class TaxManager {
 		}
 	}
 	
-	public void reload() {
-		disable();
-		enable();
+	public void addException(CommandSender sender, String taxName, String userName) {
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers", null);
+		
+		if(!(taxes.contains(taxName))) {
+			sender.sendMessage(ChatColor.RED + "Tax not found.");
+		} else if(taxes.contains(userName)) {
+			sender.sendMessage(ChatColor.RED + userName + " is already listed as excepted.");
+		} else {
+			sender.sendMessage(ChatColor.GREEN + userName + " added as an exception.");
+			exceptedPlayers.add(userName);
+			conf.setProperty("taxes." + taxName + ".exceptedPlayers", exceptedPlayers);
+			conf.save();
+		}
+		
+		return;
 	}
 	
+	public void removeException(CommandSender sender, String taxName, String userName) {
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + "exceptedPlayers", null);
+		
+		if(!(taxes.contains(taxName))) {
+			sender.sendMessage(ChatColor.RED + "Tax not found.");
+		} else if(!(exceptedPlayers.contains(userName))) {
+			sender.sendMessage(ChatColor.RED + "Player not found.");
+		} else {
+			sender.sendMessage(ChatColor.GREEN + userName + " removed as an exception.");
+			exceptedPlayers.remove(userName);
+			conf.setProperty("taxes." + taxName + ".exceptedPlayers", exceptedPlayers);
+			conf.save();
+		}
+	}
 }

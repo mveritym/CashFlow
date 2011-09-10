@@ -11,6 +11,8 @@ commands:
            /<command> delete <taxname> - Deletes a tax
            /<command> apply <taxname> <groupname> - Applies a group to a tax
            /<command> remove <taxname> <groupname> - Removes a group from a tax
+           /<command> addexception <taxname> <playername> - Adds the player as an exception (case sensitive!)
+           /<command> removeexception <taxname> <playername> - Removes the player as an exception (case sensitive!)
            /<command> list - Lists each tax
            /<command> info <taxname> - Lists information about a tax
     salary:
@@ -20,6 +22,10 @@ commands:
           Usage:
           /<command> create <salaryname> <salary> <interval> [employer] - Creates a salary
           /<command> delete <salaryname> - Deletes a salary
+          /<command> apply <salaryname> <groupname> - Applies a group to a salary
+          /<command> remove <salaryname> <groupname> - Removes a group from a salary
+          /<command> addexception <taxname> <playername> - Adds the player as an exception
+          /<command> removeexception <taxname> <playername> - Removes the player as an exception
           /<command> list - Lists each salary
           /<command> info <salaryname> - Lists information about a salary
     enable:
