@@ -12,7 +12,10 @@ import java.util.Timer;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
+
+import com.nijikokun.cashflowregister.payment.Method.MethodAccount;
 
 public class TaxManager {
 	protected static CashFlow cashFlow;
@@ -31,19 +34,7 @@ public class TaxManager {
     	conf = null;
     	
     	loadConf();
-    	taxes = conf.getStringList("taxes.list", null);    	
-        
-        File f = new File(TaxManager.cashFlow.getDataFolder(), "users.yml");
-        
-        if (f.exists()) {
-            uconf = new Configuration(f);
-            uconf.load();
-        }
-        else {
-            this.confFile = new File(TaxManager.cashFlow.getDataFolder(), "users.yml");
-            TaxManager.uconf = new Configuration(confFile);
-            uconf.save();
-        }
+    	taxes = conf.getStringList("taxes.list", null);
     }
     
     public void loadConf() {
@@ -79,7 +70,7 @@ public class TaxManager {
 		} else if(taxInterval <= 0) {
 			sender.sendMessage(ChatColor.RED + "Please choose a tax interval greater than 0.");
 			return;
-		} else if(!isPlayer(taxReceiver)) {
+		} else if(!TaxManager.cashFlow.isPlayer(taxReceiver) && !(taxReceiver.equals("null"))) {
 			sender.sendMessage(ChatColor.RED + "Player not found.");
 			return;
 		} else {
@@ -98,6 +89,7 @@ public class TaxManager {
 		conf.setProperty("taxes." + taxName + ".receiver", taxReceiver);
 		conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
 		conf.setProperty("taxes." + taxName + ".lastPaid", null);
+		conf.setProperty("taxes." + taxName + ".exceptedPlayers", null);
 		conf.save();
 	
 		sender.sendMessage(ChatColor.GREEN + "New tax " + taxName + " created successfully.");
@@ -132,6 +124,7 @@ public class TaxManager {
 			sender.sendMessage(ChatColor.BLUE + "Interval: " + conf.getString("taxes." + taxName + ".taxInterval") + " hours");
 			sender.sendMessage(ChatColor.BLUE + "Receiving player: " + conf.getString("taxes." + taxName + ".receiver"));
 			sender.sendMessage(ChatColor.BLUE + "Paying groups: " + conf.getStringList("taxes." + taxName + ".payingGroups", null));
+			sender.sendMessage(ChatColor.BLUE + "Excepted users: " + conf.getStringList("taxes." + taxName + ".exceptedPlayers", null));
 		} else {
 			sender.sendMessage(ChatColor.RED + "No tax, " + taxName);
 		}
@@ -151,20 +144,6 @@ public class TaxManager {
 		} else {
 			sender.sendMessage(ChatColor.RED + "No taxes to list.");
 		}
-	}
-	
-	@SuppressWarnings("unused")
-	public boolean isPlayer(String playerName) {
-		if(TaxManager.cashFlow.getServer().getPlayer(playerName) != null) {
-			return true;
-		} else {
-			try {
-				FileInputStream test = new FileInputStream("world/players/" + playerName + ".dat");
-			} catch (FileNotFoundException e) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	public void addTaxpayer(CommandSender sender, String taxName, String groupName) {
@@ -207,7 +186,7 @@ public class TaxManager {
 		}
 	}
 
-	public void startTax() {		
+	public void enable() {		
 		loadConf();
 		taxes = conf.getStringList("taxes.list", null);
 		Double hours;
@@ -223,21 +202,53 @@ public class TaxManager {
 	}
 	
 	public void payTax(String taxName) {
+		System.out.println("Paying tax " + taxName);
+		
 		loadConf();
 		taxes = conf.getStringList("taxes.list", null);
 		
 		conf.setProperty("taxes." + taxName + ".lastPaid", new Date());
-		System.out.println(conf.getProperty("taxes." + taxName + ".lastPaid"));
 		conf.save();
 		
+		List<String> groups = conf.getStringList("taxes." + taxName + ".payingGroups", null);
+		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers", null);
+		Double percentIncome = Double.parseDouble(conf.getString("taxes." + taxName + ".percentIncome"));
+		String receiver = conf.getString("taxes." + taxName + ".receiver");
 		
-		System.out.println(taxName);
+		List<String> users = TaxManager.cashFlow.permsManager.getUsers(groups, exceptedPlayers);
+		for(String user : users) {
+			if(TaxManager.cashFlow.Method.hasAccount(user)) {
+				MethodAccount userAccount = TaxManager.cashFlow.Method.getAccount(user);
+				Double tax = userAccount.balance() * (percentIncome / 100.0);
+				userAccount.subtract(tax);
+				Player player = TaxManager.cashFlow.getServer().getPlayer(user);
+				if(player != null) {
+					String message = "You have paid $" + tax + " in tax";
+					if(receiver.equals("null")) {
+						message += ".";
+					} else {
+						message += " to " + receiver + ".";
+					}
+					player.sendMessage(ChatColor.BLUE + message);
+				}
+				
+				if(!(receiver.equals("null"))) {
+					MethodAccount receiverAccount = TaxManager.cashFlow.Method.getAccount(receiver);
+					receiverAccount.add(tax);
+				}
+			}
+		}
 	}
 	
-	public void disableTax() {
+	public void disable() {
 		for(Taxer taxTask : taxTasks) {
-			//taxTask.TaxTask.cancel();
+			taxTask.cancel();
 		}
+	}
+	
+	public void reload() {
+		disable();
+		enable();
 	}
 	
 }

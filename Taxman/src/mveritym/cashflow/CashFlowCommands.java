@@ -1,12 +1,16 @@
 package mveritym.cashflow;
 
 public enum CashFlowCommands {
-	addtaxpayer,
-    createtax,
-    deletetax,
-    disabletaxes,
-    enabletaxes,
-    listtaxes,
-    removetaxpayer,
-    taxinfo
+	tax,
+	salary,
+	enable,
+	disable,
+	restart,
+	
+	create,
+	delete,
+	apply,
+	remove,
+	list,
+	info
 }

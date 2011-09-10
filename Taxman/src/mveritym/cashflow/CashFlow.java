@@ -1,5 +1,7 @@
 package mveritym.cashflow;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -22,7 +24,7 @@ public class CashFlow extends JavaPlugin{
 	public Logger log = Logger.getLogger("Minecraft");
 	public PluginDescriptionFile info;
 	public PluginManager pluginManager;
-	private TaxManager taxManager = new TaxManager(this);
+	public CommandManager commandManager;
 	public PermissionsManager permsManager;
 	public Methods Methods = null;
 	public Method Method = null;
@@ -36,16 +38,17 @@ public class CashFlow extends JavaPlugin{
         pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, new server(this), Priority.Monitor, this);
         
         permsManager = new PermissionsManager(this, "world");
+        commandManager = new CommandManager(this);
         
         if(permsManager.pluginDetected()) {
-        	System.out.println(info.getName() + " " + info.getVersion() + " has been enabled.");
+        	System.out.println("[" + info.getName() + "] " + info.getVersion() + " has been enabled.");
         } else {
         	this.getPluginLoader().disablePlugin(this);
         }
 	}
 	
 	public void onDisable() {
-		log.info(info.getName() + " " + info.getVersion() + " has been disabled.");
+		log.info("[" + info.getName() + "] " + info.getVersion() + " has been disabled.");
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
@@ -65,98 +68,40 @@ public class CashFlow extends JavaPlugin{
 		CashFlowCommands execCmd = CashFlowCommands.valueOf(cmd.getName());
 		if(playerCanDo || isConsole) {
 			switch(execCmd) {
-				case addtaxpayer:
-					if(args.length == 2) {
-						taxManager.addTaxpayer(sender, args[0], args[1]);
-						return true;
+				case tax:
+					if(args.length > 0) {
+						return commandManager.taxCommand(sender, args);
 					} else {
-						sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
 						return false;
-					}
-				case createtax:
-					String name;
-					String percentOfBal;
-					String interval;
-					String receiverName;
-					
-					if(args.length == 4) {
-						name = args[0];
-						percentOfBal = args[1];
-						interval = args[2];
-						receiverName = args[3];
-						
-						taxManager.createTax(sender, name, percentOfBal, interval, receiverName);
-						return true;
-					} else if(args.length == 3) {
-						try {
-							@SuppressWarnings("unused")
-							double testDouble = Double.parseDouble(args[2]);
-						} catch (Exception e) {
-							sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
-							return false;
-						}
-						
-						name = args[0];
-						percentOfBal = args[1];
-						interval = args[2];
-						receiverName = "null";
-						
-						taxManager.createTax(sender, name, percentOfBal, interval, receiverName);
-						return true;
+					}					
+				case salary:
+					if(args.length > 0) {
+						return commandManager.salaryCommand(sender, args);
 					} else {
-						sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
 						return false;
-					}
-				case deletetax:
-					if(args.length == 1) {
-						taxManager.deleteTax(sender, args[0]);
-						return true;
-					} else if(args.length > 1) {
-						sender.sendMessage(ChatColor.RED + "Too many arguments.");
-						return false;
-					} else {
-						sender.sendMessage(ChatColor.RED + "Not enough arguments.");
-						return false;
-					}
-				case disabletaxes:
+					}	
+				case enable:
 					if(args.length == 0) {
-						taxManager.disableTax();
+						commandManager.enable();
 						return true;
 					} else {
-						sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
-						return false;
-					}
-				case enabletaxes:
-					if(args.length == 0) {
-						taxManager.startTax();
-						return true;
-					} else {
-						sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
-						return false;
-					}
-				case listtaxes:
-					if(args.length != 0) {
 						sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
 						return false;
-					} else {
-						taxManager.listTaxes(sender);
-						return true;
 					}
-				case removetaxpayer:
-					if(args.length == 2) {
-						taxManager.removeTaxpayer(sender, args[0], args[1]);
+				case disable:
+					if(args.length == 0) {
+						commandManager.disable();
 						return true;
 					} else {
-						sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+						sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
 						return false;
-					}				
-				case taxinfo:
-					if(args.length == 1) {
-						taxManager.taxInfo(sender, args[0]);
+					}
+				case restart:
+					if(args.length == 0) {
+						commandManager.restart();
 						return true;
 					} else {
-						sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
-						return false;
+						sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
 					}
 				default:
 					break;
@@ -164,6 +109,20 @@ public class CashFlow extends JavaPlugin{
 		} 
 		sender.sendMessage(ChatColor.RED + "You are not allowed to use that command.");
 	    return false;
+	}
+	
+	@SuppressWarnings("unused")
+	public boolean isPlayer(String playerName) {
+		if(this.getServer().getPlayer(playerName) != null) {
+			return true;
+		} else {
+			try {
+				FileInputStream test = new FileInputStream("world/players/" + playerName + ".dat");
+			} catch (FileNotFoundException e) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 }
