@@ -3,6 +3,7 @@ package mveritym.cashflow;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -220,6 +221,8 @@ public class TaxManager {
 			if(TaxManager.cashFlow.Method.hasAccount(user)) {
 				MethodAccount userAccount = TaxManager.cashFlow.Method.getAccount(user);
 				Double tax = userAccount.balance() * (percentIncome / 100.0);
+				DecimalFormat twoDForm = new DecimalFormat("#.##");
+				tax = Double.valueOf(twoDForm.format(tax));
 				userAccount.subtract(tax);
 				Player player = TaxManager.cashFlow.getServer().getPlayer(user);
 				if(player != null) {
