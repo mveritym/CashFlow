@@ -271,7 +271,7 @@ public class TaxManager {
 	public void removeException(CommandSender sender, String taxName, String userName) {
 		loadConf();
 		taxes = conf.getStringList("taxes.list", null);
-		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + "exceptedPlayers", null);
+		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers", null);
 		
 		if(!(taxes.contains(taxName))) {
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
