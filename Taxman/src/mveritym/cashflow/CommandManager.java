@@ -230,20 +230,60 @@ public class CommandManager {
 		}
 	}
 	
-	public void enable() {
-		taxManager.enable();
-		salaryManager.enable();
+	public boolean cashflowCommand(CommandSender sender, String[] tempArgs) {
+		CashFlowCommands cmd = CashFlowCommands.valueOf(tempArgs[0]);
+		
+		String args[] = new String[tempArgs.length - 1];
+		for(int i = 1; i < tempArgs.length; i++) {
+			args[i-1] = tempArgs[i];
+		}
+		
+		switch(cmd) {
+			case enable:
+				if(args.length == 0) {
+					taxManager.enable();
+					salaryManager.enable();
+					sender.sendMessage(ChatColor.GREEN + "Taxes and salaries enabled.");
+					return true;
+				} else {
+					sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
+					return false;
+				}
+			case disable:
+				if(args.length == 0) {
+					taxManager.disable();
+					salaryManager.disable();
+					sender.sendMessage(ChatColor.GREEN + "Taxes and salaries disabled.");
+					return true;
+				} else {
+					sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
+					return false;
+				}
+			case restart:
+				if(args.length == 0) {
+					taxManager.disable();
+					salaryManager.disable();
+					taxManager.enable();
+					salaryManager.enable();
+					sender.sendMessage(ChatColor.GREEN + "Taxes and salaries restarted.");
+					return true;
+				} else {
+					sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
+				}
+			case setworld:
+				if(args.length == 1) {
+					if(this.cashFlow.permsManager.setWorld(args[0])) {
+						sender.sendMessage(ChatColor.GREEN + "World set.");
+					} else {
+						sender.sendMessage(ChatColor.RED + "World not found.");
+					}
+					return true;
+				} else {
+					return false;
+				}
+			default:
+				return false;
+		}
 	}
 	
-	public void disable() {
-		taxManager.disable();
-		salaryManager.disable();
-	}
-	
-	public void restart() {
-		taxManager.disable();
-		salaryManager.disable();
-		taxManager.enable();
-		salaryManager.enable();
-	}
 }

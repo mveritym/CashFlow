@@ -1,7 +1,5 @@
 package mveritym.cashflow;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -80,28 +78,11 @@ public class CashFlow extends JavaPlugin{
 					} else {
 						return false;
 					}	
-				case enable:
-					if(args.length == 0) {
-						commandManager.enable();
-						return true;
+				case cashflow:
+					if(args.length > 0) {
+						return commandManager.cashflowCommand(sender, args);
 					} else {
-						sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
 						return false;
-					}
-				case disable:
-					if(args.length == 0) {
-						commandManager.disable();
-						return true;
-					} else {
-						sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
-						return false;
-					}
-				case restart:
-					if(args.length == 0) {
-						commandManager.restart();
-						return true;
-					} else {
-						sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
 					}
 				default:
 					break;
@@ -109,20 +90,6 @@ public class CashFlow extends JavaPlugin{
 		} 
 		sender.sendMessage(ChatColor.RED + "You are not allowed to use that command.");
 	    return false;
-	}
-	
-	@SuppressWarnings("unused")
-	public boolean isPlayer(String playerName) {
-		if(this.getServer().getPlayer(playerName) != null) {
-			return true;
-		} else {
-			try {
-				FileInputStream test = new FileInputStream("world/players/" + playerName + ".dat");
-			} catch (FileNotFoundException e) {
-				return false;
-			}
-		}
-		return true;
 	}
 	
 }

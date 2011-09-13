@@ -1,8 +1,6 @@
 package mveritym.cashflow;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,7 +69,7 @@ public class TaxManager {
 		} else if(taxInterval <= 0) {
 			sender.sendMessage(ChatColor.RED + "Please choose a tax interval greater than 0.");
 			return;
-		} else if(!TaxManager.cashFlow.isPlayer(taxReceiver) && !(taxReceiver.equals("null"))) {
+		} else if(!(TaxManager.cashFlow.permsManager.isPlayer(taxReceiver)) && !(taxReceiver.equals("null"))) {
 			sender.sendMessage(ChatColor.RED + "Player not found.");
 			return;
 		} else {

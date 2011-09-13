@@ -28,30 +28,22 @@ commands:
           /<command> removeexception <taxname> <playername> - Removes the player as an exception
           /<command> list - Lists each salary
           /<command> info <salaryname> - Lists information about a salary
-    enable:
-      description: Starts timers for each tax and salary.
-      permission: cashflow.enable
-      usage: |
-           /<command>
-    disable:
-      description: Removes timers for each tax and salary.
-      permission: cashflow.disable
-      usage: |
-           /<command>
-    restart:
-      description: Disables and re-enables taxes. Used after creating or deleting taxes while taxes are enabled.
-      permission: cashflow.reload
-      usage: |
-           /<command>
+    cashflow:
+        description: Lets you enable, disable, restart or set the world.
+        permission: cashflow.basic
+        usage: |
+            Usage:
+            /<command> enable - Enables payment of taxes and salaries.
+            /<command> disable - Disables payment of taxes and salaries.
+            /<command> restart - Disables then enables payment of taxes and salaries. Use this to refresh timer threads.
+            /<command> setworld - Specifies the world name so you can create taxes/salaries that go to/come from offline players.
 permissions:
     cashflow.*:
         description: Allows access to all cashflow commands.
         children:
             cashflow.tax: true
             cashflow.salary: true
-            cashflow.enable: true
-            cashflow.disable: true
-            cashflow.restart: true
+            cashflow.basic: true
         default: false
     cashflow.tax: 
         description: Allows control of tax commands.
@@ -59,11 +51,5 @@ permissions:
     cashflow.salary:
         description: Allows control of salary commands.
         default: false
-    cashflow.enable:
-        description: Allows user to enable taxes and salaries.
-        default: false
-    cashflow.disable:
-        description: Allows user to disable taxes and salaries.
-    cashflow.restart:
-        description: Allows user to reload taxes and salaries.
-        default: false 
+    cashflow.basic:
+        description: Allows access to the enable, disable, restart and setworld commands.

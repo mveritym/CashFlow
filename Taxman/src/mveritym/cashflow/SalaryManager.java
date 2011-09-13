@@ -67,7 +67,7 @@ public class SalaryManager {
 		} else if(salaryInterval <= 0) {
 			sender.sendMessage(ChatColor.RED + "Please choose a salary interval greater than 0.");
 			return;
-		} else if(!SalaryManager.cashFlow.isPlayer(employer) && !(employer.equals("null"))) {
+		} else if(!(SalaryManager.cashFlow.permsManager.isPlayer(employer)) && !(employer.equals("null"))) {
 			sender.sendMessage(ChatColor.RED + "Player not found.");
 			return;
 		} else {
