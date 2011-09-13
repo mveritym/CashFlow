@@ -53,9 +53,8 @@ public class TaxManager {
         }
     }
     
-	public void createTax(CommandSender sender, String name, String percentOfBal, String interval, String taxReceiver) {
+	public void createTax(CommandSender sender, String name, String tax, String interval, String taxReceiver) {
 		String taxName = name;
-		double percentIncome = Double.parseDouble(percentOfBal.split("%")[0]);
 		double taxInterval = Double.parseDouble(interval);
 		List<String> payingGroups = null;
 		
@@ -63,10 +62,17 @@ public class TaxManager {
 		taxes = conf.getStringList("taxes.list", null);
 		iterator = taxes.listIterator();
 		
-		if(percentIncome > 100 || percentIncome <= 0) {
-			sender.sendMessage(ChatColor.RED + "Please choose a % of income between 0 and 100");
-			return;
-		} else if(taxInterval <= 0) {
+		//Checks for if tax is a percent.
+		if(tax.contains("%")) {
+			double percentIncome = Double.parseDouble(tax.split("%")[0]);
+			if(percentIncome > 100 || percentIncome <= 0) {
+				sender.sendMessage(ChatColor.RED + "Please choose a % of income between 0 and 100.");
+				return;
+			}
+		} 
+		
+		//Checks arguments in general.
+		if(taxInterval <= 0) {
 			sender.sendMessage(ChatColor.RED + "Please choose a tax interval greater than 0.");
 			return;
 		} else if(!(TaxManager.cashFlow.permsManager.isPlayer(taxReceiver)) && !(taxReceiver.equals("null"))) {
@@ -83,7 +89,7 @@ public class TaxManager {
 		
 		taxes.add(taxName);	
 		conf.setProperty("taxes.list", taxes);
-		conf.setProperty("taxes." + taxName + ".percentIncome", percentIncome);
+		conf.setProperty("taxes." + taxName + ".tax", tax);
 		conf.setProperty("taxes." + taxName + ".taxInterval", taxInterval);
 		conf.setProperty("taxes." + taxName + ".receiver", taxReceiver);
 		conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
@@ -119,7 +125,7 @@ public class TaxManager {
 		taxes = conf.getStringList("taxes.list", null);
 		
 		if(taxes.contains(taxName)) {
-			sender.sendMessage(ChatColor.BLUE + "Percent income: " + conf.getString("taxes." + taxName + ".percentIncome") + "%");
+			sender.sendMessage(ChatColor.BLUE + "Percent income: " + conf.getString("taxes." + taxName + ".tax"));
 			sender.sendMessage(ChatColor.BLUE + "Interval: " + conf.getString("taxes." + taxName + ".taxInterval") + " hours");
 			sender.sendMessage(ChatColor.BLUE + "Receiving player: " + conf.getString("taxes." + taxName + ".receiver"));
 			sender.sendMessage(ChatColor.BLUE + "Paying groups: " + conf.getStringList("taxes." + taxName + ".payingGroups", null));
@@ -211,20 +217,29 @@ public class TaxManager {
 		
 		List<String> groups = conf.getStringList("taxes." + taxName + ".payingGroups", null);
 		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers", null);
-		Double percentIncome = Double.parseDouble(conf.getString("taxes." + taxName + ".percentIncome"));
+		String tax = conf.getString("taxes." + taxName + ".tax");
 		String receiver = conf.getString("taxes." + taxName + ".receiver");
+		Double taxRate;
 		
 		List<String> users = TaxManager.cashFlow.permsManager.getUsers(groups, exceptedPlayers);
 		for(String user : users) {
 			if(TaxManager.cashFlow.Method.hasAccount(user)) {
 				MethodAccount userAccount = TaxManager.cashFlow.Method.getAccount(user);
-				Double tax = userAccount.balance() * (percentIncome / 100.0);
-				DecimalFormat twoDForm = new DecimalFormat("#.##");
-				tax = Double.valueOf(twoDForm.format(tax));
-				userAccount.subtract(tax);
 				Player player = TaxManager.cashFlow.getServer().getPlayer(user);
+				DecimalFormat twoDForm = new DecimalFormat("#.##");
+				
+				if(tax.contains("%")) {
+					taxRate = Double.parseDouble(tax.split("%")[0]) / 100.0;
+					taxRate *= userAccount.balance();
+				} else {
+					taxRate = Double.parseDouble(tax);
+				}
+
+				taxRate = Double.valueOf(twoDForm.format(taxRate));
+				userAccount.subtract(taxRate);
+				
 				if(player != null) {
-					String message = "You have paid $" + tax + " in tax";
+					String message = "You have paid $" + taxRate + " in tax";
 					if(receiver.equals("null")) {
 						message += ".";
 					} else {
@@ -235,10 +250,12 @@ public class TaxManager {
 				
 				if(!(receiver.equals("null"))) {
 					MethodAccount receiverAccount = TaxManager.cashFlow.Method.getAccount(receiver);
-					receiverAccount.add(tax);
 					Player receiverPlayer = TaxManager.cashFlow.getServer().getPlayer(receiver);
+					
+					receiverAccount.add(taxRate);
+					
 					if(receiverPlayer != null) {
-						receiverPlayer.sendMessage(ChatColor.BLUE + "You have received $" + tax + " in tax from " + user + ".");
+						receiverPlayer.sendMessage(ChatColor.BLUE + "You have received $" + taxRate + " in tax from " + user + ".");
 					}
 				}
 			}
