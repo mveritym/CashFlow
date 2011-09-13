@@ -42,7 +42,7 @@ public class PermissionsManager {
 		pluginManager = PermissionsManager.cashflow.getServer().getPluginManager();
 		
 		if(pluginManager.getPlugin("PermissionsBukkit") != null) {
-			System.out.println("PermissionsBukkit is not supported at this time.");
+			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] PermissionsBukkit is not supported at this time.");
 			/*
 			System.out.println("Using PermissionsBukkit plugin.");
 			pluginName = "PermissionsBukkit";
@@ -50,12 +50,12 @@ public class PermissionsManager {
 			plugin = pluginManager.getPlugin("PermissionsBukkit");
 			*/
 		} else if(PermissionsManager.cashflow.getServer().getPluginManager().getPlugin("PermissionsEx") != null) {
-			System.out.println("Using PermissionsEx plugin.");
+			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] Using PermissionEx plugin.");
 			pluginName = "PermissionsEx";
 			pm = PermissionsEx.getPermissionManager();
 			plugin = pluginManager.getPlugin("PermissionsEx");
 		} else if(PermissionsManager.cashflow.getServer().getPluginManager().getPlugin("bPermissions") != null) {
-			System.out.println("bPermissions is not supported at this time.");
+			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] bPermissions is not supported at this time.");
 			/*
 			System.out.println("Using bPermissions plugin.");
 			pluginName = "bPermissions";
@@ -64,7 +64,7 @@ public class PermissionsManager {
 			plugin = pluginManager.getPlugin("bPermissions");
 			*/
 		} else {
-			System.out.println("No permissions plugin detected.");
+			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] No permissions plugin detected.");
 		}
 	}
 	
@@ -214,7 +214,7 @@ public class PermissionsManager {
         	conf.load();
         }
         else {
-        	System.out.println("No CashFlow config file found. Creating config file.");
+        	System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] No CashFlow config file found. Creating config file.");
         	this.confFile = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
             TaxManager.conf = new Configuration(confFile);  
             List<String> tempList = null;

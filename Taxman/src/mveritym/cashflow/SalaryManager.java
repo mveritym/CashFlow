@@ -42,7 +42,7 @@ public class SalaryManager {
         	conf.load();
         }
         else {
-        	System.out.println("[CashFlow] No config file found. Creating data file.");
+        	System.out.println("[" + SalaryManager.cashFlow.info.getName() + "] No config file found. Creating data file.");
         	this.confFile = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
             TaxManager.conf = new Configuration(confFile);  
             List<String> tempList = null;
@@ -194,7 +194,7 @@ public class SalaryManager {
 		for(String salaryName : salaries) {
 			hours = Double.parseDouble(conf.getString("salaries." + salaryName + ".salaryInterval"));
 			lastPaid = (Date) conf.getProperty("salaries." + salaryName + ".lastPaid");
-			System.out.println(conf.getProperty("salaries." + salaryName + ".lastPaid"));
+			System.out.println("[" + SalaryManager.cashFlow.info.getName() + "] Enabling " + salaryName);
 			Taxer taxer = new Taxer(this, salaryName, hours, lastPaid);
 			salaryTasks.add(taxer);
 		}
@@ -243,7 +243,7 @@ public class SalaryManager {
 	}
 	
 	public void paySalary(String salaryName) {
-		System.out.println("Paying salary " + salaryName);
+		System.out.println("[" + SalaryManager.cashFlow.info.getName() + "] Paying salary " + salaryName);
 		
 		loadConf();
 		salaries = conf.getStringList("salaries.list", null);
@@ -275,6 +275,10 @@ public class SalaryManager {
 				if(!(employer.equals("null"))) {
 					MethodAccount employerAccount = SalaryManager.cashFlow.Method.getAccount(employer);
 					employerAccount.subtract(salary);
+					Player employerPlayer = TaxManager.cashFlow.getServer().getPlayer(employer);
+					if(employerPlayer != null) {
+						employerPlayer.sendMessage(ChatColor.BLUE + "You have paid $" + salary + " in salary to " + user + ".");
+					}
 				}
 			}
 		}

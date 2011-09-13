@@ -39,7 +39,7 @@ public class CashFlow extends JavaPlugin{
         commandManager = new CommandManager(this);
         
         if(permsManager.pluginDetected()) {
-        	System.out.println("[" + info.getName() + "] " + info.getVersion() + " has been enabled.");
+        	System.out.println("[" + info.getName() + "] v" + info.getVersion() + " has been enabled.");
         } else {
         	this.getPluginLoader().disablePlugin(this);
         }

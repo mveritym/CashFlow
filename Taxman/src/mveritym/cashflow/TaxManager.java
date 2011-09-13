@@ -44,7 +44,7 @@ public class TaxManager {
         	conf.load();
         }
         else {
-        	System.out.println("No CashFlow config file found. Creating config file.");
+        	System.out.println("[" + TaxManager.cashFlow.info.getName() + "] No CashFlow config file found. Creating config file.");
         	this.confFile = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
             TaxManager.conf = new Configuration(confFile);  
             List<String> tempList = null;
@@ -125,7 +125,7 @@ public class TaxManager {
 			sender.sendMessage(ChatColor.BLUE + "Paying groups: " + conf.getStringList("taxes." + taxName + ".payingGroups", null));
 			sender.sendMessage(ChatColor.BLUE + "Excepted users: " + conf.getStringList("taxes." + taxName + ".exceptedPlayers", null));
 		} else {
-			sender.sendMessage(ChatColor.RED + "No tax, " + taxName);
+			sender.sendMessage(ChatColor.RED + "Tax not found.");
 		}
 		
 		return;
@@ -194,14 +194,14 @@ public class TaxManager {
 		for(String taxName : taxes) {
 			hours = Double.parseDouble(conf.getString("taxes." + taxName + ".taxInterval"));
 			lastPaid = (Date) conf.getProperty("taxes." + taxName + ".lastPaid");
-			System.out.println(conf.getProperty("taxes." + taxName + ".lastPaid"));
+			System.out.println("[" + TaxManager.cashFlow.info.getName() + "] Enabling " + taxName);
 			Taxer taxer = new Taxer(this, taxName, hours, lastPaid);
 			taxTasks.add(taxer);
 		}
 	}
 	
 	public void payTax(String taxName) {
-		System.out.println("Paying tax " + taxName);
+		System.out.println("[" + TaxManager.cashFlow.info.getName() + "] Paying tax " + taxName);
 		
 		loadConf();
 		taxes = conf.getStringList("taxes.list", null);
@@ -236,6 +236,10 @@ public class TaxManager {
 				if(!(receiver.equals("null"))) {
 					MethodAccount receiverAccount = TaxManager.cashFlow.Method.getAccount(receiver);
 					receiverAccount.add(tax);
+					Player receiverPlayer = TaxManager.cashFlow.getServer().getPlayer(receiver);
+					if(receiverPlayer != null) {
+						receiverPlayer.sendMessage(ChatColor.BLUE + "You have received $" + tax + " in tax from " + user + ".");
+					}
 				}
 			}
 		}

@@ -1,6 +1,6 @@
 name: CashFlow
 main: mveritym.cashflow.CashFlow
-version: 0.1
+version: 0.2
 commands:
     tax:
       description: Provides access to tax commands.

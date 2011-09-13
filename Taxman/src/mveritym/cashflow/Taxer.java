@@ -22,7 +22,6 @@ public class Taxer {
 		this.lastPaid = lastPaid;
 		
 		if(this.lastPaid == null) {
-			System.out.println("Setting new date.");
 			this.lastPaid = new Date();
 			TaxManager.conf.setProperty("taxes." + taxName + ".lastPaid", this.lastPaid);
 			TaxManager.conf.save();
@@ -40,7 +39,6 @@ public class Taxer {
 		this.lastPaid = lastPaid;
 		
 		if(this.lastPaid == null) {
-			System.out.println("Setting new date.");
 			this.lastPaid = new Date();
 			TaxManager.conf.setProperty("salaries." + taxName + ".lastPaid", this.lastPaid);
 			TaxManager.conf.save();
@@ -59,7 +57,6 @@ public class Taxer {
         	if(first) {
         		first = false;
         	} else {
-        		System.out.format("Paying!");
         		taxManager.payTax(name);
         	}
         }
@@ -70,7 +67,6 @@ public class Taxer {
         	if(first) {
         		first = false;
         	} else {
-        		System.out.format("Paying!");
         		salaryManager.paySalary(name);
         	}
         }
