@@ -23,6 +23,7 @@ public class SalaryManager {
     protected File confFile;
     List<String> salaries;
     List<String> paidGroups;
+    List<String> paidPlayers;
     ListIterator<String> iterator;
     Timer timer = new Timer();
     Collection<Taxer> salaryTasks = new ArrayList<Taxer>();
@@ -85,6 +86,7 @@ public class SalaryManager {
 		conf.setProperty("salaries." + salaryName + ".salaryInterval", salaryInterval);
 		conf.setProperty("salaries." + salaryName + ".employer", employer);
 		conf.setProperty("salaries." + salaryName + ".paidGroups", paidGroups);
+		conf.setProperty("salaries." + salaryName + ".paidPlayers", paidPlayers);
 		conf.setProperty("salaries." + salaryName + ".lastPaid", null);
 		conf.setProperty("salaries." + salaryName + ".exceptedPlayers", null);
 		conf.save();
@@ -120,7 +122,8 @@ public class SalaryManager {
 			sender.sendMessage(ChatColor.BLUE + "Salary: " + conf.getString("salaries." + salaryName + ".salary"));
 			sender.sendMessage(ChatColor.BLUE + "Interval: " + conf.getString("salaries." + salaryName + ".salaryInterval") + " hours");
 			sender.sendMessage(ChatColor.BLUE + "Receiving player: " + conf.getString("salaries." + salaryName + ".employer"));
-			sender.sendMessage(ChatColor.BLUE + "Paying groups: " + conf.getStringList("salaries." + salaryName + ".paidGroups", null));
+			sender.sendMessage(ChatColor.BLUE + "Paid groups: " + conf.getStringList("salaries." + salaryName + ".paidGroups", null));
+			sender.sendMessage(ChatColor.BLUE + "Paid players: " + conf.getStringList("salaries." + salaryName + ".paidPlayers", null));
 			sender.sendMessage(ChatColor.BLUE + "Excepted users: " + conf.getStringList("salaries." + salaryName + ".exceptedPlayers", null));
 		} else {
 			sender.sendMessage(ChatColor.RED + "No salary, " + salaryName + ", found.");
@@ -143,20 +146,23 @@ public class SalaryManager {
 		}
 	}
 	
-	public void applySalary(CommandSender sender, String salaryName, String groupName) {
+	public void addGroups(CommandSender sender, String taxName, String groups) {
+		String[] groupNames = groups.split(",");
+		for(String name : groupNames) {
+			addGroup(sender, taxName, name);
+		}
+	}
+	
+	public void addGroup(CommandSender sender, String salaryName, String groupName) {
 		loadConf();
 		salaries = conf.getStringList("salaries.list", null);
 		paidGroups = conf.getStringList("salaries." + salaryName + ".paidGroups", null);
 		
 		if(!(salaries.contains(salaryName))) {
 			sender.sendMessage(ChatColor.RED + "Salary not found.");
-		}
-		/*
-		else if(!(SalaryManager.cashFlow.permsManager.isGroup(groupName))){
+		} else if(!(SalaryManager.cashFlow.permsManager.isGroup(groupName))){
 			sender.sendMessage(ChatColor.RED + "Group not found.");
-		}
-		*/ 
-		else {
+		} else {
 			sender.sendMessage(ChatColor.GREEN + salaryName + " applied successfully to " + groupName);
 			paidGroups.add(groupName);
 			conf.setProperty("salaries." + salaryName + ".paidGroups", paidGroups);
@@ -166,10 +172,45 @@ public class SalaryManager {
 		return;
 	}
 	
-	public void removeSalary(CommandSender sender, String salaryName, String groupName) {
+	public void addPlayers(CommandSender sender, String taxName, String players) {
+		String[] playerNames = players.split(",");
+		for(String name : playerNames) {
+			addPlayer(sender, taxName, name);
+		}
+	}
+	
+	public void addPlayer(CommandSender sender, String salaryName, String playerName) {
 		loadConf();
 		salaries = conf.getStringList("salaries.list", null);
-		paidGroups = conf.getStringList("taxes." + salaryName + ".payingGroups", null);
+		paidPlayers = conf.getStringList("salaries." + salaryName + ".paidPlayers", null);
+		
+		if(!(salaries.contains(salaryName))) {
+			sender.sendMessage(ChatColor.RED + "Salary not found.");
+		} else if(!(SalaryManager.cashFlow.permsManager.isPlayer(playerName.toLowerCase()))){
+			sender.sendMessage(ChatColor.RED + "Player not found.");
+		} else if(paidPlayers.contains(playerName.toLowerCase())) {
+			sender.sendMessage(ChatColor.RED + playerName + " is already paying this tax.");
+		} else {
+			sender.sendMessage(ChatColor.GREEN + salaryName + " applied successfully to " + playerName);
+			paidPlayers.add(playerName);
+			conf.setProperty("salaries." + salaryName + ".paidPlayers", paidPlayers);
+			conf.save();
+		}
+		
+		return;
+	}
+	
+	public void removeGroups(CommandSender sender, String taxName, String groups) {
+		String[] groupNames = groups.split(",");
+		for(String name : groupNames) {
+			removeGroup(sender, taxName, name);
+		}
+	}
+	
+	public void removeGroup(CommandSender sender, String salaryName, String groupName) {
+		loadConf();
+		salaries = conf.getStringList("salaries.list", null);
+		paidGroups = conf.getStringList("salaries." + salaryName + ".paidGroups", null);
 		
 		if(!(salaries.contains(salaryName))) {
 			sender.sendMessage(ChatColor.RED + "Salary not found.");
@@ -183,6 +224,30 @@ public class SalaryManager {
 		}
 		
 		return;
+	}
+	
+	public void removePlayers(CommandSender sender, String salaryName, String players) {
+		String[] playerNames = players.split(",");
+		for(String name : playerNames) {
+			removePlayer(sender, salaryName, name);
+		}
+	}
+	
+	public void removePlayer(CommandSender sender, String salaryName, String playerName) {
+		loadConf();
+		salaries = conf.getStringList("salaries.list", null);
+		paidPlayers = conf.getStringList("salaries." + salaryName + ".paidPlayers", null);
+		
+		if(!(salaries.contains(salaryName))) {
+			sender.sendMessage(ChatColor.RED + "Salary not found.");
+		} else if(!(paidPlayers.contains(playerName))) {
+			sender.sendMessage(ChatColor.RED + "Player not found.");
+		} else {
+			sender.sendMessage(ChatColor.GREEN + salaryName + " removed successfully from " + playerName);
+			paidPlayers.remove(playerName);
+			conf.setProperty("salaries." + salaryName + ".paidPlayers", paidPlayers);
+			conf.save();
+		}
 	}
 	
 	public void enable() {		
@@ -252,11 +317,12 @@ public class SalaryManager {
 		conf.save();
 		
 		List<String> groups = conf.getStringList("salaries." + salaryName + ".paidGroups", null);
+		List<String> players = conf.getStringList("salaries." + salaryName + ".paidPlayers", null);
 		List<String> exceptedPlayers = conf.getStringList("salaries." + salaryName + ".exceptedPlayers", null);
 		Double salary = Double.parseDouble(conf.getString("salaries." + salaryName + ".salary"));
 		String employer = conf.getString("salaries." + salaryName + ".employer");
 		
-		List<String> users = SalaryManager.cashFlow.permsManager.getUsers(groups, exceptedPlayers);
+		List<String> users = SalaryManager.cashFlow.permsManager.getUsers(groups, players, exceptedPlayers);
 		for(String user : users) {
 			if(SalaryManager.cashFlow.Method.hasAccount(user)) {
 				MethodAccount userAccount = SalaryManager.cashFlow.Method.getAccount(user);

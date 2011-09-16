@@ -9,8 +9,10 @@ commands:
            Usage:
            /<command> create <taxname> <percentincome> <interval> [payee] - Creates a tax
            /<command> delete <taxname> - Deletes a tax
-           /<command> apply <taxname> <groupname> - Applies a group to a tax
-           /<command> remove <taxname> <groupname> - Removes a group from a tax
+           /<command> apply group <taxname> <groupnames> - Applies groups to a tax (comma separated)
+           /<command> remove group <taxname> <groupnames> - Removes a group from a tax (comma separated)
+           <command> apply player <taxname> <playernames> - Applies players to a tax (comma separated)
+           /<command> remove player <taxname> <playernames> - Removes a player from a tax (comma separated)
            /<command> addexception <taxname> <playername> - Adds the player as an exception (case sensitive!)
            /<command> removeexception <taxname> <playername> - Removes the player as an exception (case sensitive!)
            /<command> list - Lists each tax
@@ -22,8 +24,10 @@ commands:
           Usage:
           /<command> create <salaryname> <salary> <interval> [employer] - Creates a salary
           /<command> delete <salaryname> - Deletes a salary
-          /<command> apply <salaryname> <groupname> - Applies a group to a salary
-          /<command> remove <salaryname> <groupname> - Removes a group from a salary
+          /<command> apply group <salaryname> <groupnames> - Applies groups to a salary (comma separated)
+          /<command> apply player <salaryname> <playernames> - Applies players to a salary (comma separated)
+          /<command> remove group <salaryname> <groupnames> - Removes groups from a salary (comma separated)
+          /<command> remove player <salaryname> <playernames> - Removes players from a salary (comma separated)
           /<command> addexception <taxname> <playername> - Adds the player as an exception
           /<command> removeexception <taxname> <playername> - Removes the player as an exception
           /<command> list - Lists each salary

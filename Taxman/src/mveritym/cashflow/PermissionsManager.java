@@ -12,12 +12,12 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.config.Configuration;
 
-//import com.platymuus.bukkit.permissions.Group;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 
 //import de.bananaco.permissions.Permissions;
 import de.bananaco.permissions.interfaces.PermissionSet;
 import de.bananaco.permissions.worlds.WorldPermissionsManager;
+import ru.tehkode.permissions.PermissionGroup;
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -44,13 +44,12 @@ public class PermissionsManager {
 		if(pluginManager.getPlugin("PermissionsBukkit") != null) {
 			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] PermissionsBukkit is not supported at this time.");
 			/*
-			System.out.println("Using PermissionsBukkit plugin.");
+			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] Using PermissionsBukkit plugin.");
 			pluginName = "PermissionsBukkit";
-			permsPlugin = new PermissionsPlugin();
 			plugin = pluginManager.getPlugin("PermissionsBukkit");
 			*/
 		} else if(PermissionsManager.cashflow.getServer().getPluginManager().getPlugin("PermissionsEx") != null) {
-			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] Using PermissionEx plugin.");
+			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] Using PermissionsEx plugin.");
 			pluginName = "PermissionsEx";
 			pm = PermissionsEx.getPermissionManager();
 			plugin = pluginManager.getPlugin("PermissionsEx");
@@ -87,15 +86,13 @@ public class PermissionsManager {
             } else {
             	return false;
             }
-        } 
-		/*
-		else if(pluginName.equals("PermissionsBukkit")) {
+        } else if(pluginName.equals("PermissionsBukkit")) {
            if(player.hasPermission(node)) {
         	   return true;
            } else {
         	   return false;
            }
-        } else if(pluginName.equals("bPermissions")) {
+        } /*else if(pluginName.equals("bPermissions")) {
         	if(player.hasPermission(node)) {
         		return true;
         	} else {
@@ -108,14 +105,15 @@ public class PermissionsManager {
 	
 	public boolean isGroup(String groupName) {
 		if(pluginName.equals("PermissionsEx")) {
-			if(pm.getGroup(groupName) != null) {
-				return true;
-			} else {
-				return false;
+			PermissionGroup[] groups = pm.getGroups();
+			for(PermissionGroup group : groups) {
+				if(group.getName().equals(groupName)) {
+					return true;
+				}
 			}
-		} 
-		/*
-		else if(pluginName.equals("PermissionsBukkit")) {
+			return false;
+		} /*else if(pluginName.equals("PermissionsBukkit")) {
+			return true;
 			if(permsPlugin.getGroup(groupName) != null) {
 				return true;
 			} else {
@@ -132,7 +130,7 @@ public class PermissionsManager {
 		return false;
 	}
 
-	public List<String> getUsers(List<String> groups, List<String> exceptedPlayers) {
+	public List<String> getUsers(List<String> groups, List<String> players, List<String> exceptedPlayers) {
 		List<String> playerList = new ArrayList<String>();
 		
 		if(pluginName.equals("PermissionsEx")) {
@@ -140,21 +138,28 @@ public class PermissionsManager {
 				PermissionUser[] userList = pm.getUsers(groupName);
 				if(userList.length > 0) {
 					for(PermissionUser pu : userList) {
-						playerList.add(pu.getName());
-					}
-				}
-			}
-		}
-		/*
-		else if(pluginName.equals("PermissionsBukkit")) {
-			for(String groupName : groups) {
-				for(Group group : permsPlugin.getAllGroups()) {
-					if(group.getName().equals(groupName)) {
-						for(String player : group.getPlayers()) {
-							playerList.add((Player) player);
+						if(isPlayer(pu.getName())) { 
+							playerList.add(pu.getName());
 						}
 					}
 				}
+			}
+		} /*else if(pluginName.equals("PermissionsBukkit")) {
+			for(String groupName : groups) {
+				//Group group = permsPlugin.getGroup(groupName);
+				System.out.println(PermissionsPlugin.getAllGroups() == null);
+				System.out.println("GROUPS: " + permsPlugin.getAllGroups());
+				
+				for(Group group : permsPlugin.getAllGroups()) {
+					System.out.println(group);
+				}
+				
+				//List<String> players = group.getPlayers();
+				
+				//for(String player : players) {
+				//	System.out.println(player);
+				//	playerList.add(player);
+				//}
 			}
 		} else if(pluginName.equals("bPermissions")) {
 			for(String groupName : groups) {
@@ -162,6 +167,12 @@ public class PermissionsManager {
 			}
 		}
 		*/
+		
+		for(String player : players) {
+			if(!(playerList.contains(player)) && isPlayer(player)) {
+				playerList.add(player);
+			}
+		}
 		
 		for(String player : exceptedPlayers) {
 			playerList.remove(player);
@@ -221,6 +232,5 @@ public class PermissionsManager {
             conf.setProperty("taxes.list", tempList);
             conf.save();
         }
-    }
-	
+    }	
 }

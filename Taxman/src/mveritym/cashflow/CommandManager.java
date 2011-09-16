@@ -70,17 +70,31 @@ public class CommandManager {
 				return false;
 			}
 		case apply:
-			if(args.length == 2) {
-				taxManager.addTaxpayer(sender, args[0], args[1]);
-				return true;
+			if(args.length >= 3) {
+				if(args[0].equals("group")) {
+					taxManager.addGroups(sender, args[1], args[2]);
+					return true;
+				} else if(args[0].equals("player")) {
+					taxManager.addPlayers(sender, args[1], args[2]);
+					return true;
+				}
+				sender.sendMessage(ChatColor.RED + "Incorrect argument.");
+				return false;
 			} else {
 				sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
 				return false;
 			}
 		case remove:
-			if(args.length == 2) {
-				taxManager.removeTaxpayer(sender, args[0], args[1]);
-				return true;
+			if(args.length >= 3) {
+				if(args[0].equals("group")) {
+					taxManager.removeGroups(sender, args[1], args[2]);
+					return true;
+				} else if(args[0].equals("player")) {
+					taxManager.removePlayers(sender, args[1], args[2]);
+					return true;
+				}
+				sender.sendMessage(ChatColor.RED + "Incorrect argument.");
+				return false;
 			} else {
 				sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
 				return false;
@@ -178,17 +192,31 @@ public class CommandManager {
 					return false;
 				}
 			case apply:
-				if(args.length == 2) {
-					salaryManager.applySalary(sender, args[0], args[1]);
-					return true;
+				if(args.length >= 3) {
+					if(args[0].equals("group")) {
+						salaryManager.addGroups(sender, args[1], args[2]);
+						return true;
+					} else if(args[0].equals("player")) {
+						salaryManager.addPlayers(sender, args[1], args[2]);
+						return true;
+					}
+					sender.sendMessage(ChatColor.RED + "Incorrect argument.");
+					return false;
 				} else {
 					sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
 					return false;
 				}
 			case remove:
-				if(args.length == 2) {
-					salaryManager.removeSalary(sender, args[0], args[1]);
-					return true;
+				if(args.length >= 3) {
+					if(args[0].equals("group")) {
+						salaryManager.removeGroups(sender, args[1], args[2]);
+						return true;
+					} else if(args[0].equals("player")) {
+						salaryManager.removePlayers(sender, args[1], args[2]);
+						return true;
+					}
+					sender.sendMessage(ChatColor.RED + "Incorrect argument.");
+					return false;
 				} else {
 					sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
 					return false;

@@ -23,6 +23,7 @@ public class TaxManager {
     protected File confFile;
     List<String> taxes;
     List<String> payingGroups;
+    List<String> payingPlayers;
     ListIterator<String> iterator;
     Timer timer = new Timer();
     Collection<Taxer> taxTasks = new ArrayList<Taxer>();
@@ -57,6 +58,7 @@ public class TaxManager {
 		String taxName = name;
 		double taxInterval = Double.parseDouble(interval);
 		List<String> payingGroups = null;
+		List<String> payingPlayers = null;
 		
 		loadConf();
 		taxes = conf.getStringList("taxes.list", null);
@@ -93,6 +95,7 @@ public class TaxManager {
 		conf.setProperty("taxes." + taxName + ".taxInterval", taxInterval);
 		conf.setProperty("taxes." + taxName + ".receiver", taxReceiver);
 		conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
+		conf.setProperty("taxes." + taxName + ".payingPlayers", payingPlayers);
 		conf.setProperty("taxes." + taxName + ".lastPaid", null);
 		conf.setProperty("taxes." + taxName + ".exceptedPlayers", null);
 		conf.save();
@@ -129,6 +132,7 @@ public class TaxManager {
 			sender.sendMessage(ChatColor.BLUE + "Interval: " + conf.getString("taxes." + taxName + ".taxInterval") + " hours");
 			sender.sendMessage(ChatColor.BLUE + "Receiving player: " + conf.getString("taxes." + taxName + ".receiver"));
 			sender.sendMessage(ChatColor.BLUE + "Paying groups: " + conf.getStringList("taxes." + taxName + ".payingGroups", null));
+			sender.sendMessage(ChatColor.BLUE + "Paying players: " + conf.getStringList("taxes." + taxName + ".payingPlayers", null));
 			sender.sendMessage(ChatColor.BLUE + "Excepted users: " + conf.getStringList("taxes." + taxName + ".exceptedPlayers", null));
 		} else {
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
@@ -150,21 +154,24 @@ public class TaxManager {
 			sender.sendMessage(ChatColor.RED + "No taxes to list.");
 		}
 	}
+	
+	public void addGroups(CommandSender sender, String taxName, String groups) {
+		String[] groupNames = groups.split(",");
+		for(String name : groupNames) {
+			addGroup(sender, taxName, name);
+		}
+	}
 
-	public void addTaxpayer(CommandSender sender, String taxName, String groupName) {
+	public void addGroup(CommandSender sender, String taxName, String groupName) {
 		loadConf();
 		taxes = conf.getStringList("taxes.list", null);
 		payingGroups = conf.getStringList("taxes." + taxName + ".payingGroups", null);
 		
 		if(!(taxes.contains(taxName))) {
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
-		}
-		/*
-		else if(!(TaxManager.cashFlow.permsManager.isGroup(groupName))){
+		} else if(!(TaxManager.cashFlow.permsManager.isGroup(groupName))){
 			sender.sendMessage(ChatColor.RED + "Group not found.");
-		}
-		*/ 
-		else {
+		} else {
 			sender.sendMessage(ChatColor.GREEN + taxName + " applied successfully to " + groupName);
 			payingGroups.add(groupName);
 			conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
@@ -174,7 +181,42 @@ public class TaxManager {
 		return;
 	}
 	
-	public void removeTaxpayer(CommandSender sender, String taxName, String groupName) {
+	public void addPlayers(CommandSender sender, String taxName, String players) {
+		String[] playerNames = players.split(",");
+		for(String name : playerNames) {
+			addPlayer(sender, taxName, name);
+		}
+	}
+	
+	public void addPlayer(CommandSender sender, String taxName, String playerName) {
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		payingPlayers = conf.getStringList("taxes." + taxName + ".payingPlayers", null);
+		
+		if(!(taxes.contains(taxName))) {
+			sender.sendMessage(ChatColor.RED + "Tax not found.");
+		} else if(!(TaxManager.cashFlow.permsManager.isPlayer(playerName.toLowerCase()))){
+			sender.sendMessage(ChatColor.RED + "Player not found.");
+		} else if(payingPlayers.contains(playerName.toLowerCase())) {
+			sender.sendMessage(ChatColor.RED + playerName + " is already paying this tax.");
+		} else {
+			sender.sendMessage(ChatColor.GREEN + taxName + " applied successfully to " + playerName);
+			payingPlayers.add(playerName);
+			conf.setProperty("taxes." + taxName + ".payingPlayers", payingPlayers);
+			conf.save();
+		}
+		
+		return;
+	}
+	
+	public void removeGroups(CommandSender sender, String taxName, String groups) {
+		String[] groupNames = groups.split(",");
+		for(String name : groupNames) {
+			removeGroup(sender, taxName, name);
+		}
+	}
+	
+	public void removeGroup(CommandSender sender, String taxName, String groupName) {
 		loadConf();
 		taxes = conf.getStringList("taxes.list", null);
 		payingGroups = conf.getStringList("taxes." + taxName + ".payingGroups", null);
@@ -190,6 +232,31 @@ public class TaxManager {
 			conf.save();
 		}
 	}
+	
+	public void removePlayers(CommandSender sender, String taxName, String players) {
+		String[] playerNames = players.split(",");
+		for(String name : playerNames) {
+			removePlayer(sender, taxName, name);
+		}
+	}
+	
+	public void removePlayer(CommandSender sender, String taxName, String playerName) {
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		payingPlayers = conf.getStringList("taxes." + taxName + ".payingPlayers", null);
+		
+		if(!(taxes.contains(taxName))) {
+			sender.sendMessage(ChatColor.RED + "Tax not found.");
+		} else if(!(payingPlayers.contains(playerName))) {
+			sender.sendMessage(ChatColor.RED + "Player not found.");
+		} else {
+			sender.sendMessage(ChatColor.GREEN + taxName + " removed successfully from " + playerName);
+			payingPlayers.remove(playerName);
+			conf.setProperty("taxes." + taxName + ".payingPlayers", payingPlayers);
+			conf.save();
+		}
+	}
+
 
 	public void enable() {		
 		loadConf();
@@ -216,13 +283,15 @@ public class TaxManager {
 		conf.save();
 		
 		List<String> groups = conf.getStringList("taxes." + taxName + ".payingGroups", null);
+		List<String> players = conf.getStringList("taxes." + taxName + ".payingPlayers", null);
 		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers", null);
 		String tax = conf.getString("taxes." + taxName + ".tax");
 		String receiver = conf.getString("taxes." + taxName + ".receiver");
 		Double taxRate;
 		
-		List<String> users = TaxManager.cashFlow.permsManager.getUsers(groups, exceptedPlayers);
+		List<String> users = TaxManager.cashFlow.permsManager.getUsers(groups, players, exceptedPlayers);
 		for(String user : users) {
+			System.out.println(user);
 			if(TaxManager.cashFlow.Method.hasAccount(user)) {
 				MethodAccount userAccount = TaxManager.cashFlow.Method.getAccount(user);
 				Player player = TaxManager.cashFlow.getServer().getPlayer(user);
