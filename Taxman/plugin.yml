@@ -41,6 +41,7 @@ commands:
             /<command> disable - Disables payment of taxes and salaries.
             /<command> restart - Disables then enables payment of taxes and salaries. Use this to refresh timer threads.
             /<command> setworld - Specifies the world name so you can create taxes/salaries that go to/come from offline players.
+            /<command> setonlineonly <true/false> - Lets you specify if taxes apply to only online players or all players.
 permissions:
     cashflow.*:
         description: Allows access to all cashflow commands.

@@ -72,8 +72,13 @@ public class CommandManager {
 		case apply:
 			if(args.length >= 3) {
 				if(args[0].equals("group")) {
-					taxManager.addGroups(sender, args[1], args[2]);
-					return true;
+					if(this.cashFlow.permsManager.pluginDetected()) {
+						taxManager.addGroups(sender, args[1], args[2]);
+						return true;
+					} else {
+						sender.sendMessage(ChatColor.RED + "You must install a permissions plugin to use this command.");
+						return true;
+					}					
 				} else if(args[0].equals("player")) {
 					taxManager.addPlayers(sender, args[1], args[2]);
 					return true;
@@ -87,8 +92,13 @@ public class CommandManager {
 		case remove:
 			if(args.length >= 3) {
 				if(args[0].equals("group")) {
-					taxManager.removeGroups(sender, args[1], args[2]);
-					return true;
+					if(this.cashFlow.permsManager.pluginDetected()) {
+						taxManager.removeGroups(sender, args[1], args[2]);
+						return true;
+					} else {
+						sender.sendMessage(ChatColor.RED + "You must install a permissions plugin to use this command.");
+						return true;
+					}
 				} else if(args[0].equals("player")) {
 					taxManager.removePlayers(sender, args[1], args[2]);
 					return true;
@@ -135,7 +145,7 @@ public class CommandManager {
 			return false;
 		}
 	
-}
+	}
 	
 	public boolean salaryCommand(CommandSender sender, String[] tempArgs) {
 		CashFlowCommands cmd = CashFlowCommands.valueOf(tempArgs[0]);
@@ -194,8 +204,13 @@ public class CommandManager {
 			case apply:
 				if(args.length >= 3) {
 					if(args[0].equals("group")) {
-						salaryManager.addGroups(sender, args[1], args[2]);
-						return true;
+						if(this.cashFlow.permsManager.pluginDetected()) {
+							salaryManager.addGroups(sender, args[1], args[2]);
+							return true;
+						} else {
+							sender.sendMessage(ChatColor.RED + "You must install a permissions plugin to use this command.");
+							return true;
+						}
 					} else if(args[0].equals("player")) {
 						salaryManager.addPlayers(sender, args[1], args[2]);
 						return true;
@@ -209,8 +224,13 @@ public class CommandManager {
 			case remove:
 				if(args.length >= 3) {
 					if(args[0].equals("group")) {
-						salaryManager.removeGroups(sender, args[1], args[2]);
-						return true;
+						if(this.cashFlow.permsManager.pluginDetected()) {
+							salaryManager.removeGroups(sender, args[1], args[2]);
+							return true;
+						} else {
+							sender.sendMessage(ChatColor.RED + "You must install a permissions plugin to use this command.");
+							return true;
+						}
 					} else if(args[0].equals("player")) {
 						salaryManager.removePlayers(sender, args[1], args[2]);
 						return true;
@@ -306,6 +326,19 @@ public class CommandManager {
 						sender.sendMessage(ChatColor.RED + "World not found.");
 					}
 					return true;
+				} else {
+					return false;
+				}
+			case setonlineonly:
+				if(args.length == 1) {
+					if(args[0].equals("true") || args[0].equals("false")) {
+						this.cashFlow.permsManager.setOnlineOnly(Boolean.parseBoolean(args[0]));
+						sender.sendMessage(ChatColor.GREEN + "Online only set to " + args[0]);
+						return true;
+					} else {
+						sender.sendMessage(ChatColor.RED + "Online only can only be set to true or false.");
+						return false;
+					}
 				} else {
 					return false;
 				}
