@@ -1,10 +1,9 @@
 name: CashFlow
 main: mveritym.cashflow.CashFlow
-version: 0.3
+version: 0.4
 commands:
     tax:
       description: Provides access to tax commands.
-      permission: cashflow.tax
       usage: |
            Usage:
            /<command> create <taxname> <percentincome> <interval> [payee] - Creates a tax
@@ -19,7 +18,6 @@ commands:
            /<command> info <taxname> - Lists information about a tax
     salary:
       description: Provides access to salary commands.
-      permission: cashflow.salary
       usage: |
           Usage:
           /<command> create <salaryname> <salary> <interval> [employer] - Creates a salary
@@ -34,7 +32,6 @@ commands:
           /<command> info <salaryname> - Lists information about a salary
     cashflow:
         description: Lets you enable, disable, restart or set the world.
-        permission: cashflow.basic
         usage: |
             Usage:
             /<command> enable - Enables payment of taxes and salaries.
