@@ -37,7 +37,7 @@ public class server extends ServerListener {
  public void onPluginEnable(PluginEnableEvent event) {
      // Check to see if we need a payment method
      if (!this.Methods.hasMethod()) {
-         if(this.Methods.setMethod(event.getPlugin())) {
+         if(this.Methods.setMethod(event.getPlugin().getServer().getPluginManager())) {
              // You might want to make this a public variable inside your MAIN class public Method Method = null;
              // then reference it through this.plugin.Method so that way you can use it in the rest of your plugin ;)
              this.cashFlow.Method = this.Methods.getMethod();

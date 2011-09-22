@@ -15,6 +15,10 @@ public class CommandManager {
 		this.salaryManager = new SalaryManager(this.cashFlow);
 	}
 	
+	public boolean returnTrue() {
+		return true;
+	}
+	
 	public boolean taxCommand(CommandSender sender, String[] tempArgs) {
 		CashFlowCommands cmd = CashFlowCommands.valueOf(tempArgs[0]);
 		

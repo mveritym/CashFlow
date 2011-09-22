@@ -82,7 +82,7 @@ public class SalaryManager {
 		
 		salaries.add(salaryName);	
 		conf.setProperty("salaries.list", salaries);
-		conf.setProperty("salaries." + salaryName + ".salary", salary);
+		conf.setProperty("salaries." + salaryName + ".salary", paycheck);
 		conf.setProperty("salaries." + salaryName + ".salaryInterval", salaryInterval);
 		conf.setProperty("salaries." + salaryName + ".employer", employer);
 		conf.setProperty("salaries." + salaryName + ".paidGroups", paidGroups);

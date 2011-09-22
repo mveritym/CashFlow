@@ -24,7 +24,7 @@ import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 public class PermissionsManager {
 
-	String pluginName;
+	String pluginName = "null";
 	PermissionManager pm;
 	WorldPermissionsManager wpm;
 	PermissionSet permissionsSet;

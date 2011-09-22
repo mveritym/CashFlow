@@ -53,7 +53,8 @@ public class CashFlow extends JavaPlugin{
 		
 		if(sender instanceof Player) {
 			senderPlayer = (Player) sender;
-			if(senderPlayer.isOp() || permsManager.hasPermission(senderPlayer, "cashflow." + cmd.getName())) {
+			String node = "cashflow." + cmd.getName();
+			if(senderPlayer.isOp() || permsManager.hasPermission(senderPlayer, node)) {
 				playerCanDo = true;
 			}
 		} else if (sender instanceof ConsoleCommandSender) {			
@@ -86,7 +87,7 @@ public class CashFlow extends JavaPlugin{
 			}
 		} 
 		sender.sendMessage(ChatColor.RED + "You are not allowed to use that command.");
-	    return false;
+	    return true;
 	}
 	
 }
