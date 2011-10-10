@@ -9,7 +9,6 @@ public enum CashFlowCommands {
 	disable,
 	restart,
 	setworld,
-	setonlineonly,
 	
 	create,
 	delete,
@@ -18,5 +17,6 @@ public enum CashFlowCommands {
 	addexception,
 	removeexception,
 	list,
-	info
+	info,
+	setonlineonly
 }

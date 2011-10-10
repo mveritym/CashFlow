@@ -19,7 +19,6 @@ public class SalaryManager {
 	
 	protected static CashFlow cashFlow;
     protected static Configuration conf;
-    protected static Configuration uconf;
     protected File confFile;
     List<String> salaries;
     List<String> paidGroups;
@@ -29,14 +28,14 @@ public class SalaryManager {
     Collection<Taxer> salaryTasks = new ArrayList<Taxer>();
 
 	public SalaryManager(CashFlow cashFlow) {
+		SalaryManager.cashFlow = cashFlow;
 		conf = null;
 		loadConf();
-		SalaryManager.cashFlow = cashFlow;
 		salaries = conf.getStringList("salaries.list", null);
 	}
 	
 	public void loadConf() {
-		File f = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
+		File f = new File(SalaryManager.cashFlow.getDataFolder(), "config.yml");
 
         if (f.exists()) {
         	conf = new Configuration(f);
@@ -44,8 +43,8 @@ public class SalaryManager {
         }
         else {
         	System.out.println("[" + SalaryManager.cashFlow.info.getName() + "] No config file found. Creating data file.");
-        	this.confFile = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
-            TaxManager.conf = new Configuration(confFile);  
+        	this.confFile = new File(SalaryManager.cashFlow.getDataFolder(), "config.yml");
+            SalaryManager.conf = new Configuration(confFile);  
             List<String> tempList = null;
             conf.setProperty("salaries.list", tempList);
             conf.save();
@@ -89,6 +88,8 @@ public class SalaryManager {
 		conf.setProperty("salaries." + salaryName + ".paidPlayers", paidPlayers);
 		conf.setProperty("salaries." + salaryName + ".lastPaid", null);
 		conf.setProperty("salaries." + salaryName + ".exceptedPlayers", null);
+		conf.setProperty("salaries." + salaryName + ".onlineOnly.isEnabled", false);
+		conf.setProperty("salaries." + salaryName + ".onlineOnly.interval", 0.0);
 		conf.save();
 	
 		sender.sendMessage(ChatColor.GREEN + "New salary " + salaryName + " created successfully.");
@@ -125,6 +126,8 @@ public class SalaryManager {
 			sender.sendMessage(ChatColor.BLUE + "Paid groups: " + conf.getStringList("salaries." + salaryName + ".paidGroups", null));
 			sender.sendMessage(ChatColor.BLUE + "Paid players: " + conf.getStringList("salaries." + salaryName + ".paidPlayers", null));
 			sender.sendMessage(ChatColor.BLUE + "Excepted users: " + conf.getStringList("salaries." + salaryName + ".exceptedPlayers", null));
+		    sender.sendMessage(ChatColor.BLUE + "Online only: " + conf.getBoolean("salaries." + salaryName + ".onlineOnly.isEnabled", false)
+		    		+ ", Online interval: " + conf.getDouble("salaries." + salaryName + ".onlineOnly.interval", 0.0) + " hours");
 		} else {
 			sender.sendMessage(ChatColor.RED + "No salary, " + salaryName + ", found.");
 		}
@@ -271,6 +274,14 @@ public class SalaryManager {
 		}
 	}
 	
+	public void setOnlineOnly(String salaryName, Boolean online, Double interval) {
+		loadConf();
+		conf.setProperty("salaries." + salaryName + ".onlineOnly.isEnabled", online);
+		conf.setProperty("salaries." + salaryName + ".onlineOnly.interval", interval);
+		conf.save();
+		return;
+	}
+	
 	public void addException(CommandSender sender, String salaryName, String userName) {
 		loadConf();
 		salaries = conf.getStringList("salaries.list", null);
@@ -307,6 +318,18 @@ public class SalaryManager {
 		}
 	}
 	
+	public List<String> checkOnline(List<String> users, Double interval) {
+		List<String> tempPlayerList = new ArrayList<String>();			
+		for(String player : users) {
+			if(interval == 0 && PermissionsManager.cashflow.getServer().getPlayer(player) != null) {
+				tempPlayerList.add(player);
+			} else if(interval != 0 && SalaryManager.cashFlow.playerLogManager.didLog(player, interval)) {
+				tempPlayerList.add(player);
+			}
+		}
+		return tempPlayerList;
+	}
+	
 	public void paySalary(String salaryName) {
 		System.out.println("[" + SalaryManager.cashFlow.info.getName() + "] Paying salary " + salaryName);
 		
@@ -323,6 +346,12 @@ public class SalaryManager {
 		String employer = conf.getString("salaries." + salaryName + ".employer");
 		
 		List<String> users = SalaryManager.cashFlow.permsManager.getUsers(groups, players, exceptedPlayers);
+		
+		if(conf.getBoolean("salaries." + salaryName + ".onlineOnly.isEnabled", false)) {
+			Double onlineInterval = conf.getDouble("salaries." + salaryName + ".onlineOnly.interval", 0);
+			users = checkOnline(users, onlineInterval);
+		}
+		
 		for(String user : users) {
 			if(SalaryManager.cashFlow.Method.hasAccount(user)) {
 				MethodAccount userAccount = SalaryManager.cashFlow.Method.getAccount(user);

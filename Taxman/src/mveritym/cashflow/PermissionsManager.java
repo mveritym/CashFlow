@@ -36,9 +36,10 @@ public class PermissionsManager {
 	Plugin plugin;
 	PermissionsPlugin permsPlugin;
 	
-	public PermissionsManager(CashFlow cashflow, String world) {
+	public PermissionsManager(CashFlow cashflow) {
+		loadConf();
 		PermissionsManager.cashflow = cashflow;
-		this.world = world;
+		this.world = conf.getString("world", null);
 		pluginManager = PermissionsManager.cashflow.getServer().getPluginManager();
 		
 		if(pluginManager.getPlugin("PermissionsBukkit") != null) {
@@ -57,7 +58,7 @@ public class PermissionsManager {
 			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] Using bPermissions plugin.");
 			pluginName = "bPermissions";
 			wpm = Permissions.getWorldPermissionsManager();
-			permissionsSet = wpm.getPermissionSet(world);
+			permissionsSet = wpm.getPermissionSet(this.world);
 			plugin = pluginManager.getPlugin("bPermissions");
 			
 		} else {
@@ -185,16 +186,6 @@ public class PermissionsManager {
 			playerList.remove(player);
 		}
 		
-		if(onlineOnly) {
-			List<String> tempPlayerList = new ArrayList<String>();			
-			for(String player : playerList) {
-				if(PermissionsManager.cashflow.getServer().getPlayer(player) != null) {
-					tempPlayerList.add(player);
-				}
-			}
-			playerList = tempPlayerList;
-		}
-		
 		return playerList;
 	}
 	
@@ -255,13 +246,6 @@ public class PermissionsManager {
 		}
 		
 		return false;
-	}
-	
-	public void setOnlineOnly(Boolean online) {
-		loadConf();
-		conf.setProperty("onlineOnly", online);
-		conf.save();
-		return;
 	}
 	
 	public void loadConf() {

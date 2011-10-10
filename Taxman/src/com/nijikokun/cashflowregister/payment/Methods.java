@@ -6,6 +6,8 @@ import java.util.Set;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
+import com.nijikokun.cashflowregister.payment.Method;
+
 /**
  * The <code>Methods</code> initializes Methods that utilize the Method interface
  * based on a "first come, first served" basis.
@@ -149,7 +151,7 @@ public class Methods {
                 break;
 
             plugin = manager.getPlugin(name);
-            if (plugin == null)
+            if (plugin == null || !plugin.isEnabled())
                 continue;
 
             Method current = createMethod(plugin);
@@ -172,8 +174,7 @@ public class Methods {
                             continue;
 
                         if (hasMethod()) {
-                            match = true;
-                            break;
+                            match = true; break;
                         }
 
                         if (preferred.isEmpty())

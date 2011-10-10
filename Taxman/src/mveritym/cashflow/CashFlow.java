@@ -14,32 +14,47 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.nijikokun.cashflowregister.payment.Method;
+import com.nijikokun.cashflowregister.Register;
 import com.nijikokun.cashflowregister.payment.Methods;
+import com.nijikokun.cashflowregister.payment.Method;
 
 public class CashFlow extends JavaPlugin{
 
 	public Logger log = Logger.getLogger("Minecraft");
 	public PluginDescriptionFile info;
 	public PluginManager pluginManager;
+	public TaxManager taxManager;
+	public SalaryManager salaryManager;
 	public CommandManager commandManager;
 	public PermissionsManager permsManager;
+	public PlayerLogManager playerLogManager;
+	public Register register;
 	public Methods Methods = null;
 	public Method Method = null;
 	public Plugin plugin;
 	
 	public void onEnable() {		
 		info = getDescription();
-		
-		pluginManager = getServer().getPluginManager();		
+        
+        pluginManager = getServer().getPluginManager();
+        
 		pluginManager.registerEvent(Event.Type.PLUGIN_ENABLE, new server(this), Priority.Monitor, this);
         pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, new server(this), Priority.Monitor, this);
         
-        permsManager = new PermissionsManager(this, "world");
-        commandManager = new CommandManager(this);
+        permsManager = new PermissionsManager(this);
+        taxManager = new TaxManager(this);
+        salaryManager = new SalaryManager(this);
+        commandManager = new CommandManager(this, taxManager, salaryManager);
+        playerLogManager = new PlayerLogManager(this);
+        
+        pluginManager.registerEvent(Event.Type.PLAYER_QUIT, playerLogManager, Event.Priority.Normal, this);
         
         System.out.println("[" + info.getName() + "] v" + info.getVersion() + " has been enabled.");
         
+        taxManager.disable();
+		salaryManager.disable();
+		taxManager.enable();
+		salaryManager.enable();
 	}
 	
 	public void onDisable() {
@@ -62,6 +77,7 @@ public class CashFlow extends JavaPlugin{
 		}
 		
 		CashFlowCommands execCmd = CashFlowCommands.valueOf(cmd.getName());
+		
 		if(playerCanDo || isConsole) {
 			switch(execCmd) {
 				case tax:

@@ -9,18 +9,20 @@ public class CommandManager {
 	private TaxManager taxManager;
 	private SalaryManager salaryManager;
 	
-	public CommandManager(CashFlow cashFlow) {
+	public CommandManager(CashFlow cashFlow, TaxManager taxManager, SalaryManager salaryManager) {
 		this.cashFlow = cashFlow;
-		this.taxManager = new TaxManager(this.cashFlow);
-		this.salaryManager = new SalaryManager(this.cashFlow);
+		this.taxManager = taxManager;
+		this.salaryManager = salaryManager;
 	}
 	
-	public boolean returnTrue() {
-		return true;
-	}
-	
-	public boolean taxCommand(CommandSender sender, String[] tempArgs) {
-		CashFlowCommands cmd = CashFlowCommands.valueOf(tempArgs[0]);
+	public boolean taxCommand(CommandSender sender, String[] tempArgs) {		
+		CashFlowCommands cmd;
+		
+		try {
+			cmd = CashFlowCommands.valueOf(tempArgs[0]);
+		} catch(Exception e) {
+			return false;
+		}
 		
 		String args[] = new String[tempArgs.length - 1];
 		for(int i = 1; i < tempArgs.length; i++) {
@@ -40,7 +42,7 @@ public class CommandManager {
 				interval = args[2];
 				receiverName = args[3];
 				
-				taxManager.createTax(sender, name, percentOfBal, interval, receiverName);
+				this.taxManager.createTax(sender, name, percentOfBal, interval, receiverName);
 				return true;
 			} else if(args.length == 3) {
 				try {
@@ -56,7 +58,7 @@ public class CommandManager {
 				interval = args[2];
 				receiverName = "null";
 
-				taxManager.createTax(sender, name, percentOfBal, interval, receiverName);
+				this.taxManager.createTax(sender, name, percentOfBal, interval, receiverName);
 				return true;
 			} else {
 				sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
@@ -64,7 +66,7 @@ public class CommandManager {
 			}
 		case delete:
 			if(args.length == 1) {
-				taxManager.deleteTax(sender, args[0]);
+				this.taxManager.deleteTax(sender, args[0]);
 				return true;
 			} else if(args.length > 1) {
 				sender.sendMessage(ChatColor.RED + "Too many arguments.");
@@ -77,14 +79,14 @@ public class CommandManager {
 			if(args.length >= 3) {
 				if(args[0].equals("group")) {
 					if(this.cashFlow.permsManager.pluginDetected()) {
-						taxManager.addGroups(sender, args[1], args[2]);
+						this.taxManager.addGroups(sender, args[1], args[2]);
 						return true;
 					} else {
 						sender.sendMessage(ChatColor.RED + "You must install a permissions plugin to use this command.");
 						return true;
 					}					
 				} else if(args[0].equals("player")) {
-					taxManager.addPlayers(sender, args[1], args[2]);
+					this.taxManager.addPlayers(sender, args[1], args[2]);
 					return true;
 				}
 				sender.sendMessage(ChatColor.RED + "Incorrect argument.");
@@ -97,14 +99,14 @@ public class CommandManager {
 			if(args.length >= 3) {
 				if(args[0].equals("group")) {
 					if(this.cashFlow.permsManager.pluginDetected()) {
-						taxManager.removeGroups(sender, args[1], args[2]);
+						this.taxManager.removeGroups(sender, args[1], args[2]);
 						return true;
 					} else {
 						sender.sendMessage(ChatColor.RED + "You must install a permissions plugin to use this command.");
 						return true;
 					}
 				} else if(args[0].equals("player")) {
-					taxManager.removePlayers(sender, args[1], args[2]);
+					this.taxManager.removePlayers(sender, args[1], args[2]);
 					return true;
 				}
 				sender.sendMessage(ChatColor.RED + "Incorrect argument.");
@@ -115,7 +117,7 @@ public class CommandManager {
 			}
 		case addexception:
 			if(args.length == 2) {
-				taxManager.addException(sender, args[0], args[1]);
+				this.taxManager.addException(sender, args[0], args[1]);
 				return true;
 			} else {
 				sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
@@ -123,7 +125,7 @@ public class CommandManager {
 			}
 		case removeexception:
 			if(args.length == 2) {
-				taxManager.removeException(sender, args[0], args[1]);
+				this.taxManager.removeException(sender, args[0], args[1]);
 				return true;
 			} else {
 				sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
@@ -134,15 +136,32 @@ public class CommandManager {
 				sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
 				return false;
 			} else {
-				taxManager.listTaxes(sender);
+				this.taxManager.listTaxes(sender);
 				return true;
 			}	
 		case info:
 			if(args.length == 1) {
-				taxManager.taxInfo(sender, args[0]);
+				this.taxManager.taxInfo(sender, args[0]);
 				return true;
 			} else {
 				sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+				return false;
+			}
+		case setonlineonly:
+			if(args.length == 2 || args.length == 3) {
+				if(args[1].equals("true") || args[1].equals("false")) {
+					Double onlineInterval = 0.0;
+					if(args.length == 3) {
+						onlineInterval = Math.abs(Double.parseDouble(args[2]));
+					}
+					this.taxManager.setOnlineOnly(args[0], Boolean.parseBoolean(args[1]), onlineInterval);
+					sender.sendMessage(ChatColor.GREEN + "Online only set to " + args[1]);
+					return true;
+				} else {
+					sender.sendMessage(ChatColor.RED + "Online only can only be set to true or false.");
+					return false;
+				}
+			} else {
 				return false;
 			}
 		default:
@@ -152,7 +171,13 @@ public class CommandManager {
 	}
 	
 	public boolean salaryCommand(CommandSender sender, String[] tempArgs) {
-		CashFlowCommands cmd = CashFlowCommands.valueOf(tempArgs[0]);
+		CashFlowCommands cmd;
+		
+		try {
+			cmd = CashFlowCommands.valueOf(tempArgs[0]);
+		} catch(Exception e) {
+			return false;
+		}
 		
 		String args[] = new String[tempArgs.length - 1];
 		for(int i = 1; i < tempArgs.length; i++) {
@@ -172,7 +197,7 @@ public class CommandManager {
 					interval = args[2];
 					employer = args[3];
 					
-					salaryManager.createSalary(sender, name, salary, interval, employer);
+					this.salaryManager.createSalary(sender, name, salary, interval, employer);
 					return true;
 				} else if(args.length == 3) {
 					try {
@@ -188,7 +213,7 @@ public class CommandManager {
 					interval = args[2];
 					employer = "null";
 
-				    salaryManager.createSalary(sender, name, salary, interval, employer);
+				    this.salaryManager.createSalary(sender, name, salary, interval, employer);
 					return true;
 				} else {
 					sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
@@ -196,7 +221,7 @@ public class CommandManager {
 				}
 			case delete:
 				if(args.length == 1) {
-					salaryManager.deleteSalary(sender, args[0]);
+					this.salaryManager.deleteSalary(sender, args[0]);
 					return true;
 				} else if(args.length > 1) {
 					sender.sendMessage(ChatColor.RED + "Too many arguments.");
@@ -209,14 +234,14 @@ public class CommandManager {
 				if(args.length >= 3) {
 					if(args[0].equals("group")) {
 						if(this.cashFlow.permsManager.pluginDetected()) {
-							salaryManager.addGroups(sender, args[1], args[2]);
+							this.salaryManager.addGroups(sender, args[1], args[2]);
 							return true;
 						} else {
 							sender.sendMessage(ChatColor.RED + "You must install a permissions plugin to use this command.");
 							return true;
 						}
 					} else if(args[0].equals("player")) {
-						salaryManager.addPlayers(sender, args[1], args[2]);
+						this.salaryManager.addPlayers(sender, args[1], args[2]);
 						return true;
 					}
 					sender.sendMessage(ChatColor.RED + "Incorrect argument.");
@@ -229,14 +254,14 @@ public class CommandManager {
 				if(args.length >= 3) {
 					if(args[0].equals("group")) {
 						if(this.cashFlow.permsManager.pluginDetected()) {
-							salaryManager.removeGroups(sender, args[1], args[2]);
+							this.salaryManager.removeGroups(sender, args[1], args[2]);
 							return true;
 						} else {
 							sender.sendMessage(ChatColor.RED + "You must install a permissions plugin to use this command.");
 							return true;
 						}
 					} else if(args[0].equals("player")) {
-						salaryManager.removePlayers(sender, args[1], args[2]);
+						this.salaryManager.removePlayers(sender, args[1], args[2]);
 						return true;
 					}
 					sender.sendMessage(ChatColor.RED + "Incorrect argument.");
@@ -247,7 +272,7 @@ public class CommandManager {
 				}
 			case addexception:
 				if(args.length == 2) {
-					salaryManager.addException(sender, args[0], args[1]);
+					this.salaryManager.addException(sender, args[0], args[1]);
 					return true;
 				} else {
 					sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
@@ -255,7 +280,7 @@ public class CommandManager {
 				}
 			case removeexception:
 				if(args.length == 2) {
-					salaryManager.removeException(sender, args[0], args[1]);
+					this.salaryManager.removeException(sender, args[0], args[1]);
 					return true;
 				} else {
 					sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
@@ -266,15 +291,32 @@ public class CommandManager {
 					sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
 					return false;
 				} else {
-					salaryManager.listSalaries(sender);
+					this.salaryManager.listSalaries(sender);
 					return true;
 				}	
 			case info:
 				if(args.length == 1) {
-					salaryManager.salaryInfo(sender, args[0]);
+					this.salaryManager.salaryInfo(sender, args[0]);
 					return true;
 				} else {
 					sender.sendMessage(ChatColor.RED + "Incorrect number of arguments.");
+					return false;
+				}
+			case setonlineonly:
+				if(args.length == 2 || args.length == 3) {
+					if(args[1].equals("true") || args[1].equals("false")) {
+						Double onlineInterval = 0.0;
+						if(args.length == 3) {
+							onlineInterval = Math.abs(Double.parseDouble(args[2]));
+						}
+						this.salaryManager.setOnlineOnly(args[0], Boolean.parseBoolean(args[1]), onlineInterval);
+						sender.sendMessage(ChatColor.GREEN + "Online only set to " + args[1]);
+						return true;
+					} else {
+						sender.sendMessage(ChatColor.RED + "Online only can only be set to true or false.");
+						return false;
+					}
+				} else {
 					return false;
 				}
 			default:
@@ -283,7 +325,13 @@ public class CommandManager {
 	}
 	
 	public boolean cashflowCommand(CommandSender sender, String[] tempArgs) {
-		CashFlowCommands cmd = CashFlowCommands.valueOf(tempArgs[0]);
+		CashFlowCommands cmd;
+		
+		try {
+			cmd = CashFlowCommands.valueOf(tempArgs[0]);
+		} catch(Exception e) {
+			return false;
+		}
 		
 		String args[] = new String[tempArgs.length - 1];
 		for(int i = 1; i < tempArgs.length; i++) {
@@ -293,8 +341,8 @@ public class CommandManager {
 		switch(cmd) {
 			case enable:
 				if(args.length == 0) {
-					taxManager.enable();
-					salaryManager.enable();
+					this.taxManager.enable();
+					this.salaryManager.enable();
 					sender.sendMessage(ChatColor.GREEN + "Taxes and salaries enabled.");
 					return true;
 				} else {
@@ -303,8 +351,8 @@ public class CommandManager {
 				}
 			case disable:
 				if(args.length == 0) {
-					taxManager.disable();
-					salaryManager.disable();
+					this.taxManager.disable();
+					this.salaryManager.disable();
 					sender.sendMessage(ChatColor.GREEN + "Taxes and salaries disabled.");
 					return true;
 				} else {
@@ -313,10 +361,10 @@ public class CommandManager {
 				}
 			case restart:
 				if(args.length == 0) {
-					taxManager.disable();
-					salaryManager.disable();
-					taxManager.enable();
-					salaryManager.enable();
+					this.taxManager.disable();
+					this.salaryManager.disable();
+					this.taxManager.enable();
+					this.salaryManager.enable();
 					sender.sendMessage(ChatColor.GREEN + "Taxes and salaries restarted.");
 					return true;
 				} else {
@@ -330,19 +378,6 @@ public class CommandManager {
 						sender.sendMessage(ChatColor.RED + "World not found.");
 					}
 					return true;
-				} else {
-					return false;
-				}
-			case setonlineonly:
-				if(args.length == 1) {
-					if(args[0].equals("true") || args[0].equals("false")) {
-						this.cashFlow.permsManager.setOnlineOnly(Boolean.parseBoolean(args[0]));
-						sender.sendMessage(ChatColor.GREEN + "Online only set to " + args[0]);
-						return true;
-					} else {
-						sender.sendMessage(ChatColor.RED + "Online only can only be set to true or false.");
-						return false;
-					}
 				} else {
 					return false;
 				}

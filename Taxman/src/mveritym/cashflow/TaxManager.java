@@ -98,6 +98,8 @@ public class TaxManager {
 		conf.setProperty("taxes." + taxName + ".payingPlayers", payingPlayers);
 		conf.setProperty("taxes." + taxName + ".lastPaid", null);
 		conf.setProperty("taxes." + taxName + ".exceptedPlayers", null);
+		conf.setProperty("taxes." + taxName + ".onlineOnly.isEnabled", false);
+		conf.setProperty("taxes." + taxName + ".onlineOnly.interval", 0.0);
 		conf.save();
 	
 		sender.sendMessage(ChatColor.GREEN + "New tax " + taxName + " created successfully.");
@@ -134,6 +136,8 @@ public class TaxManager {
 			sender.sendMessage(ChatColor.BLUE + "Paying groups: " + conf.getStringList("taxes." + taxName + ".payingGroups", null));
 			sender.sendMessage(ChatColor.BLUE + "Paying players: " + conf.getStringList("taxes." + taxName + ".payingPlayers", null));
 			sender.sendMessage(ChatColor.BLUE + "Excepted users: " + conf.getStringList("taxes." + taxName + ".exceptedPlayers", null));
+			sender.sendMessage(ChatColor.BLUE + "Online only: " + conf.getBoolean("taxes." + taxName + ".onlineOnly.isEnabled", false)
+		    		+ ", Online interval: " + conf.getDouble("taxes." + taxName + ".onlineOnly.interval", 0.0) + " hours");
 		} else {
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
 		}
@@ -273,6 +277,18 @@ public class TaxManager {
 		}
 	}
 	
+	public List<String> checkOnline(List<String> users, Double interval) {
+		List<String> tempPlayerList = new ArrayList<String>();			
+		for(String player : users) {
+			if(interval == 0 && PermissionsManager.cashflow.getServer().getPlayer(player) != null) {
+				tempPlayerList.add(player);
+			} else if(interval != 0 && SalaryManager.cashFlow.playerLogManager.didLog(player, interval)) {
+				tempPlayerList.add(player);
+			}
+		}
+		return tempPlayerList;
+	}
+	
 	public void payTax(String taxName) {
 		System.out.println("[" + TaxManager.cashFlow.info.getName() + "] Paying tax " + taxName);
 		
@@ -290,8 +306,13 @@ public class TaxManager {
 		Double taxRate;
 		
 		List<String> users = TaxManager.cashFlow.permsManager.getUsers(groups, players, exceptedPlayers);
+		
+		if(conf.getBoolean("taxes." + taxName + ".onlineOnly.isEnabled", false)) {
+			Double onlineInterval = conf.getDouble("taxes." + taxName + ".onlineOnly.interval", 0);
+			users = checkOnline(users, onlineInterval);
+		}
+		
 		for(String user : users) {
-			System.out.println(user);
 			if(TaxManager.cashFlow.Method.hasAccount(user)) {
 				MethodAccount userAccount = TaxManager.cashFlow.Method.getAccount(user);
 				Player player = TaxManager.cashFlow.getServer().getPlayer(user);
@@ -335,6 +356,14 @@ public class TaxManager {
 		for(Taxer taxTask : taxTasks) {
 			taxTask.cancel();
 		}
+	}
+	
+	public void setOnlineOnly(String taxName, Boolean online, Double interval) {
+		loadConf();
+		conf.setProperty("taxes." + taxName + ".onlineOnly.isEnabled", online);
+		conf.setProperty("taxes." + taxName + ".onlineOnly.interval", interval);
+		conf.save();
+		return;
 	}
 	
 	public void addException(CommandSender sender, String taxName, String userName) {
