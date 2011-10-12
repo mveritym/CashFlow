@@ -14,7 +14,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
-import com.nijikokun.cashflowregister.payment.Method.MethodAccount;
+import com.nijikokun.register.payment.Method.MethodAccount;
 
 public class TaxManager {
 	protected static CashFlow cashFlow;
@@ -113,6 +113,13 @@ public class TaxManager {
 		
 		if(taxes.contains(taxName)) {
 			taxes.remove(taxName);
+			
+			for(Taxer task : taxTasks) {
+				if(task.getName().equals(name)) {
+					task.cancel();
+				}
+			}
+			
 			conf.setProperty("taxes.list", taxes);
 			conf.removeProperty("taxes." + taxName);
 			conf.save();

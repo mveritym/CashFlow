@@ -14,9 +14,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.nijikokun.cashflowregister.Register;
-import com.nijikokun.cashflowregister.payment.Methods;
-import com.nijikokun.cashflowregister.payment.Method;
+import com.nijikokun.register.Register;
+import com.nijikokun.register.payment.Method;
+import com.nijikokun.register.payment.Methods;
 
 public class CashFlow extends JavaPlugin{
 
@@ -41,9 +41,9 @@ public class CashFlow extends JavaPlugin{
 		pluginManager.registerEvent(Event.Type.PLUGIN_ENABLE, new server(this), Priority.Monitor, this);
         pluginManager.registerEvent(Event.Type.PLUGIN_DISABLE, new server(this), Priority.Monitor, this);
         
-        permsManager = new PermissionsManager(this);
         taxManager = new TaxManager(this);
         salaryManager = new SalaryManager(this);
+        permsManager = new PermissionsManager(this);
         commandManager = new CommandManager(this, taxManager, salaryManager);
         playerLogManager = new PlayerLogManager(this);
         

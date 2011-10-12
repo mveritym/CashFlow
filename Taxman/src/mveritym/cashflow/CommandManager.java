@@ -15,7 +15,7 @@ public class CommandManager {
 		this.salaryManager = salaryManager;
 	}
 	
-	public boolean taxCommand(CommandSender sender, String[] tempArgs) {		
+	public boolean taxCommand(CommandSender sender, String[] tempArgs) {
 		CashFlowCommands cmd;
 		
 		try {

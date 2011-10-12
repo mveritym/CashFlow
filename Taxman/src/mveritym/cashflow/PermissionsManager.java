@@ -6,12 +6,16 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.CraftOfflinePlayer;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.config.Configuration;
 
+import com.platymuus.bukkit.permissions.Group;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 
 import de.bananaco.permissions.Permissions;
@@ -37,18 +41,16 @@ public class PermissionsManager {
 	PermissionsPlugin permsPlugin;
 	
 	public PermissionsManager(CashFlow cashflow) {
-		loadConf();
 		PermissionsManager.cashflow = cashflow;
-		this.world = conf.getString("world", null);
+		loadConf();
+		this.world = conf.getString("world", "world");
 		pluginManager = PermissionsManager.cashflow.getServer().getPluginManager();
 		
 		if(pluginManager.getPlugin("PermissionsBukkit") != null) {
-			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] PermissionsBukkit is not supported at this time.");
-			/*
 			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] Using PermissionsBukkit plugin.");
 			pluginName = "PermissionsBukkit";
 			plugin = pluginManager.getPlugin("PermissionsBukkit");
-			*/
+			permsPlugin = (PermissionsPlugin) plugin;
 		} else if(PermissionsManager.cashflow.getServer().getPluginManager().getPlugin("PermissionsEx") != null) {
 			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] Using PermissionsEx plugin.");
 			pluginName = "PermissionsEx";
@@ -111,14 +113,13 @@ public class PermissionsManager {
 				}
 			}
 			return false;
-		} /*else if(pluginName.equals("PermissionsBukkit")) {
-			return true;
-			if(permsPlugin.getGroup(groupName) != null) {
-				return true;
-			} else {
+		} else if(pluginName.equals("PermissionsBukkit")) {
+			if(permsPlugin.getGroup(groupName) == null) {
 				return false;
+			} else {
+				return true;
 			}
-		} */else if(pluginName.equals("bPermissions")) {
+		} else if(pluginName.equals("bPermissions")) {
 			if(permissionsSet.getGroupNodes(groupName).size() != 0) {
 				return true;
 			} else {
@@ -132,7 +133,6 @@ public class PermissionsManager {
 	public List<String> getUsers(List<String> groups, List<String> players, List<String> exceptedPlayers) {
 		List<String> playerList = new ArrayList<String>();
 		loadConf();
-		Boolean onlineOnly = conf.getBoolean("onlineOnly", false);
 		
 		if(pluginDetected()) {
 			if(pluginName.equals("PermissionsEx")) {
@@ -146,24 +146,19 @@ public class PermissionsManager {
 						}
 					}
 				}
-			} /*else if(pluginName.equals("PermissionsBukkit")) {
+			} else if(pluginName.equals("PermissionsBukkit")) {
 				for(String groupName : groups) {
-					//Group group = permsPlugin.getGroup(groupName);
-					System.out.println(PermissionsPlugin.getAllGroups() == null);
-					System.out.println("GROUPS: " + permsPlugin.getAllGroups());
-					
-					for(Group group : permsPlugin.getAllGroups()) {
-						System.out.println(group);
-					}
-					
-					List<String> players = group.getPlayers();
-					
-					for(String player : players) {
-						System.out.println(player);
-						playerList.add(player);
+					if(isGroup(groupName)) {
+						Group group = permsPlugin.getGroup(groupName);
+						List<String> groupPlayers = group.getPlayers();
+						if(groupPlayers != null) {
+							for(String player : groupPlayers) {
+								playerList.add(player);
+							}
+						}						
 					}
 				}
-			} */else if(pluginName.equals("bPermissions")) {
+			} else if(pluginName.equals("bPermissions")) {
 				for(String groupName : groups) {
 					List<String> groupPlayers = getAllPlayers();
 					for(String playerName : groupPlayers) {
@@ -249,7 +244,7 @@ public class PermissionsManager {
 	}
 	
 	public void loadConf() {
-    	File f = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
+    	File f = new File(PermissionsManager.cashflow.getDataFolder(), "config.yml");
 
         if (f.exists()) {
         	conf = new Configuration(f);

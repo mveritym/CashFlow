@@ -13,7 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
-import com.nijikokun.cashflowregister.payment.Method.MethodAccount;
+import com.nijikokun.register.payment.Method.MethodAccount;
 
 public class SalaryManager {
 	
@@ -103,6 +103,13 @@ public class SalaryManager {
 		
 		if(salaries.contains(salaryName)) {
 			salaries.remove(salaryName);
+			
+			for(Taxer task : salaryTasks) {
+				if(task.getName().equals(name)) {
+					task.cancel();
+				}
+			}
+			
 			conf.setProperty("salaries.list", salaries);
 			conf.removeProperty("salaries." + salaryName);
 			conf.save();
@@ -321,7 +328,7 @@ public class SalaryManager {
 	public List<String> checkOnline(List<String> users, Double interval) {
 		List<String> tempPlayerList = new ArrayList<String>();			
 		for(String player : users) {
-			if(interval == 0 && PermissionsManager.cashflow.getServer().getPlayer(player) != null) {
+			if(PermissionsManager.cashflow.getServer().getPlayer(player) != null) {
 				tempPlayerList.add(player);
 			} else if(interval != 0 && SalaryManager.cashFlow.playerLogManager.didLog(player, interval)) {
 				tempPlayerList.add(player);

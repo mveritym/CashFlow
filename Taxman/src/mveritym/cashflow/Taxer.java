@@ -16,7 +16,7 @@ public class Taxer {
 
 	public Taxer(TaxManager taxManager, String taxName, Double hours, Date lastPaid) {
 		this.taxManager = taxManager;
-		this.name = taxName;
+		this.setName(taxName);
 		this.hours = hours;
 		this.first = true;
 		this.lastPaid = lastPaid;
@@ -33,7 +33,7 @@ public class Taxer {
 	
 	public Taxer(SalaryManager salaryManager, String taxName, Double hours, Date lastPaid) {
 		this.salaryManager = salaryManager;
-		this.name = taxName;
+		this.setName(taxName);
 		this.hours = hours;
 		this.first = true;
 		this.lastPaid = lastPaid;
@@ -52,12 +52,20 @@ public class Taxer {
 		this.timer.cancel();
 	}
 
-    class TaxTask extends TimerTask {
+    public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	class TaxTask extends TimerTask {
         public void run() {
         	if(first) {
         		first = false;
         	} else {
-        		taxManager.payTax(name);
+        		taxManager.payTax(getName());
         	}
         }
     }
@@ -67,7 +75,7 @@ public class Taxer {
         	if(first) {
         		first = false;
         	} else {
-        		salaryManager.paySalary(name);
+        		salaryManager.paySalary(getName());
         	}
         }
     }
