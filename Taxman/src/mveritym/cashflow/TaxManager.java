@@ -320,8 +320,8 @@ public class TaxManager {
 		}
 		
 		for(String user : users) {
-			if(TaxManager.cashFlow.Method.hasAccount(user)) {
-				MethodAccount userAccount = TaxManager.cashFlow.Method.getAccount(user);
+			if(TaxManager.cashFlow.method.hasAccount(user)) {
+				MethodAccount userAccount = TaxManager.cashFlow.method.getAccount(user);
 				Player player = TaxManager.cashFlow.getServer().getPlayer(user);
 				DecimalFormat twoDForm = new DecimalFormat("#.##");
 				
@@ -346,7 +346,7 @@ public class TaxManager {
 				}
 				
 				if(!(receiver.equals("null"))) {
-					MethodAccount receiverAccount = TaxManager.cashFlow.Method.getAccount(receiver);
+					MethodAccount receiverAccount = TaxManager.cashFlow.method.getAccount(receiver);
 					Player receiverPlayer = TaxManager.cashFlow.getServer().getPlayer(receiver);
 					
 					receiverAccount.add(taxRate);

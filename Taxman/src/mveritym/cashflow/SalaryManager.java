@@ -360,8 +360,8 @@ public class SalaryManager {
 		}
 		
 		for(String user : users) {
-			if(SalaryManager.cashFlow.Method.hasAccount(user)) {
-				MethodAccount userAccount = SalaryManager.cashFlow.Method.getAccount(user);
+			if(SalaryManager.cashFlow.method.hasAccount(user)) {
+				MethodAccount userAccount = SalaryManager.cashFlow.method.getAccount(user);
 				userAccount.add(salary);
 				Player player = SalaryManager.cashFlow.getServer().getPlayer(user);
 				if(player != null) {
@@ -375,7 +375,7 @@ public class SalaryManager {
 				}
 				
 				if(!(employer.equals("null"))) {
-					MethodAccount employerAccount = SalaryManager.cashFlow.Method.getAccount(employer);
+					MethodAccount employerAccount = SalaryManager.cashFlow.method.getAccount(employer);
 					employerAccount.subtract(salary);
 					Player employerPlayer = TaxManager.cashFlow.getServer().getPlayer(employer);
 					if(employerPlayer != null) {

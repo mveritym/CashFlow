@@ -27,7 +27,7 @@ public class server extends ServerListener {
          Boolean check = com.nijikokun.register.payment.Methods.checkDisabled(event.getPlugin());
 
          if(check) {
-             this.cashFlow.Method = null;
+             this.cashFlow.method = null;
              System.out.println("[" + cashFlow.info.getName() + "] Payment method was disabled. No longer accepting payments.");
          }
      }
@@ -38,10 +38,10 @@ public class server extends ServerListener {
      // Check to see if we need a payment method
      if (!com.nijikokun.register.payment.Methods.hasMethod()) {
          if(com.nijikokun.register.payment.Methods.setMethod(event.getPlugin().getServer().getPluginManager())) {
-             // You might want to make this a public variable inside your MAIN class public Method Method = null;
+             // You might want to make this a public variable inside your MAIN class public method method = null;
              // then reference it through this.plugin.Method so that way you can use it in the rest of your plugin ;)
-             this.cashFlow.Method = com.nijikokun.register.payment.Methods.getMethod();
-             System.out.println("[" + cashFlow.info.getName() + "] Payment method found (" + this.cashFlow.Method.getName() + " version: " + this.cashFlow.Method.getVersion() + ")");
+             this.cashFlow.method = com.nijikokun.register.payment.Methods.getMethod();
+             System.out.println("[" + cashFlow.info.getName() + "] Payment method found (" + this.cashFlow.method.getName() + " version: " + this.cashFlow.method.getVersion() + ")");
          } else {
         	 System.out.println("Payment method not found. Disabling plugin.");
         	 this.cashFlow.pluginManager.disablePlugin(this.cashFlow);

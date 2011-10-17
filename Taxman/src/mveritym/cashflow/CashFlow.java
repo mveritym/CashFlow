@@ -18,6 +18,7 @@ import com.nijikokun.register.Register;
 import com.nijikokun.register.payment.Method;
 import com.nijikokun.register.payment.Methods;
 
+
 public class CashFlow extends JavaPlugin{
 
 	public Logger log = Logger.getLogger("Minecraft");
@@ -30,7 +31,7 @@ public class CashFlow extends JavaPlugin{
 	public PlayerLogManager playerLogManager;
 	public Register register;
 	public Methods Methods = null;
-	public Method Method = null;
+	public Method method = null;
 	public Plugin plugin;
 	
 	public void onEnable() {		

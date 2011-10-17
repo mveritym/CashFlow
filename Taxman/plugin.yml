@@ -1,6 +1,6 @@
 name: CashFlow
 main: mveritym.cashflow.CashFlow
-version: 0.4.2
+version: 1.0.0
 softdepend: [BOSEconomy7, MultiCurrency, Essentials, iCo5, iCo6]
 commands:
     tax:
@@ -17,7 +17,7 @@ commands:
            /<command> removeexception <taxname> <playername> - Removes the player as an exception (case sensitive!)
            /<command> list - Lists each tax
            /<command> info <taxname> - Lists information about a tax
-           /<command> setonlineonly <taxname> <true|false> [interval] - Sets taxes to be collected from online players only.
+           /<command> setonlineonly <taxname> <true|false> [interval] - Sets a particular tax to be collected only from players who have been online in the last x hours.
     salary:
       description: Provides access to salary commands.
       usage: |
@@ -28,11 +28,11 @@ commands:
           /<command> apply player <salaryname> <playernames> - Applies players to a salary (comma separated)
           /<command> remove group <salaryname> <groupnames> - Removes groups from a salary (comma separated)
           /<command> remove player <salaryname> <playernames> - Removes players from a salary (comma separated)
-          /<command> addexception <taxname> <playername> - Adds the player as an exception
-          /<command> removeexception <taxname> <playername> - Removes the player as an exception
+          /<command> addexception <salaryname> <playername> - Adds the player as an exception
+          /<command> removeexception <salaryname> <playername> - Removes the player as an exception
           /<command> list - Lists each salary
           /<command> info <salaryname> - Lists information about a salary
-          /<command> setonlineonly <salaryname> <true|false> [interval] - Sets salaries to be paid to online players only.
+          /<command> setonlineonly <salaryname> <true|false> [interval] - Sets a particular salary to be paid only to players who have been online in the last x hours.
     cashflow:
         description: Lets you enable, disable, restart or set the world.
         usage: |

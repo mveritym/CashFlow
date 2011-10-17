@@ -6,14 +6,11 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.CraftOfflinePlayer;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.util.config.Configuration;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import com.platymuus.bukkit.permissions.Group;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
@@ -33,7 +30,7 @@ public class PermissionsManager {
 	WorldPermissionsManager wpm;
 	PermissionSet permissionsSet;
 	protected static CashFlow cashflow;
-	protected static Configuration conf;
+	protected static FileConfiguration conf;
 	protected File confFile;
 	String world;
 	PluginManager pluginManager;
@@ -140,7 +137,7 @@ public class PermissionsManager {
 					PermissionUser[] userList = pm.getUsers(groupName);
 					if(userList.length > 0) {
 						for(PermissionUser pu : userList) {
-							if(isPlayer(pu.getName())) { 
+							if(isPlayer(pu.getName()) && !(playerList.contains(pu.getName()))) { 
 								playerList.add(pu.getName());
 							}
 						}
@@ -153,6 +150,7 @@ public class PermissionsManager {
 						List<String> groupPlayers = group.getPlayers();
 						if(groupPlayers != null) {
 							for(String player : groupPlayers) {
+								if(!(playerList.contains(player)))
 								playerList.add(player);
 							}
 						}						
@@ -162,9 +160,11 @@ public class PermissionsManager {
 				for(String groupName : groups) {
 					List<String> groupPlayers = getAllPlayers();
 					for(String playerName : groupPlayers) {
-						List<String> groupNames = permissionsSet.getGroups(playerName);
-						if(groupNames.contains(groupName)) {
-							playerList.add(playerName);
+						if(!(playerList.contains(playerName))) {
+							List<String> groupNames = permissionsSet.getGroups(playerName);
+							if(groupNames.contains(groupName)) {
+								playerList.add(playerName);
+							}
 						}
 					}
 				}
@@ -234,8 +234,8 @@ public class PermissionsManager {
 		List<World> worlds = PermissionsManager.cashflow.getServer().getWorlds();
 		for(World world : worlds) {
 			if(world.getName().equals(worldName)) {
-				conf.setProperty("world", worldName);
-				conf.save();
+				conf.set("world", worldName);
+				PermissionsManager.cashflow.saveConfig();
 				return true;
 			}
 		}
@@ -244,19 +244,11 @@ public class PermissionsManager {
 	}
 	
 	public void loadConf() {
-    	File f = new File(PermissionsManager.cashflow.getDataFolder(), "config.yml");
-
-        if (f.exists()) {
-        	conf = new Configuration(f);
-        	conf.load();
-        }
-        else {
-        	System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] No CashFlow config file found. Creating config file.");
-        	this.confFile = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
-            TaxManager.conf = new Configuration(confFile);  
-            List<String> tempList = null;
-            conf.setProperty("taxes.list", tempList);
-            conf.save();
+		conf = PermissionsManager.cashflow.getConfig();
+        if(conf == null) {
+        	List<String> tempList = null;
+            conf.set("taxes.list", tempList);
+            PermissionsManager.cashflow.saveConfig();
         }
     }	
 }
