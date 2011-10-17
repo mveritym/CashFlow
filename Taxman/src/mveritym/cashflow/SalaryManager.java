@@ -15,10 +15,11 @@ import org.bukkit.util.config.Configuration;
 
 import com.nijikokun.register.payment.Method.MethodAccount;
 
+@SuppressWarnings("deprecation")
 public class SalaryManager {
 	
 	protected static CashFlow cashFlow;
-    protected static Configuration conf;
+	protected static Configuration conf;
     protected File confFile;
     List<String> salaries;
     List<String> paidGroups;
@@ -383,6 +384,22 @@ public class SalaryManager {
 					}
 				}
 			}
+		}
+	}
+	
+	public void setRate(CommandSender sender, String salaryName, String salary) {
+		loadConf();
+		salaries = conf.getStringList("salaries.list", null);
+		Double rate = Double.parseDouble(salary);
+		
+		if(!(salaries.contains(salaryName))) {
+			sender.sendMessage(ChatColor.RED + "Salary not found.");
+		} else if(rate <= 0) {
+			sender.sendMessage(ChatColor.RED + "Please choose a salary greater than 0.");
+		} else {
+			conf.setProperty("salaries." + salaryName + ".salary", salary);
+			conf.save();
+			sender.sendMessage(ChatColor.GREEN + "Rate of salary " + salaryName + " is set to " + salary + ".");
 		}
 	}
 }

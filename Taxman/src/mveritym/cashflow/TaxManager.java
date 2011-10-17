@@ -16,6 +16,7 @@ import org.bukkit.util.config.Configuration;
 
 import com.nijikokun.register.payment.Method.MethodAccount;
 
+@SuppressWarnings("deprecation")
 public class TaxManager {
 	protected static CashFlow cashFlow;
     protected static Configuration conf;
@@ -137,7 +138,7 @@ public class TaxManager {
 		taxes = conf.getStringList("taxes.list", null);
 		
 		if(taxes.contains(taxName)) {
-			sender.sendMessage(ChatColor.BLUE + "Percent income: " + conf.getString("taxes." + taxName + ".tax"));
+			sender.sendMessage(ChatColor.BLUE + "Tax: " + conf.getString("taxes." + taxName + ".tax"));
 			sender.sendMessage(ChatColor.BLUE + "Interval: " + conf.getString("taxes." + taxName + ".taxInterval") + " hours");
 			sender.sendMessage(ChatColor.BLUE + "Receiving player: " + conf.getString("taxes." + taxName + ".receiver"));
 			sender.sendMessage(ChatColor.BLUE + "Paying groups: " + conf.getStringList("taxes." + taxName + ".payingGroups", null));
@@ -407,5 +408,25 @@ public class TaxManager {
 			conf.setProperty("taxes." + taxName + ".exceptedPlayers", exceptedPlayers);
 			conf.save();
 		}
+	}
+	
+	public void setRate(CommandSender sender, String taxName, String tax) {
+		loadConf();
+		taxes = conf.getStringList("taxes.list", null);
+		
+		if(!(taxes.contains(taxName))) {
+			sender.sendMessage(ChatColor.RED + "Tax not found.");
+			return;
+		} else if(tax.contains("%")) {
+			double percentIncome = Double.parseDouble(tax.split("%")[0]);
+			if(percentIncome > 100 || percentIncome <= 0) {
+				sender.sendMessage(ChatColor.RED + "Please choose a % of income between 0 and 100.");
+				return;
+			}
+		}
+		
+		conf.setProperty("taxes." + taxName + ".tax", tax);
+		conf.save();
+		sender.sendMessage(ChatColor.GREEN + "Rate of tax " + taxName + " is set to " + tax + ".");
 	}
 }

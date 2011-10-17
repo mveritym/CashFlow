@@ -10,7 +10,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.util.config.Configuration;
 
 import com.platymuus.bukkit.permissions.Group;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
@@ -23,6 +23,7 @@ import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 
+@SuppressWarnings("deprecation")
 public class PermissionsManager {
 
 	String pluginName = "null";
@@ -30,7 +31,7 @@ public class PermissionsManager {
 	WorldPermissionsManager wpm;
 	PermissionSet permissionsSet;
 	protected static CashFlow cashflow;
-	protected static FileConfiguration conf;
+	protected static Configuration conf;
 	protected File confFile;
 	String world;
 	PluginManager pluginManager;
@@ -234,7 +235,7 @@ public class PermissionsManager {
 		List<World> worlds = PermissionsManager.cashflow.getServer().getWorlds();
 		for(World world : worlds) {
 			if(world.getName().equals(worldName)) {
-				conf.set("world", worldName);
+				conf.setProperty("world", worldName);
 				PermissionsManager.cashflow.saveConfig();
 				return true;
 			}
@@ -244,11 +245,19 @@ public class PermissionsManager {
 	}
 	
 	public void loadConf() {
-		conf = PermissionsManager.cashflow.getConfig();
-        if(conf == null) {
-        	List<String> tempList = null;
-            conf.set("taxes.list", tempList);
-            PermissionsManager.cashflow.saveConfig();
+		File f = new File(PermissionsManager.cashflow.getDataFolder(), "config.yml");
+
+        if (f.exists()) {
+        	conf = new Configuration(f);
+        	conf.load();
+        }
+        else {
+        	System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] No CashFlow config file found. Creating config file.");
+        	this.confFile = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
+            TaxManager.conf = new Configuration(confFile);  
+            List<String> tempList = null;
+            conf.setProperty("taxes.list", tempList);
+            conf.save();
         }
     }	
 }

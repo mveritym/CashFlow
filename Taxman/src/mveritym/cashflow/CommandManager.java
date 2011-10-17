@@ -164,6 +164,15 @@ public class CommandManager {
 			} else {
 				return false;
 			}
+		case setrate:
+			if(args.length == 2) {
+				String taxName = args[0];
+				String tax = args[1];
+				this.taxManager.setRate(sender, taxName, tax);
+				return true;
+			} else {
+				return false;
+			}
 		default:
 			return false;
 		}
@@ -316,6 +325,15 @@ public class CommandManager {
 						sender.sendMessage(ChatColor.RED + "Online only can only be set to true or false.");
 						return false;
 					}
+				} else {
+					return false;
+				}
+			case setrate:
+				if(args.length == 2) {
+					String salaryName = args[0];
+					String salaryrate = args[1];
+					this.salaryManager.setRate(sender, salaryName, salaryrate);
+					return true;
 				} else {
 					return false;
 				}

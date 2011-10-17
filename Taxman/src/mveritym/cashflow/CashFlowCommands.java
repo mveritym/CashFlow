@@ -18,5 +18,10 @@ public enum CashFlowCommands {
 	removeexception,
 	list,
 	info,
-	setonlineonly
+	setonlineonly,
+	setrate,
+	setinterval,
+	setemployer,
+	setreceiver,
+	
 }
