@@ -6,6 +6,9 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.anjocaido.groupmanager.GroupManager;
+import org.anjocaido.groupmanager.dataholder.WorldDataHolder;
+import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -29,6 +32,7 @@ public class PermissionsManager {
 	String pluginName = "null";
 	PermissionManager pm;
 	WorldPermissionsManager wpm;
+	WorldDataHolder wdh;
 	PermissionSet permissionsSet;
 	protected static CashFlow cashflow;
 	protected static Configuration conf;
@@ -61,6 +65,11 @@ public class PermissionsManager {
 			permissionsSet = wpm.getPermissionSet(this.world);
 			plugin = pluginManager.getPlugin("bPermissions");
 			
+		} else if (PermissionsManager.cashflow.getServer().getPluginManager().getPlugin("GroupManager") != null) {
+			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] Using GroupManager plugin.");
+			pluginName = "GroupManager";
+			plugin = pluginManager.getPlugin("GroupManager");
+			wdh = ((GroupManager) plugin).getWorldsHolder().getWorldData(world);
 		} else {
 			System.out.println("[" + PermissionsManager.cashflow.info.getName() + "] No permissions plugin detected.");
 		}
@@ -97,7 +106,13 @@ public class PermissionsManager {
         	} else {
         		return false;
         	}
-        }
+        } else if (pluginName.equals("GroupManager")) {
+			if (player.hasPermission(node)) {
+				return true;
+			} else {
+				return false;
+			}
+		}
         
 		return false;
 	}
@@ -119,6 +134,12 @@ public class PermissionsManager {
 			}
 		} else if(pluginName.equals("bPermissions")) {
 			if(permissionsSet.getGroupNodes(groupName).size() != 0) {
+				return true;
+			} else {
+				return false;
+			}
+		} else if (pluginName.equals("GroupManager")) {
+			if (wdh != null && wdh.groupExists(groupName)) {
 				return true;
 			} else {
 				return false;
@@ -166,6 +187,19 @@ public class PermissionsManager {
 							if(groupNames.contains(groupName)) {
 								playerList.add(playerName);
 							}
+						}
+					}
+				}
+			} else if (pluginName.equals("GroupManager")) {
+				List<String> groupPlayers = getAllPlayers();
+				for (String groupName: groups) {
+					if (wdh == null) {
+						break;
+					}
+					AnjoPermissionsHandler aph = wdh.getPermissionsHandler();
+					for (String playerName : groupPlayers) {
+						if (!(playerList.contains(playerName)) && aph.inGroup(playerName, groupName)) {
+							playerList.add(playerName);
 						}
 					}
 				}
