@@ -2,6 +2,7 @@ name: CashFlow
 main: mveritym.cashflow.CashFlow
 version: 1.0.0
 softdepend: [BOSEconomy7, MultiCurrency, Essentials, iCo5, iCo6]
+depend: [Vault]
 commands:
     tax:
       description: Provides access to tax commands.
@@ -51,7 +52,7 @@ permissions:
             cashflow.salary: true
             cashflow.basic: true
         default: false
-    cashflow.tax: 
+    cashflow.tax:
         description: Allows control of tax commands.
         default: false
     cashflow.salary:
