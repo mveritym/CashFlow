@@ -261,14 +261,24 @@ public class PermissionsManager {
 		{
 			worldName = "world";
 		}
-
-		PermissionsManager.cashflow.getServer().getWorld(worldName).getPlayers();
-
-		File folder = new File(worldName + File.separator+ "players" + File.separator);
-
-		for (File playerFile : folder.listFiles())
+		World w = PermissionsManager.cashflow.getServer().getWorld(worldName);
+		if(w != null)
 		{
-			players.add(playerFile.getName().substring(0, playerFile.getName().length() - 4));
+			File folder = new File(worldName + File.separator+ "players" + File.separator);
+
+			for (File playerFile : folder.listFiles())
+			{
+				if(playerFile != null)
+				{
+					players.add(playerFile.getName().substring(0, playerFile.getName().length() - 4));
+				}
+			}
+		}
+		else
+		{
+			PermissionsManager.cashflow.log.warning("["
+					+ PermissionsManager.cashflow.info.getName()
+					+ "] " + worldName + " not found");
 		}
 
 		return players;
