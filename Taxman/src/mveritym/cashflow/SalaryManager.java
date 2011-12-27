@@ -233,6 +233,7 @@ public class SalaryManager {
 	}
 
 	public void enable() {
+		conf.save();
 		salaries = conf.getStringList("salaries.list");
 		Double hours;
 

@@ -240,6 +240,7 @@ public class TaxManager {
 
 
 	public void enable() {
+		conf.save();
 		taxes = conf.getStringList("taxes.list");
 		Double hours;
 
@@ -293,8 +294,6 @@ public class TaxManager {
 				}
 
 				taxRate = Double.valueOf(twoDForm.format(taxRate));
-				TaxManager.cashFlow.log.info("Status: " + TaxManager.cashFlow.eco.bankWithdraw(user, taxRate).amount);
-
 				if(player != null) {
 					String message = "You have paid $" + taxRate + " in tax";
 					if(receiver.equals("null")) {
