@@ -32,6 +32,7 @@ public class SalaryManager {
 	}
 
 	public void createSalary(CommandSender sender, String name, String paycheck, String interval, String employer) {
+		conf.save();
 		String salaryName = name;
 		double salary = Double.parseDouble(paycheck);
 		double salaryInterval = Double.parseDouble(interval);
@@ -75,6 +76,7 @@ public class SalaryManager {
 	}
 
 	public void deleteSalary(CommandSender sender, String name) {
+		conf.save();
 		String salaryName = name;
 
 		salaries = conf.getStringList("salaries.list");
@@ -101,11 +103,12 @@ public class SalaryManager {
 	}
 
 	public void salaryInfo(CommandSender sender, String salaryName) {
+		conf.save();
 		salaries = conf.getStringList("salaries.list");
 
 		if(salaries.contains(salaryName)) {
-			sender.sendMessage(ChatColor.BLUE + "Salary: " + conf.getString("salaries." + salaryName + ".salary"));
-			sender.sendMessage(ChatColor.BLUE + "Interval: " + conf.getString("salaries." + salaryName + ".salaryInterval") + " hours");
+			sender.sendMessage(ChatColor.BLUE + "Salary: " + conf.getProperty("salaries." + salaryName + ".salary"));
+			sender.sendMessage(ChatColor.BLUE + "Interval: " +conf.getProperty("salaries." + salaryName + ".salaryInterval") + " hours");
 			sender.sendMessage(ChatColor.BLUE + "Receiving player: " + conf.getString("salaries." + salaryName + ".employer"));
 			sender.sendMessage(ChatColor.BLUE + "Paid groups: " + conf.getStringList("salaries." + salaryName + ".paidGroups"));
 			sender.sendMessage(ChatColor.BLUE + "Paid players: " + conf.getStringList("salaries." + salaryName + ".paidPlayers"));
@@ -120,6 +123,7 @@ public class SalaryManager {
 	}
 
 	public void listSalaries(CommandSender sender) {
+		conf.save();
 		salaries = conf.getStringList("salaries.list");
 		iterator = salaries.listIterator();
 
@@ -133,6 +137,7 @@ public class SalaryManager {
 	}
 
 	public void addGroups(CommandSender sender, String taxName, String groups) {
+		conf.save();
 		String[] groupNames = groups.split(",");
 		for(String name : groupNames) {
 			addGroup(sender, taxName, name);
@@ -140,6 +145,7 @@ public class SalaryManager {
 	}
 
 	public void addGroup(CommandSender sender, String salaryName, String groupName) {
+		conf.save();
 		salaries = conf.getStringList("salaries.list");
 		paidGroups = conf.getStringList("salaries." + salaryName + ".paidGroups");
 
@@ -158,6 +164,7 @@ public class SalaryManager {
 	}
 
 	public void addPlayers(CommandSender sender, String taxName, String players) {
+		conf.save();
 		String[] playerNames = players.split(",");
 		for(String name : playerNames) {
 			addPlayer(sender, taxName, name);
@@ -165,6 +172,7 @@ public class SalaryManager {
 	}
 
 	public void addPlayer(CommandSender sender, String salaryName, String playerName) {
+		conf.save();
 		salaries = conf.getStringList("salaries.list");
 		paidPlayers = conf.getStringList("salaries." + salaryName + ".paidPlayers");
 
@@ -185,6 +193,7 @@ public class SalaryManager {
 	}
 
 	public void removeGroups(CommandSender sender, String taxName, String groups) {
+		conf.save();
 		String[] groupNames = groups.split(",");
 		for(String name : groupNames) {
 			removeGroup(sender, taxName, name);
@@ -192,6 +201,7 @@ public class SalaryManager {
 	}
 
 	public void removeGroup(CommandSender sender, String salaryName, String groupName) {
+		conf.save();
 		salaries = conf.getStringList("salaries.list");
 		paidGroups = conf.getStringList("salaries." + salaryName + ".paidGroups");
 
@@ -210,6 +220,7 @@ public class SalaryManager {
 	}
 
 	public void removePlayers(CommandSender sender, String salaryName, String players) {
+		conf.save();
 		String[] playerNames = players.split(",");
 		for(String name : playerNames) {
 			removePlayer(sender, salaryName, name);
@@ -217,6 +228,7 @@ public class SalaryManager {
 	}
 
 	public void removePlayer(CommandSender sender, String salaryName, String playerName) {
+		conf.save();
 		salaries = conf.getStringList("salaries.list");
 		paidPlayers = conf.getStringList("salaries." + salaryName + ".paidPlayers");
 
@@ -253,6 +265,7 @@ public class SalaryManager {
 	}
 
 	public void setOnlineOnly(String salaryName, Boolean online, Double interval) {
+		conf.save();
 		conf.setProperty("salaries." + salaryName + ".onlineOnly.isEnabled", online);
 		conf.setProperty("salaries." + salaryName + ".onlineOnly.interval", interval);
 		conf.save();
@@ -260,6 +273,7 @@ public class SalaryManager {
 	}
 
 	public void addException(CommandSender sender, String salaryName, String userName) {
+		conf.save();
 		salaries = conf.getStringList("salaries.list");
 		List<String> exceptedPlayers = conf.getStringList("salaries." + salaryName + ".exceptedPlayers");
 
@@ -304,6 +318,7 @@ public class SalaryManager {
 	}
 
 	public void paySalary(String salaryName) {
+		conf.save();
 		System.out.println("[" + SalaryManager.cashFlow.info.getName() + "] Paying salary " + salaryName);
 
 		salaries = conf.getStringList("salaries.list");

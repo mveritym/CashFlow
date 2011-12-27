@@ -109,6 +109,7 @@ public class TaxManager {
 	}
 
 	public void taxInfo(CommandSender sender, String taxName) {
+		conf.save();
 		taxes = conf.getStringList("taxes.list");
 
 		if(taxes.contains(taxName)) {
@@ -128,6 +129,7 @@ public class TaxManager {
 	}
 
 	public void listTaxes(CommandSender sender) {
+		conf.save();
 		taxes = conf.getStringList("taxes.list");
 		iterator = taxes.listIterator();
 
@@ -141,6 +143,7 @@ public class TaxManager {
 	}
 
 	public void addGroups(CommandSender sender, String taxName, String groups) {
+		conf.save();
 		String[] groupNames = groups.split(",");
 		for(String name : groupNames) {
 			addGroup(sender, taxName, name);
@@ -148,6 +151,7 @@ public class TaxManager {
 	}
 
 	public void addGroup(CommandSender sender, String taxName, String groupName) {
+		conf.save();
 		taxes = conf.getStringList("taxes.list");
 		payingGroups = conf.getStringList("taxes." + taxName + ".payingGroups");
 
@@ -166,6 +170,7 @@ public class TaxManager {
 	}
 
 	public void addPlayers(CommandSender sender, String taxName, String players) {
+		conf.save();
 		String[] playerNames = players.split(",");
 		for(String name : playerNames) {
 			addPlayer(sender, taxName, name);
@@ -173,6 +178,7 @@ public class TaxManager {
 	}
 
 	public void addPlayer(CommandSender sender, String taxName, String playerName) {
+		conf.save();
 		taxes = conf.getStringList("taxes.list");
 		payingPlayers = conf.getStringList("taxes." + taxName + ".payingPlayers");
 
@@ -193,6 +199,7 @@ public class TaxManager {
 	}
 
 	public void removeGroups(CommandSender sender, String taxName, String groups) {
+		conf.save();
 		String[] groupNames = groups.split(",");
 		for(String name : groupNames) {
 			removeGroup(sender, taxName, name);
@@ -200,6 +207,7 @@ public class TaxManager {
 	}
 
 	public void removeGroup(CommandSender sender, String taxName, String groupName) {
+		conf.save();
 		taxes = conf.getStringList("taxes.list");
 		payingGroups = conf.getStringList("taxes." + taxName + ".payingGroups");
 
@@ -216,6 +224,7 @@ public class TaxManager {
 	}
 
 	public void removePlayers(CommandSender sender, String taxName, String players) {
+		conf.save();
 		String[] playerNames = players.split(",");
 		for(String name : playerNames) {
 			removePlayer(sender, taxName, name);
@@ -223,6 +232,7 @@ public class TaxManager {
 	}
 
 	public void removePlayer(CommandSender sender, String taxName, String playerName) {
+		conf.save();
 		taxes = conf.getStringList("taxes.list");
 		payingPlayers = conf.getStringList("taxes." + taxName + ".payingPlayers");
 
@@ -253,6 +263,7 @@ public class TaxManager {
 	}
 
 	public List<String> checkOnline(List<String> users, Double interval) {
+		conf.save();
 		List<String> tempPlayerList = new ArrayList<String>();
 		for(String player : users) {
 			if(interval == 0 && PermissionsManager.cashflow.getServer().getPlayer(player) != null) {
@@ -263,6 +274,7 @@ public class TaxManager {
 	}
 
 	public void payTax(String taxName) {
+		conf.save();
 		System.out.println("[" + TaxManager.cashFlow.info.getName() + "] Paying tax " + taxName);
 
 		taxes = conf.getStringList("taxes.list");
@@ -319,12 +331,14 @@ public class TaxManager {
 	}
 
 	public void disable() {
+		conf.save();
 		for(Taxer taxTask : taxTasks) {
 			taxTask.cancel();
 		}
 	}
 
 	public void setOnlineOnly(String taxName, Boolean online, Double interval) {
+		conf.save();
 		conf.setProperty("taxes." + taxName + ".onlineOnly.isEnabled", online);
 		conf.setProperty("taxes." + taxName + ".onlineOnly.interval", interval);
 		conf.save();
@@ -332,6 +346,7 @@ public class TaxManager {
 	}
 
 	public void addException(CommandSender sender, String taxName, String userName) {
+		conf.save();
 		taxes = conf.getStringList("taxes.list");
 		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers");
 
@@ -350,6 +365,7 @@ public class TaxManager {
 	}
 
 	public void removeException(CommandSender sender, String taxName, String userName) {
+		conf.save();
 		taxes = conf.getStringList("taxes.list");
 		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers");
 
@@ -366,6 +382,7 @@ public class TaxManager {
 	}
 
 	public void setRate(CommandSender sender, String taxName, String tax) {
+		conf.save();
 		taxes = conf.getStringList("taxes.list");
 
 		if(!(taxes.contains(taxName))) {
