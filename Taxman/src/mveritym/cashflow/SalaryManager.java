@@ -338,25 +338,66 @@ public class SalaryManager {
 
 		for(String user : users) {
 			if(TaxManager.cashFlow.eco.bankBalance(user).type==EconomyResponse.ResponseType.SUCCESS) {
-				TaxManager.cashFlow.eco.bankDeposit(user, salary);
-				Player player = SalaryManager.cashFlow.getServer().getPlayer(user);
-				if(player != null) {
-					String message = "You have received $" + salary + " for your salary";
-					if(employer.equals("null")) {
-						message += ".";
-					} else {
-						message += " from " + employer + ".";
-					}
-					player.sendMessage(ChatColor.BLUE + message);
-				}
 
 				if(!(employer.equals("null"))) {
-					TaxManager.cashFlow.eco.bankWithdraw(employer, salary);
-					if(PermissionsManager.cashflow.getServer().getPlayer(employer) != null) {
-						Player employerPlayer = TaxManager.cashFlow.getServer().getPlayer(employer);
-						employerPlayer.sendMessage(ChatColor.BLUE + "You have paid $" + salary + " in salary to " + user + ".");
+					double tempSalary = TaxManager.cashFlow.eco.bankBalance(employer).amount;
+					Player player = SalaryManager.cashFlow.getServer().getPlayer(user);
+					if(tempSalary != 0)
+					{
+						if(tempSalary > salary)
+						{
+							tempSalary = salary;
+						}
+						TaxManager.cashFlow.eco.bankWithdraw(employer, tempSalary);
+						if(PermissionsManager.cashflow.getServer().getPlayer(employer) != null) {
+							Player employerPlayer = TaxManager.cashFlow.getServer().getPlayer(employer);
+							employerPlayer.sendMessage(ChatColor.BLUE + "You have paid $" + tempSalary + " in salary to " + user + ".");
+						}
+
+						if(TaxManager.cashFlow.eco.bankDeposit(user, tempSalary).type==EconomyResponse.ResponseType.SUCCESS)
+						{
+							if(player != null) {
+								String message = "You have received $" + tempSalary + " for your salary from " + employer + ".";
+								player.sendMessage(ChatColor.BLUE + message);
+							}
+						}
+						else
+						{
+							if(player != null) {
+								String message = "Could not add salary.";
+								player.sendMessage(ChatColor.RED + message);
+							}
+							SalaryManager.cashFlow.log.warning("[" + SalaryManager.cashFlow.info.getName() + "] " + SalaryManager.cashFlow.eco.bankBalance(user).errorMessage +": " + user);
+						}
+					}
+					else
+					{
+						if(player != null) {
+							String message = employer + " does not have enough money to pay your salary.";
+							player.sendMessage(ChatColor.BLUE + message);
+						}
 					}
 				}
+				else
+				{
+					//Generate money
+					TaxManager.cashFlow.eco.bankDeposit(user, salary);
+					Player player = SalaryManager.cashFlow.getServer().getPlayer(user);
+
+					if(player != null) {
+						String message = "You have received $" + salary + " for your salary";
+						if(employer.equals("null")) {
+							message += ".";
+						} else {
+							message += " from " + employer + ".";
+						}
+						player.sendMessage(ChatColor.BLUE + message);
+					}
+				}
+			}
+			else
+			{
+				SalaryManager.cashFlow.log.warning("[" + SalaryManager.cashFlow.info.getName() + "] " + SalaryManager.cashFlow.eco.bankBalance(user).errorMessage +": " + user);
 			}
 		}
 	}

@@ -150,15 +150,39 @@ public class PermissionsManager {
 			{
 				for (String groupName : groups)
 				{
-					PermissionUser[] userList = pm.getUsers(groupName);
-					if (userList.length > 0)
+					//Handle for default group
+					if(groupName.equals(pm.getDefaultGroup().getName()))
 					{
-						for (PermissionUser pu : userList)
+						//Grab all players
+						List<String> allList = this.getAllPlayers();
+						for(String name : allList)
 						{
-							if (isPlayer(pu.getName())
-									&& !(playerList.contains(pu.getName())))
+							PermissionUser user = pm.getUser(name);
+							if(user.getAllGroups().size() == 0 && !(playerList.contains(user.getName())))
 							{
-								playerList.add(pu.getName());
+								//Player not in any groups, therfore in default group
+								//IDK if this is necessary then...
+								playerList.add(user.getName());
+							}
+							else if(user.getAllGroups().size() == 1 && perm.playerInGroup(world, name, groupName) && !(playerList.contains(user.getName())))
+							{
+								//If they are in the default group and only the default group
+								playerList.add(user.getName());
+							}
+						}
+					}
+					else
+					{
+						PermissionUser[] userList = pm.getUsers(groupName);
+						if (userList.length > 0)
+						{
+							for (PermissionUser pu : userList)
+							{
+								if (isPlayer(pu.getName())
+										&& !(playerList.contains(pu.getName())))
+								{
+									playerList.add(pu.getName());
+								}
 							}
 						}
 					}

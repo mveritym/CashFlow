@@ -306,26 +306,55 @@ public class TaxManager {
 				}
 
 				taxRate = Double.valueOf(twoDForm.format(taxRate));
-				if(player != null) {
-					String message = "You have paid $" + taxRate + " in tax";
-					if(receiver.equals("null")) {
-						message += ".";
-					} else {
-						message += " to " + receiver + ".";
+				double balance = TaxManager.cashFlow.eco.bankBalance(user).amount;
+				if(balance != 0)
+				{
+					if(balance < taxRate)
+					{
+						//If they don't have enough in their account, set it to take everything
+						taxRate = TaxManager.cashFlow.eco.getBalance(user);
+						TaxManager.cashFlow.eco.bankWithdraw(user, taxRate);
 					}
-					player.sendMessage(ChatColor.BLUE + message);
-				}
+					if(player != null) {
+						String message = "You have paid $" + taxRate + " in tax";
+						if(receiver.equals("null")) {
+							message += ".";
+						} else {
+							message += " to " + receiver + ".";
+						}
+						player.sendMessage(ChatColor.BLUE + message);
+					}
 
-				if(!(receiver.equals("null"))) {
-
-
-					TaxManager.cashFlow.eco.bankDeposit(receiver, taxRate);
-
-					if(PermissionsManager.cashflow.getServer().getPlayer(receiver) != null) {
-						Player receiverPlayer = TaxManager.cashFlow.getServer().getPlayer(receiver);
-						receiverPlayer.sendMessage(ChatColor.BLUE + "You have received $" + taxRate + " in tax from " + user + ".");
+					if(!(receiver.equals("null"))) {
+						if(TaxManager.cashFlow.eco.bankDeposit(receiver, taxRate).type==EconomyResponse.ResponseType.SUCCESS)
+						{
+							if(PermissionsManager.cashflow.getServer().getPlayer(receiver) != null) {
+							Player receiverPlayer = TaxManager.cashFlow.getServer().getPlayer(receiver);
+							receiverPlayer.sendMessage(ChatColor.BLUE + "You have received $" + taxRate + " in tax from " + user + ".");
+							}
+						}
+						else
+						{
+							TaxManager.cashFlow.log.warning("[" + TaxManager.cashFlow.info.getName() + "] " + TaxManager.cashFlow.eco.bankBalance(user).errorMessage +": " + receiver);
+						}
 					}
 				}
+				else
+				{
+					if(player != null) {
+						String message = "No money to pay tax";
+						if(receiver.equals("null")) {
+							message += ".";
+						} else {
+							message += " to " + receiver + ".";
+						}
+						player.sendMessage(ChatColor.BLUE + message);
+					}
+				}
+			}
+			else
+			{
+				TaxManager.cashFlow.log.warning("[" + TaxManager.cashFlow.info.getName() + "] " + TaxManager.cashFlow.eco.bankBalance(user).errorMessage +": " + user);
 			}
 		}
 	}
