@@ -3,7 +3,6 @@ package mveritym.cashflow;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Timer;
@@ -13,13 +12,11 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.util.config.Configuration;
 
-@SuppressWarnings("deprecation")
 public class SalaryManager {
 
 	protected static CashFlow cashFlow;
-	protected static Configuration conf;
+	protected Config conf;
     protected File confFile;
     List<String> salaries;
     List<String> paidGroups;
@@ -30,27 +27,9 @@ public class SalaryManager {
 
 	public SalaryManager(CashFlow cashFlow) {
 		SalaryManager.cashFlow = cashFlow;
-		conf = null;
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
+		conf = cashFlow.getPluginConfig();
+		salaries = conf.getStringList("salaries.list");
 	}
-
-	public void loadConf() {
-		File f = new File(SalaryManager.cashFlow.getDataFolder(), "config.yml");
-
-        if (f.exists()) {
-        	conf = new Configuration(f);
-        	conf.load();
-        }
-        else {
-        	System.out.println("[" + SalaryManager.cashFlow.info.getName() + "] No config file found. Creating data file.");
-        	this.confFile = new File(SalaryManager.cashFlow.getDataFolder(), "config.yml");
-            SalaryManager.conf = new Configuration(confFile);
-            List<String> tempList = null;
-            conf.setProperty("salaries.list", tempList);
-            conf.save();
-        }
-    }
 
 	public void createSalary(CommandSender sender, String name, String paycheck, String interval, String employer) {
 		String salaryName = name;
@@ -58,8 +37,7 @@ public class SalaryManager {
 		double salaryInterval = Double.parseDouble(interval);
 		List<String> paidGroups = null;
 
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
+		salaries = conf.getStringList("salaries.list");
 		iterator = salaries.listIterator();
 
 		if(salary <= 0) {
@@ -99,8 +77,7 @@ public class SalaryManager {
 	public void deleteSalary(CommandSender sender, String name) {
 		String salaryName = name;
 
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
+		salaries = conf.getStringList("salaries.list");
 
 		if(salaries.contains(salaryName)) {
 			salaries.remove(salaryName);
@@ -124,16 +101,15 @@ public class SalaryManager {
 	}
 
 	public void salaryInfo(CommandSender sender, String salaryName) {
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
+		salaries = conf.getStringList("salaries.list");
 
 		if(salaries.contains(salaryName)) {
 			sender.sendMessage(ChatColor.BLUE + "Salary: " + conf.getString("salaries." + salaryName + ".salary"));
 			sender.sendMessage(ChatColor.BLUE + "Interval: " + conf.getString("salaries." + salaryName + ".salaryInterval") + " hours");
 			sender.sendMessage(ChatColor.BLUE + "Receiving player: " + conf.getString("salaries." + salaryName + ".employer"));
-			sender.sendMessage(ChatColor.BLUE + "Paid groups: " + conf.getStringList("salaries." + salaryName + ".paidGroups", null));
-			sender.sendMessage(ChatColor.BLUE + "Paid players: " + conf.getStringList("salaries." + salaryName + ".paidPlayers", null));
-			sender.sendMessage(ChatColor.BLUE + "Excepted users: " + conf.getStringList("salaries." + salaryName + ".exceptedPlayers", null));
+			sender.sendMessage(ChatColor.BLUE + "Paid groups: " + conf.getStringList("salaries." + salaryName + ".paidGroups"));
+			sender.sendMessage(ChatColor.BLUE + "Paid players: " + conf.getStringList("salaries." + salaryName + ".paidPlayers"));
+			sender.sendMessage(ChatColor.BLUE + "Excepted users: " + conf.getStringList("salaries." + salaryName + ".exceptedPlayers"));
 		    sender.sendMessage(ChatColor.BLUE + "Online only: " + conf.getBoolean("salaries." + salaryName + ".onlineOnly.isEnabled", false)
 		    		+ ", Online interval: " + conf.getDouble("salaries." + salaryName + ".onlineOnly.interval", 0.0) + " hours");
 		} else {
@@ -144,8 +120,7 @@ public class SalaryManager {
 	}
 
 	public void listSalaries(CommandSender sender) {
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
+		salaries = conf.getStringList("salaries.list");
 		iterator = salaries.listIterator();
 
 		if(salaries.size() != 0) {
@@ -165,9 +140,8 @@ public class SalaryManager {
 	}
 
 	public void addGroup(CommandSender sender, String salaryName, String groupName) {
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
-		paidGroups = conf.getStringList("salaries." + salaryName + ".paidGroups", null);
+		salaries = conf.getStringList("salaries.list");
+		paidGroups = conf.getStringList("salaries." + salaryName + ".paidGroups");
 
 		if(!(salaries.contains(salaryName))) {
 			sender.sendMessage(ChatColor.RED + "Salary not found.");
@@ -191,9 +165,8 @@ public class SalaryManager {
 	}
 
 	public void addPlayer(CommandSender sender, String salaryName, String playerName) {
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
-		paidPlayers = conf.getStringList("salaries." + salaryName + ".paidPlayers", null);
+		salaries = conf.getStringList("salaries.list");
+		paidPlayers = conf.getStringList("salaries." + salaryName + ".paidPlayers");
 
 		if(!(salaries.contains(salaryName))) {
 			sender.sendMessage(ChatColor.RED + "Salary not found.");
@@ -219,9 +192,8 @@ public class SalaryManager {
 	}
 
 	public void removeGroup(CommandSender sender, String salaryName, String groupName) {
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
-		paidGroups = conf.getStringList("salaries." + salaryName + ".paidGroups", null);
+		salaries = conf.getStringList("salaries.list");
+		paidGroups = conf.getStringList("salaries." + salaryName + ".paidGroups");
 
 		if(!(salaries.contains(salaryName))) {
 			sender.sendMessage(ChatColor.RED + "Salary not found.");
@@ -245,9 +217,8 @@ public class SalaryManager {
 	}
 
 	public void removePlayer(CommandSender sender, String salaryName, String playerName) {
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
-		paidPlayers = conf.getStringList("salaries." + salaryName + ".paidPlayers", null);
+		salaries = conf.getStringList("salaries.list");
+		paidPlayers = conf.getStringList("salaries." + salaryName + ".paidPlayers");
 
 		if(!(salaries.contains(salaryName))) {
 			sender.sendMessage(ChatColor.RED + "Salary not found.");
@@ -262,16 +233,14 @@ public class SalaryManager {
 	}
 
 	public void enable() {
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
+		salaries = conf.getStringList("salaries.list");
 		Double hours;
-		Date lastPaid;
 
 		for(String salaryName : salaries) {
-			hours = Double.parseDouble(conf.getString("salaries." + salaryName + ".salaryInterval"));
-			lastPaid = (Date) conf.getProperty("salaries." + salaryName + ".lastPaid");
+
+			hours = conf.getDouble(("salaries." + salaryName + ".salaryInterval"), 1);
 			System.out.println("[" + SalaryManager.cashFlow.info.getName() + "] Enabling " + salaryName);
-			Taxer taxer = new Taxer(this, salaryName, hours, lastPaid);
+			Taxer taxer = new Taxer(this, salaryName, hours);
 			salaryTasks.add(taxer);
 		}
 	}
@@ -283,7 +252,6 @@ public class SalaryManager {
 	}
 
 	public void setOnlineOnly(String salaryName, Boolean online, Double interval) {
-		loadConf();
 		conf.setProperty("salaries." + salaryName + ".onlineOnly.isEnabled", online);
 		conf.setProperty("salaries." + salaryName + ".onlineOnly.interval", interval);
 		conf.save();
@@ -291,9 +259,8 @@ public class SalaryManager {
 	}
 
 	public void addException(CommandSender sender, String salaryName, String userName) {
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
-		List<String> exceptedPlayers = conf.getStringList("salaries." + salaryName + ".exceptedPlayers", null);
+		salaries = conf.getStringList("salaries.list");
+		List<String> exceptedPlayers = conf.getStringList("salaries." + salaryName + ".exceptedPlayers");
 
 		if(!(salaries.contains(salaryName))) {
 			sender.sendMessage(ChatColor.RED + "Salary not found.");
@@ -310,9 +277,8 @@ public class SalaryManager {
 	}
 
 	public void removeException(CommandSender sender, String salaryName, String userName) {
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
-		List<String> exceptedPlayers = conf.getStringList("salaries." + salaryName + ".exceptedPlayers", null);
+		salaries = conf.getStringList("salaries.list");
+		List<String> exceptedPlayers = conf.getStringList("salaries." + salaryName + ".exceptedPlayers");
 
 		if(!(salaries.contains(salaryName))) {
 			sender.sendMessage(ChatColor.RED + "Salary not found.");
@@ -339,15 +305,11 @@ public class SalaryManager {
 	public void paySalary(String salaryName) {
 		System.out.println("[" + SalaryManager.cashFlow.info.getName() + "] Paying salary " + salaryName);
 
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
+		salaries = conf.getStringList("salaries.list");
 
-		conf.setProperty("salaries." + salaryName + ".lastPaid", new Date());
-		conf.save();
-
-		List<String> groups = conf.getStringList("salaries." + salaryName + ".paidGroups", null);
-		List<String> players = conf.getStringList("salaries." + salaryName + ".paidPlayers", null);
-		List<String> exceptedPlayers = conf.getStringList("salaries." + salaryName + ".exceptedPlayers", null);
+		List<String> groups = conf.getStringList("salaries." + salaryName + ".paidGroups");
+		List<String> players = conf.getStringList("salaries." + salaryName + ".paidPlayers");
+		List<String> exceptedPlayers = conf.getStringList("salaries." + salaryName + ".exceptedPlayers");
 		Double salary = Double.parseDouble(conf.getString("salaries." + salaryName + ".salary"));
 		String employer = conf.getString("salaries." + salaryName + ".employer");
 
@@ -384,8 +346,7 @@ public class SalaryManager {
 	}
 
 	public void setRate(CommandSender sender, String salaryName, String salary) {
-		loadConf();
-		salaries = conf.getStringList("salaries.list", null);
+		salaries = conf.getStringList("salaries.list");
 		Double rate = Double.parseDouble(salary);
 
 		if(!(salaries.contains(salaryName))) {

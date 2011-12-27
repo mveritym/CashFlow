@@ -27,11 +27,15 @@ public class CashFlow extends JavaPlugin{
 	public PermissionsManager permsManager;
 	public Economy eco;
 	public Plugin plugin;
+	public Config config;
 
 	public void onEnable() {
 		info = getDescription();
 
         pluginManager = getServer().getPluginManager();
+
+        //Grab config
+        config = new Config(this);
 
         taxManager = new TaxManager(this);
         salaryManager = new SalaryManager(this);
@@ -60,6 +64,11 @@ public class CashFlow extends JavaPlugin{
 		{
 			eco = economyProvider.getProvider();
 		}
+	}
+
+	public Config getPluginConfig()
+	{
+		return config;
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {

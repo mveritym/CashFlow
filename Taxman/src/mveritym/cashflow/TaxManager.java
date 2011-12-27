@@ -4,7 +4,6 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Timer;
@@ -14,13 +13,10 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.util.config.Configuration;
 
-@SuppressWarnings("deprecation")
 public class TaxManager {
 	protected static CashFlow cashFlow;
-    protected static Configuration conf;
-    protected static Configuration uconf;
+    protected Config conf;
     protected File confFile;
     List<String> taxes;
     List<String> payingGroups;
@@ -31,28 +27,9 @@ public class TaxManager {
 
 	public TaxManager(CashFlow cashFlow) {
     	TaxManager.cashFlow = cashFlow;
+    	conf = cashFlow.getPluginConfig();
 
-    	conf = null;
-
-    	loadConf();
-    	taxes = conf.getStringList("taxes.list", null);
-    }
-
-    public void loadConf() {
-    	File f = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
-
-        if (f.exists()) {
-        	conf = new Configuration(f);
-        	conf.load();
-        }
-        else {
-        	System.out.println("[" + TaxManager.cashFlow.info.getName() + "] No CashFlow config file found. Creating config file.");
-        	this.confFile = new File(TaxManager.cashFlow.getDataFolder(), "config.yml");
-            TaxManager.conf = new Configuration(confFile);
-            List<String> tempList = null;
-            conf.setProperty("taxes.list", tempList);
-            conf.save();
-        }
+    	taxes = conf.getStringList("taxes.list");
     }
 
 	public void createTax(CommandSender sender, String name, String tax, String interval, String taxReceiver) {
@@ -61,8 +38,7 @@ public class TaxManager {
 		List<String> payingGroups = null;
 		List<String> payingPlayers = null;
 
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
+		taxes = conf.getStringList("taxes.list");
 		iterator = taxes.listIterator();
 
 		//Checks for if tax is a percent.
@@ -109,8 +85,7 @@ public class TaxManager {
 	public void deleteTax(CommandSender sender, String name) {
 		String taxName = name;
 
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
+		taxes = conf.getStringList("taxes.list");
 
 		if(taxes.contains(taxName)) {
 			taxes.remove(taxName);
@@ -134,16 +109,15 @@ public class TaxManager {
 	}
 
 	public void taxInfo(CommandSender sender, String taxName) {
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
+		taxes = conf.getStringList("taxes.list");
 
 		if(taxes.contains(taxName)) {
-			sender.sendMessage(ChatColor.BLUE + "Tax: " + conf.getString("taxes." + taxName + ".tax"));
-			sender.sendMessage(ChatColor.BLUE + "Interval: " + conf.getString("taxes." + taxName + ".taxInterval") + " hours");
-			sender.sendMessage(ChatColor.BLUE + "Receiving player: " + conf.getString("taxes." + taxName + ".receiver"));
-			sender.sendMessage(ChatColor.BLUE + "Paying groups: " + conf.getStringList("taxes." + taxName + ".payingGroups", null));
-			sender.sendMessage(ChatColor.BLUE + "Paying players: " + conf.getStringList("taxes." + taxName + ".payingPlayers", null));
-			sender.sendMessage(ChatColor.BLUE + "Excepted users: " + conf.getStringList("taxes." + taxName + ".exceptedPlayers", null));
+			sender.sendMessage(ChatColor.BLUE + "Tax: " + conf.getProperty("taxes." + taxName + ".tax"));
+			sender.sendMessage(ChatColor.BLUE + "Interval: " + conf.getProperty("taxes." + taxName + ".taxInterval") + " hours");
+			sender.sendMessage(ChatColor.BLUE + "Receiving player: " + conf.getProperty("taxes." + taxName + ".receiver"));
+			sender.sendMessage(ChatColor.BLUE + "Paying groups: " + conf.getStringList("taxes." + taxName + ".payingGroups"));
+			sender.sendMessage(ChatColor.BLUE + "Paying players: " + conf.getStringList("taxes." + taxName + ".payingPlayers"));
+			sender.sendMessage(ChatColor.BLUE + "Excepted users: " + conf.getStringList("taxes." + taxName + ".exceptedPlayers"));
 			sender.sendMessage(ChatColor.BLUE + "Online only: " + conf.getBoolean("taxes." + taxName + ".onlineOnly.isEnabled", false)
 		    		+ ", Online interval: " + conf.getDouble("taxes." + taxName + ".onlineOnly.interval", 0.0) + " hours");
 		} else {
@@ -154,8 +128,7 @@ public class TaxManager {
 	}
 
 	public void listTaxes(CommandSender sender) {
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
+		taxes = conf.getStringList("taxes.list");
 		iterator = taxes.listIterator();
 
 		if(taxes.size() != 0) {
@@ -175,9 +148,8 @@ public class TaxManager {
 	}
 
 	public void addGroup(CommandSender sender, String taxName, String groupName) {
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
-		payingGroups = conf.getStringList("taxes." + taxName + ".payingGroups", null);
+		taxes = conf.getStringList("taxes.list");
+		payingGroups = conf.getStringList("taxes." + taxName + ".payingGroups");
 
 		if(!(taxes.contains(taxName))) {
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
@@ -201,9 +173,8 @@ public class TaxManager {
 	}
 
 	public void addPlayer(CommandSender sender, String taxName, String playerName) {
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
-		payingPlayers = conf.getStringList("taxes." + taxName + ".payingPlayers", null);
+		taxes = conf.getStringList("taxes.list");
+		payingPlayers = conf.getStringList("taxes." + taxName + ".payingPlayers");
 
 		if(!(taxes.contains(taxName))) {
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
@@ -229,9 +200,8 @@ public class TaxManager {
 	}
 
 	public void removeGroup(CommandSender sender, String taxName, String groupName) {
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
-		payingGroups = conf.getStringList("taxes." + taxName + ".payingGroups", null);
+		taxes = conf.getStringList("taxes.list");
+		payingGroups = conf.getStringList("taxes." + taxName + ".payingGroups");
 
 		if(!(taxes.contains(taxName))) {
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
@@ -253,9 +223,8 @@ public class TaxManager {
 	}
 
 	public void removePlayer(CommandSender sender, String taxName, String playerName) {
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
-		payingPlayers = conf.getStringList("taxes." + taxName + ".payingPlayers", null);
+		taxes = conf.getStringList("taxes.list");
+		payingPlayers = conf.getStringList("taxes." + taxName + ".payingPlayers");
 
 		if(!(taxes.contains(taxName))) {
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
@@ -271,16 +240,13 @@ public class TaxManager {
 
 
 	public void enable() {
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
+		taxes = conf.getStringList("taxes.list");
 		Double hours;
-		Date lastPaid;
 
 		for(String taxName : taxes) {
-			hours = Double.parseDouble(conf.getString("taxes." + taxName + ".taxInterval"));
-			lastPaid = (Date) conf.getProperty("taxes." + taxName + ".lastPaid");
+			hours = conf.getDouble(("taxes." + taxName + ".taxInterval"), 1);
 			System.out.println("[" + TaxManager.cashFlow.info.getName() + "] Enabling " + taxName);
-			Taxer taxer = new Taxer(this, taxName, hours, lastPaid);
+			Taxer taxer = new Taxer(this, taxName, hours);
 			taxTasks.add(taxer);
 		}
 	}
@@ -298,15 +264,11 @@ public class TaxManager {
 	public void payTax(String taxName) {
 		System.out.println("[" + TaxManager.cashFlow.info.getName() + "] Paying tax " + taxName);
 
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
+		taxes = conf.getStringList("taxes.list");
 
-		conf.setProperty("taxes." + taxName + ".lastPaid", new Date());
-		conf.save();
-
-		List<String> groups = conf.getStringList("taxes." + taxName + ".payingGroups", null);
-		List<String> players = conf.getStringList("taxes." + taxName + ".payingPlayers", null);
-		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers", null);
+		List<String> groups = conf.getStringList("taxes." + taxName + ".payingGroups");
+		List<String> players = conf.getStringList("taxes." + taxName + ".payingPlayers");
+		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers");
 		String tax = conf.getString("taxes." + taxName + ".tax");
 		String receiver = conf.getString("taxes." + taxName + ".receiver");
 		Double taxRate;
@@ -331,7 +293,7 @@ public class TaxManager {
 				}
 
 				taxRate = Double.valueOf(twoDForm.format(taxRate));
-				TaxManager.cashFlow.eco.bankWithdraw(user, taxRate);
+				TaxManager.cashFlow.log.info("Status: " + TaxManager.cashFlow.eco.bankWithdraw(user, taxRate).amount);
 
 				if(player != null) {
 					String message = "You have paid $" + taxRate + " in tax";
@@ -364,7 +326,6 @@ public class TaxManager {
 	}
 
 	public void setOnlineOnly(String taxName, Boolean online, Double interval) {
-		loadConf();
 		conf.setProperty("taxes." + taxName + ".onlineOnly.isEnabled", online);
 		conf.setProperty("taxes." + taxName + ".onlineOnly.interval", interval);
 		conf.save();
@@ -372,9 +333,8 @@ public class TaxManager {
 	}
 
 	public void addException(CommandSender sender, String taxName, String userName) {
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
-		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers", null);
+		taxes = conf.getStringList("taxes.list");
+		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers");
 
 		if(!(taxes.contains(taxName))) {
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
@@ -391,9 +351,8 @@ public class TaxManager {
 	}
 
 	public void removeException(CommandSender sender, String taxName, String userName) {
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
-		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers", null);
+		taxes = conf.getStringList("taxes.list");
+		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName + ".exceptedPlayers");
 
 		if(!(taxes.contains(taxName))) {
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
@@ -408,8 +367,7 @@ public class TaxManager {
 	}
 
 	public void setRate(CommandSender sender, String taxName, String tax) {
-		loadConf();
-		taxes = conf.getStringList("taxes.list", null);
+		taxes = conf.getStringList("taxes.list");
 
 		if(!(taxes.contains(taxName))) {
 			sender.sendMessage(ChatColor.RED + "Tax not found.");

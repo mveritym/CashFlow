@@ -1,56 +1,32 @@
 package mveritym.cashflow;
 
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-
-@SuppressWarnings("deprecation")
 public class Taxer {
-	
+
 	private TaxManager taxManager;
 	private SalaryManager salaryManager;
 	private String name;
 	private Double hours;
-	private Timer timer;
-	private Date lastPaid;
-	private Boolean first;
+	private int id;
+	private final int tickToHour = 72000;
 
-	public Taxer(TaxManager taxManager, String taxName, Double hours, Date lastPaid) {
+	public Taxer(TaxManager taxManager, String taxName, Double hours) {
 		this.taxManager = taxManager;
 		this.setName(taxName);
 		this.hours = hours;
-		this.first = true;
-		this.lastPaid = lastPaid;
-		
-		if(this.lastPaid == null) {
-			this.lastPaid = new Date();
-			TaxManager.conf.setProperty("taxes." + taxName + ".lastPaid", this.lastPaid);
-			TaxManager.conf.save();
-		}
-		
-		timer = new Timer();
-		timer.scheduleAtFixedRate(new TaxTask(), this.lastPaid, Math.round(this.hours * 3600000));
+
+		schedule(new TaxTask(), Math.round(this.hours* tickToHour));
 	}
-	
-	public Taxer(SalaryManager salaryManager, String taxName, Double hours, Date lastPaid) {
+
+	public Taxer(SalaryManager salaryManager, String taxName, Double hours) {
 		this.salaryManager = salaryManager;
 		this.setName(taxName);
 		this.hours = hours;
-		this.first = true;
-		this.lastPaid = lastPaid;
-		
-		if(this.lastPaid == null) {
-			this.lastPaid = new Date();
-			TaxManager.conf.setProperty("salaries." + taxName + ".lastPaid", this.lastPaid);
-			TaxManager.conf.save();
-		}
-		
-		timer = new Timer();
-		timer.scheduleAtFixedRate(new SalaryTask(), this.lastPaid, Math.round(this.hours * 3600000));
+
+		schedule(new SalaryTask(), Math.round(this.hours * tickToHour));
 	}
-	
+
 	public void cancel() {
-		this.timer.cancel();
+		TaxManager.cashFlow.getServer().getScheduler().cancelTask(id);
 	}
 
     public String getName() {
@@ -61,23 +37,24 @@ public class Taxer {
 		this.name = name;
 	}
 
-	class TaxTask extends TimerTask {
+	public void schedule(Runnable run, long period)
+	{
+		id = TaxManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(TaxManager.cashFlow, run, period, period);
+		if(id == -1)
+		{
+			TaxManager.cashFlow.log.severe("Could not schedule " + this.getName());
+		}
+	}
+
+	class TaxTask implements Runnable {
         public void run() {
-        	if(first) {
-        		first = false;
-        	} else {
-        		taxManager.payTax(getName());
-        	}
+        	taxManager.payTax(getName());
         }
     }
-    
-    class SalaryTask extends TimerTask {
+
+    class SalaryTask implements Runnable {
         public void run() {
-        	if(first) {
-        		first = false;
-        	} else {
-        		salaryManager.paySalary(getName());
-        	}
+        	salaryManager.paySalary(getName());
         }
     }
 

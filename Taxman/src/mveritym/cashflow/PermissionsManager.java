@@ -16,7 +16,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.util.config.Configuration;
 
 import com.platymuus.bukkit.permissions.Group;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
@@ -28,7 +27,6 @@ import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 
-@SuppressWarnings ("deprecation")
 public class PermissionsManager {
 
 	String pluginName = "null";
@@ -38,7 +36,7 @@ public class PermissionsManager {
 	/* WorldDataHolder wdh; */
 	PermissionSet permissionsSet;
 	protected static CashFlow cashflow;
-	protected static Configuration conf;
+	protected Config conf;
 	protected File confFile;
 	String world;
 	PluginManager pluginManager;
@@ -47,8 +45,8 @@ public class PermissionsManager {
 
 	public PermissionsManager(CashFlow cashflow) {
 		PermissionsManager.cashflow = cashflow;
-		loadConf();
-		this.world = conf.getString("world", "world");
+		conf = cashflow.getPluginConfig();
+		this.world = conf.getString("world");
 		this.setupPermissions();
 
 		pluginManager = PermissionsManager.cashflow.getServer().getPluginManager();
@@ -145,7 +143,6 @@ public class PermissionsManager {
 	public List<String> getUsers(List<String> groups, List<String> players,
 			List<String> exceptedPlayers) {
 		List<String> playerList = new ArrayList<String>();
-		loadConf();
 
 		if (pluginDetected())
 		{
@@ -233,7 +230,6 @@ public class PermissionsManager {
 	}
 
 	public List<String> getAllPlayers() {
-		loadConf();
 		String worldName = conf.getString("world");
 		List<String> players = new ArrayList<String>();
 
@@ -261,7 +257,6 @@ public class PermissionsManager {
 
 	@SuppressWarnings ("unused")
 	public boolean isPlayer(String playerName) {
-		loadConf();
 		String worldName = conf.getString("world");
 
 		if (worldName == null)
@@ -289,7 +284,6 @@ public class PermissionsManager {
 	}
 
 	public boolean setWorld(String worldName) {
-		loadConf();
 
 		List<World> worlds = PermissionsManager.cashflow.getServer()
 				.getWorlds();
@@ -304,27 +298,5 @@ public class PermissionsManager {
 		}
 
 		return false;
-	}
-
-	public void loadConf() {
-		File f = new File(PermissionsManager.cashflow.getDataFolder(),
-				"config.yml");
-
-		if (f.exists())
-		{
-			conf = new Configuration(f);
-			conf.load();
-		}
-		else
-		{
-			System.out.println("[" + PermissionsManager.cashflow.info.getName()
-					+ "] No CashFlow config file found. Creating config file.");
-			this.confFile = new File(TaxManager.cashFlow.getDataFolder(),
-					"config.yml");
-			TaxManager.conf = new Configuration(confFile);
-			List<String> tempList = null;
-			conf.setProperty("taxes.list", tempList);
-			conf.save();
-		}
 	}
 }
