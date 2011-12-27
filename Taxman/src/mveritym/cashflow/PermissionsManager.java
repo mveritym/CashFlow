@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 /*import org.anjocaido.groupmanager.GroupManager;
  import org.anjocaido.groupmanager.dataholder.WorldDataHolder;
@@ -23,6 +24,7 @@ import com.platymuus.bukkit.permissions.PermissionsPlugin;
 import de.bananaco.permissions.Permissions;
 import de.bananaco.permissions.interfaces.PermissionSet;
 import de.bananaco.permissions.worlds.WorldPermissionsManager;
+import ru.tehkode.permissions.PermissionGroup;
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -157,17 +159,26 @@ public class PermissionsManager {
 						List<String> allList = this.getAllPlayers();
 						for(String name : allList)
 						{
-							PermissionUser user = pm.getUser(name);
-							if(user.getAllGroups().size() == 0 && !(playerList.contains(user.getName())))
+							if(!(playerList.contains(name)))
 							{
-								//Player not in any groups, therfore in default group
-								//IDK if this is necessary then...
-								playerList.add(user.getName());
-							}
-							else if(user.getAllGroups().size() == 1 && perm.playerInGroup(world, name, groupName) && !(playerList.contains(user.getName())))
-							{
-								//If they are in the default group and only the default group
-								playerList.add(user.getName());
+								PermissionUser user = pm.getUser(name);
+								for(Entry<String, PermissionGroup[]> e : user.getAllGroups().entrySet())
+								{
+									PermissionGroup[] g = e.getValue();
+									if(g.length == 0)
+									{
+										//No groups, therefore they are in default
+										playerList.add(user.getName());
+									}
+									else if(g.length >= 1)
+									{
+										//They have multiple groups, check to see if its their primary group
+										if(g[0].getName().equals(groupName))
+										{
+											playerList.add(user.getName());
+										}
+									}
+								}
 							}
 						}
 					}
@@ -284,7 +295,6 @@ public class PermissionsManager {
 		return players;
 	}
 
-	@SuppressWarnings ("unused")
 	public boolean isPlayer(String playerName) {
 		String worldName = conf.getString("world");
 
@@ -301,6 +311,7 @@ public class PermissionsManager {
 		{
 			try
 			{
+				@SuppressWarnings ("unused")
 				FileInputStream test = new FileInputStream(worldName
 						+ "/players/" + playerName + ".dat");
 			}

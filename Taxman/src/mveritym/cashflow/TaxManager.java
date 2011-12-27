@@ -390,106 +390,40 @@ public class TaxManager {
 
 		for (String user : users)
 		{
-			if (TaxManager.cashFlow.eco.bankBalance(user).type == EconomyResponse.ResponseType.SUCCESS)
+			EconomyResponse er = TaxManager.cashFlow.eco.bankBalance(user);
+			if (er.type == EconomyResponse.ResponseType.SUCCESS)
 			{
 				Player player = TaxManager.cashFlow.getServer().getPlayer(user);
 				DecimalFormat twoDForm = new DecimalFormat("#.##");
+				double balance = er.balance;
 
-				EconomyResponse er = TaxManager.cashFlow.eco.bankBalance(user);
-				if (er.type == EconomyResponse.ResponseType.SUCCESS)
+				if (tax.contains("%"))
 				{
-					double balance = er.balance;
-					if (tax.contains("%"))
+					taxRate = Double.parseDouble(tax.split("%")[0]) / 100.0;
+					taxRate *= balance;
+				}
+				else
+				{
+					taxRate = Double.parseDouble(tax);
+				}
+
+				taxRate = Double.valueOf(twoDForm.format(taxRate));
+				if (balance != 0)
+				{
+					if (balance < taxRate)
 					{
-						taxRate = Double.parseDouble(tax.split("%")[0]) / 100.0;
-						taxRate *= balance;
-					}
-					else
-					{
-						taxRate = Double.parseDouble(tax);
+						// If they don't have enough in their account, set
+						// it to take everything
+						taxRate = balance;
 					}
 
-					taxRate = Double.valueOf(twoDForm.format(taxRate));
-					if (balance != 0)
-					{
-						if (balance < taxRate)
-						{
-							// If they don't have enough in their account, set
-							// it to take everything
-							taxRate = balance;
-						}
-
-						er = TaxManager.cashFlow.eco
-								.bankWithdraw(user, taxRate);
-						if (er.type == EconomyResponse.ResponseType.SUCCESS)
-						{
-							if (player != null)
-							{
-								String message = "You have paid $" + taxRate
-										+ " in tax";
-								if (receiver.equals("null"))
-								{
-									message += ".";
-								}
-								else
-								{
-									message += " to " + receiver + ".";
-								}
-								player.sendMessage(ChatColor.BLUE + message);
-							}
-						}
-						else
-						{
-							withdraw = false;
-							TaxManager.cashFlow.log.warning("["
-									+ TaxManager.cashFlow.info.getName() + "] "
-									+ er.errorMessage + ": " + user);
-						}
-
-
-
-						if (!(receiver.equals("null")) && withdraw)
-						{
-							if (TaxManager.cashFlow.eco.bankDeposit(receiver,
-									taxRate).type == EconomyResponse.ResponseType.SUCCESS)
-							{
-								if (PermissionsManager.cashflow.getServer()
-										.getPlayer(receiver) != null)
-								{
-									Player receiverPlayer = TaxManager.cashFlow
-											.getServer().getPlayer(receiver);
-									receiverPlayer.sendMessage(ChatColor.BLUE
-											+ "You have received $" + taxRate
-											+ " in tax from " + user + ".");
-								}
-							}
-							else
-							{
-								TaxManager.cashFlow.log.warning("["
-										+ TaxManager.cashFlow.info.getName()
-										+ "] "
-										+ TaxManager.cashFlow.eco
-												.bankBalance(user).errorMessage
-										+ ": " + receiver);
-							}
-						}
-						else
-						{
-							if (PermissionsManager.cashflow.getServer()
-									.getPlayer(receiver) != null)
-							{
-								Player receiverPlayer = TaxManager.cashFlow
-										.getServer().getPlayer(receiver);
-								receiverPlayer.sendMessage(ChatColor.RED
-										+ "Could not retrieve tax from " + user + ".");
-							}
-						}
-					}
-					else
+					er = TaxManager.cashFlow.eco.bankWithdraw(user, taxRate);
+					if (er.type == EconomyResponse.ResponseType.SUCCESS)
 					{
 						if (player != null)
 						{
-							String message = "No money to pay tax";
+							String message = "You have paid $" + taxRate
+									+ " in tax";
 							if (receiver.equals("null"))
 							{
 								message += ".";
@@ -501,26 +435,80 @@ public class TaxManager {
 							player.sendMessage(ChatColor.BLUE + message);
 						}
 					}
+					else
+					{
+						withdraw = false;
+						TaxManager.cashFlow.log.warning("["
+								+ TaxManager.cashFlow.info.getName() + "] "
+								+ er.errorMessage + ": " + user);
+					}
+
+					if (!(receiver.equals("null")) && withdraw)
+					{
+						if (TaxManager.cashFlow.eco.bankDeposit(receiver,
+								taxRate).type == EconomyResponse.ResponseType.SUCCESS)
+						{
+							if (PermissionsManager.cashflow.getServer()
+									.getPlayer(receiver) != null)
+							{
+								Player receiverPlayer = TaxManager.cashFlow
+										.getServer().getPlayer(receiver);
+								receiverPlayer.sendMessage(ChatColor.BLUE
+										+ "You have received $" + taxRate
+										+ " in tax from " + user + ".");
+							}
+						}
+						else
+						{
+							TaxManager.cashFlow.log
+									.warning("["
+											+ TaxManager.cashFlow.info
+													.getName()
+											+ "] "
+											+ TaxManager.cashFlow.eco
+													.bankBalance(user).errorMessage
+											+ ": " + receiver);
+						}
+					}
+					else
+					{
+						if (PermissionsManager.cashflow.getServer().getPlayer(
+								receiver) != null)
+						{
+							Player receiverPlayer = TaxManager.cashFlow
+									.getServer().getPlayer(receiver);
+							receiverPlayer.sendMessage(ChatColor.RED
+									+ "Could not retrieve tax from " + user
+									+ ".");
+						}
+					}
 				}
 				else
 				{
-					TaxManager.cashFlow.log
-							.warning("["
-									+ TaxManager.cashFlow.info.getName()
-									+ "] "
-									+ TaxManager.cashFlow.eco.bankBalance(user).errorMessage
-									+ ": " + user);
+					if (player != null)
+					{
+						String message = "No money to pay tax";
+						if (receiver.equals("null"))
+						{
+							message += ".";
+						}
+						else
+						{
+							message += " to " + receiver + ".";
+						}
+						player.sendMessage(ChatColor.BLUE + message);
+					}
 				}
 			}
 			else
 			{
-				//Account does not exist
-				/*TaxManager.cashFlow.log
-						.warning("["
-								+ TaxManager.cashFlow.info.getName()
-								+ "] "
-								+ TaxManager.cashFlow.eco.bankBalance(user).errorMessage
-								+ ": " + user);*/
+				// Account does not exist
+				/*
+				 * TaxManager.cashFlow.log .warning("[" +
+				 * TaxManager.cashFlow.info.getName() + "] " +
+				 * TaxManager.cashFlow.eco.bankBalance(user).errorMessage + ": "
+				 * + user);
+				 */
 			}
 		}
 	}
