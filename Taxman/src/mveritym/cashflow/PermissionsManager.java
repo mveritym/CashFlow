@@ -262,18 +262,13 @@ public class PermissionsManager {
 			worldName = "world";
 		}
 
-		File folder = new File(worldName + "/players");
-		File[] listOfFiles = folder.listFiles();
+		PermissionsManager.cashflow.getServer().getWorld(worldName).getPlayers();
 
-		for (int i = 0; i < listOfFiles.length; i++)
+		File folder = new File(worldName + File.separator+ "players" + File.separator);
+
+		for (File playerFile : folder.listFiles())
 		{
-			if (listOfFiles[i].isFile())
-			{
-				String fileName = listOfFiles[i].getName();
-				String playerName = fileName
-						.substring(0, fileName.length() - 4);
-				players.add(playerName);
-			}
+			players.add(playerFile.getName().substring(0, playerFile.getName().length() - 4));
 		}
 
 		return players;
