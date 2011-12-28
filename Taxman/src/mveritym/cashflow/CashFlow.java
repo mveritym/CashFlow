@@ -36,22 +36,21 @@ public class CashFlow extends JavaPlugin {
 	public void onLoad() {
 		// Grab config
 		config = new Config(this);
-
+		//Grab info
+		info = getDescription();
+		prefix = "[" + info.getName() + "]";
 		// Check if master player table exists
-		database = new SQLite(log, prefix, "report", this.getDataFolder()
+		database = new SQLite(log, prefix, "database", this.getDataFolder()
 				.getAbsolutePath());
-		if (!database.checkTable("kr_masterlist"))
+		if (!database.checkTable("cashflow"))
 		{
 			log.info(prefix + " Created master list table");
 			// Master table
-			database.createTable("CREATE TABLE `kr_masterlist` (`playername` varchar(32) NOT NULL);");
+			database.createTable("CREATE TABLE `cashflow` (`playername` varchar(32) NOT NULL);");
 		}
 	}
 
 	public void onEnable() {
-		info = getDescription();
-		prefix = "[" + info.getName() + "]";
-
 		pluginManager = getServer().getPluginManager();
 
 		//Register Listener
@@ -78,7 +77,14 @@ public class CashFlow extends JavaPlugin {
 	}
 
 	public void onDisable() {
+		//Save config
 		this.saveConfig();
+		//Disable taxes/salaries and finish the buffers if any exist
+		//thus no economy changes are lost
+		log.info("[" + info.getName() + "] "
+				+ " Finishing tax/salary buffers...");
+		taxManager.disable();
+		salaryManager.disable();
 		// Disconnect from sql database? Dunno if necessary
 		if (database.checkConnection())
 		{

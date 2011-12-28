@@ -23,7 +23,7 @@ public class Listener extends PlayerListener {
 		{
 			cf.log.warning(cf.getPluginPrefix() + " PlayerJoin event");
 		}
-		String query = "SELECT COUNT(*) FROM 'kr_masterlist' WHERE playername='"
+		String query = "SELECT COUNT(*) FROM 'cashflow' WHERE playername='"
 				+ event.getPlayer().getName() + "';";
 		ResultSet rs = cf.getLiteDB().select(query);
 		try
@@ -45,7 +45,7 @@ public class Listener extends PlayerListener {
 					cf.log.warning(cf.getPluginPrefix() + " PlayerJoin - add new player");
 				}
 				// Add to master list
-				query = "INSERT INTO 'kr_masterlist' VALUES('"
+				query = "INSERT INTO 'cashflow' VALUES('"
 						+ event.getPlayer().getName()
 						+ "');";
 				cf.getLiteDB().standardQuery(query);

@@ -274,7 +274,7 @@ public class PermissionsManager {
 		List<String> players = new ArrayList<String>();
 		try
 		{
-			String query = "SELECT * FROM 'kr_masterlist'";
+			String query = "SELECT * FROM 'cashflow'";
 			ResultSet rs = PermissionsManager.cashflow.getLiteDB()
 					.select(query);
 			if (rs.next())
@@ -311,7 +311,7 @@ public class PermissionsManager {
 		{
 			try
 			{
-				String query = "SELECT * FROM 'kr_masterlist' WHERE playername='"
+				String query = "SELECT * FROM 'cashflow' WHERE playername='"
 						+ playerName + "';";
 				ResultSet rs = PermissionsManager.cashflow.getLiteDB().select(
 						query);
@@ -366,7 +366,7 @@ public class PermissionsManager {
 				{
 					boolean has = false;
 					// Check if player already exists
-					String query = "SELECT COUNT(*) FROM 'kr_masterlist' WHERE playername='"
+					String query = "SELECT COUNT(*) FROM 'cashflow' WHERE playername='"
 							+ name + "';";
 					ResultSet rs = PermissionsManager.cashflow.getLiteDB()
 							.select(query);
@@ -382,7 +382,7 @@ public class PermissionsManager {
 					if (!has)
 					{
 						// Add to master list
-						query = "INSERT INTO 'kr_masterlist' VALUES('" + name
+						query = "INSERT INTO 'cashflow' VALUES('" + name
 								+ "');";
 						PermissionsManager.cashflow.getLiteDB().standardQuery(
 								query);

@@ -360,26 +360,23 @@ public class TaxManager {
 		return tempPlayerList;
 	}
 
-	public void payTax(String taxName) {
-		conf.save();
-		System.out.println("[" + TaxManager.cashFlow.info.getName()
-				+ "] Paying tax " + taxName);
-
-		taxes = conf.getStringList("taxes.list");
-
+	public List<String> getUsers(String taxName)
+	{
 		List<String> groups = conf.getStringList("taxes." + taxName
 				+ ".payingGroups");
 		List<String> players = conf.getStringList("taxes." + taxName
 				+ ".payingPlayers");
 		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName
 				+ ".exceptedPlayers");
-		String tax = conf.getString("taxes." + taxName + ".tax");
-		String receiver = conf.getString("taxes." + taxName + ".receiver");
-		Double taxRate;
-		boolean withdraw = true;
 
-		List<String> users = TaxManager.cashFlow.permsManager.getUsers(groups,
+		return TaxManager.cashFlow.permsManager.getUsers(groups,
 				players, exceptedPlayers);
+	}
+
+	public void payTax(String taxName) {
+		conf.save();
+
+		List<String> users = this.getUsers(taxName);
 
 		if (conf.getBoolean("taxes." + taxName + ".onlineOnly.isEnabled", false))
 		{
@@ -389,6 +386,33 @@ public class TaxManager {
 		}
 
 		for (String user : users)
+		{
+			this.payTax(user, taxName, false);
+		}
+	}
+
+	public void payTax(String user, String taxName, boolean checkOnline)
+	{
+		conf.save();
+
+		taxes = conf.getStringList("taxes.list");
+
+
+		String tax = conf.getString("taxes." + taxName + ".tax");
+		String receiver = conf.getString("taxes." + taxName + ".receiver");
+		Double taxRate;
+		boolean withdraw = true;
+		boolean online = true;
+
+		if (conf.getBoolean("taxes." + taxName + ".onlineOnly.isEnabled", false) && checkOnline)
+		{
+			if(PermissionsManager.cashflow.getServer().getPlayer(user) == null)
+			{
+				online = false;
+			}
+		}
+
+		if(online)
 		{
 			if(TaxManager.cashFlow.eco.bankBalance(user).type != EconomyResponse.ResponseType.SUCCESS)
 			{
@@ -522,6 +546,7 @@ public class TaxManager {
 		conf.save();
 		for (Taxer taxTask : taxTasks)
 		{
+			taxTask.finishBuffer();
 			taxTask.cancel();
 		}
 	}

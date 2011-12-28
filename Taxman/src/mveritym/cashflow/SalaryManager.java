@@ -359,6 +359,7 @@ public class SalaryManager {
 	public void disable() {
 		for (Taxer salaryTask : salaryTasks)
 		{
+			salaryTask.finishBuffer();
 			salaryTask.cancel();
 		}
 	}
@@ -439,26 +440,23 @@ public class SalaryManager {
 		return tempPlayerList;
 	}
 
-	public void paySalary(String salaryName) {
-		conf.save();
-		System.out.println("[" + SalaryManager.cashFlow.info.getName()
-				+ "] Paying salary " + salaryName);
-
-		salaries = conf.getStringList("salaries.list");
-
+	public List<String> getUsers(String salaryName)
+	{
 		List<String> groups = conf.getStringList("salaries." + salaryName
 				+ ".paidGroups");
 		List<String> players = conf.getStringList("salaries." + salaryName
 				+ ".paidPlayers");
 		List<String> exceptedPlayers = conf.getStringList("salaries."
 				+ salaryName + ".exceptedPlayers");
-		Double salary = Double.parseDouble(conf.getString("salaries."
-				+ salaryName + ".salary"));
-		String employer = conf
-				.getString("salaries." + salaryName + ".employer");
 
-		List<String> users = SalaryManager.cashFlow.permsManager.getUsers(
+		return SalaryManager.cashFlow.permsManager.getUsers(
 				groups, players, exceptedPlayers);
+	}
+
+	public void paySalary(String salaryName) {
+		conf.save();
+
+		List<String> users = this.getUsers(salaryName);
 
 		if (conf.getBoolean("salaries." + salaryName + ".onlineOnly.isEnabled",
 				false))
@@ -469,6 +467,29 @@ public class SalaryManager {
 		}
 
 		for (String user : users)
+		{
+			this.paySalary(user, salaryName, false);
+		}
+	}
+
+	public void paySalary(String user, String salaryName, boolean checkOnline)
+	{
+		Double salary = Double.parseDouble(conf.getString("salaries."
+				+ salaryName + ".salary"));
+		String employer = conf
+				.getString("salaries." + salaryName + ".employer");
+		boolean online = true;
+
+		if (conf.getBoolean("salaries." + salaryName + ".onlineOnly.isEnabled",
+				false) && checkOnline)
+		{
+			if(PermissionsManager.cashflow.getServer().getPlayer(user) == null)
+			{
+				online = false;
+			}
+		}
+
+		if(online)
 		{
 			if(SalaryManager.cashFlow.eco.bankBalance(user).type != EconomyResponse.ResponseType.SUCCESS)
 			{
