@@ -86,7 +86,7 @@ public class Taxer {
 
 	public void scheduleBuffer(Runnable run)
 	{
-		bufferId = TaxManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(TaxManager.cashFlow, run, 0, 40);
+		bufferId = TaxManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(TaxManager.cashFlow, run, 0, 100);
 		if(bufferId == -1)
 		{
 			TaxManager.cashFlow.log.severe("Could not schedule buffer task for: " + this.getName());

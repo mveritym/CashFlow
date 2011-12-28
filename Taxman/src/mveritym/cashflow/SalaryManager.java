@@ -491,11 +491,6 @@ public class SalaryManager {
 
 		if(online)
 		{
-			if(SalaryManager.cashFlow.eco.bankBalance(user).type != EconomyResponse.ResponseType.SUCCESS)
-			{
-				//Name wasn't found, try to set it to lowercase
-				user = user.toLowerCase();
-			}
 			if (SalaryManager.cashFlow.eco.bankBalance(user).type == EconomyResponse.ResponseType.SUCCESS)
 			{
 

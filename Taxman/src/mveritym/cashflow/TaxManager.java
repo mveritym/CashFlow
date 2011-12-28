@@ -395,9 +395,6 @@ public class TaxManager {
 	{
 		conf.save();
 
-		taxes = conf.getStringList("taxes.list");
-
-
 		String tax = conf.getString("taxes." + taxName + ".tax");
 		String receiver = conf.getString("taxes." + taxName + ".receiver");
 		Double taxRate;
@@ -414,18 +411,12 @@ public class TaxManager {
 
 		if(online)
 		{
-			if(TaxManager.cashFlow.eco.bankBalance(user).type != EconomyResponse.ResponseType.SUCCESS)
-			{
-				//Name wasn't found, try to set it to lowercase
-				user = user.toLowerCase();
-			}
 			EconomyResponse er = TaxManager.cashFlow.eco.bankBalance(user);
 			if (er.type == EconomyResponse.ResponseType.SUCCESS)
 			{
 				Player player = TaxManager.cashFlow.getServer().getPlayer(user);
 				DecimalFormat twoDForm = new DecimalFormat("#.##");
 				double balance = er.balance;
-
 				if (tax.contains("%"))
 				{
 					taxRate = Double.parseDouble(tax.split("%")[0]) / 100.0;
@@ -446,7 +437,7 @@ public class TaxManager {
 						taxRate = balance;
 					}
 
-					er = TaxManager.cashFlow.eco.bankWithdraw(user, taxRate);
+					er = TaxManager.cashFlow.eco.withdrawPlayer(user, taxRate);
 					if (er.type == EconomyResponse.ResponseType.SUCCESS)
 					{
 						if (player != null)
@@ -474,8 +465,9 @@ public class TaxManager {
 
 					if (!(receiver.equals("null")) && withdraw)
 					{
-						if (TaxManager.cashFlow.eco.bankDeposit(receiver,
-								taxRate).type == EconomyResponse.ResponseType.SUCCESS)
+						er = TaxManager.cashFlow.eco.bankDeposit(receiver,
+								taxRate);
+						if (er.type == EconomyResponse.ResponseType.SUCCESS)
 						{
 							if (PermissionsManager.cashflow.getServer()
 									.getPlayer(receiver) != null)

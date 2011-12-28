@@ -34,11 +34,11 @@ public class CashFlow extends JavaPlugin {
 	private SQLite database;
 
 	public void onLoad() {
-		// Grab config
-		config = new Config(this);
 		//Grab info
 		info = getDescription();
 		prefix = "[" + info.getName() + "]";
+		// Grab config
+		config = new Config(this);
 		// Check if master player table exists
 		database = new SQLite(log, prefix, "database", this.getDataFolder()
 				.getAbsolutePath());
