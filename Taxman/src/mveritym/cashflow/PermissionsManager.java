@@ -1,8 +1,8 @@
 package mveritym.cashflow;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -51,7 +51,8 @@ public class PermissionsManager {
 		this.world = conf.getString("world");
 		this.setupPermissions();
 
-		pluginManager = PermissionsManager.cashflow.getServer().getPluginManager();
+		pluginManager = PermissionsManager.cashflow.getServer()
+				.getPluginManager();
 
 		if (pluginManager.getPlugin("PermissionsBukkit") != null)
 		{
@@ -97,13 +98,15 @@ public class PermissionsManager {
 		}
 	}
 
-	private void setupPermissions()
-	{
-		RegisteredServiceProvider<Permission> permissionProvider = PermissionsManager.cashflow.getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
-        if(permissionProvider != null)
-        {
-        	perm = permissionProvider.getProvider();
-        }
+	private void setupPermissions() {
+		RegisteredServiceProvider<Permission> permissionProvider = PermissionsManager.cashflow
+				.getServer()
+				.getServicesManager()
+				.getRegistration(net.milkbowl.vault.permission.Permission.class);
+		if (permissionProvider != null)
+		{
+			perm = permissionProvider.getProvider();
+		}
 	}
 
 	public Plugin getPlugin() {
@@ -132,9 +135,9 @@ public class PermissionsManager {
 
 	public boolean isGroup(String groupName) {
 		String[] groups = perm.getGroups();
-		for(int i = 0; i < groups.length; i++)
+		for (int i = 0; i < groups.length; i++)
 		{
-			if(groups[i].equals(groupName))
+			if (groups[i].equals(groupName))
 			{
 				return true;
 			}
@@ -152,28 +155,31 @@ public class PermissionsManager {
 			{
 				for (String groupName : groups)
 				{
-					//Handle for default group
-					if(groupName.equals(pm.getDefaultGroup().getName()))
+					// Handle for default group
+					if (groupName.equals(pm.getDefaultGroup().getName()))
 					{
-						//Grab all players
+						// Grab all players
 						List<String> allList = this.getAllPlayers();
-						for(String name : allList)
+						for (String name : allList)
 						{
-							if(!(playerList.contains(name)))
+							if (!(playerList.contains(name)))
 							{
 								PermissionUser user = pm.getUser(name);
-								for(Entry<String, PermissionGroup[]> e : user.getAllGroups().entrySet())
+								for (Entry<String, PermissionGroup[]> e : user
+										.getAllGroups().entrySet())
 								{
 									PermissionGroup[] g = e.getValue();
-									if(g.length == 0)
+									if (g.length == 0)
 									{
-										//No groups, therefore they are in default
+										// No groups, therefore they are in
+										// default
 										playerList.add(user.getName());
 									}
-									else if(g.length >= 1)
+									else if (g.length >= 1)
 									{
-										//They have multiple groups, check to see if its their primary group
-										if(g[0].getName().equals(groupName))
+										// They have multiple groups, check to
+										// see if its their primary group
+										if (g[0].getName().equals(groupName))
 										{
 											playerList.add(user.getName());
 										}
@@ -265,39 +271,33 @@ public class PermissionsManager {
 	}
 
 	public List<String> getAllPlayers() {
-		String worldName = conf.getString("world");
 		List<String> players = new ArrayList<String>();
-
-		if (worldName == null)
+		try
 		{
-			worldName = "world";
-		}
-		World w = PermissionsManager.cashflow.getServer().getWorld(worldName);
-		if(w != null)
-		{
-			File folder = new File(worldName + File.separator+ "players" + File.separator);
-
-			for (File playerFile : folder.listFiles())
+			String query = "SELECT * FROM 'kr_masterlist'";
+			ResultSet rs = PermissionsManager.cashflow.getLiteDB()
+					.select(query);
+			if (rs.next())
 			{
-				if(playerFile != null)
+				do
 				{
-					players.add(playerFile.getName().substring(0, playerFile.getName().length() - 4));
+					players.add(rs.getString("playername"));
 				}
+				while (rs.next());
 			}
 		}
-		else
+		catch (SQLException e)
 		{
-			PermissionsManager.cashflow.log.warning("["
-					+ PermissionsManager.cashflow.info.getName()
-					+ "] " + worldName + " not found");
+			PermissionsManager.cashflow.log.warning(PermissionsManager.cashflow
+					.getPluginPrefix() + " SQL Exception");
+			e.printStackTrace();
 		}
-
 		return players;
 	}
 
 	public boolean isPlayer(String playerName) {
 		String worldName = conf.getString("world");
-
+		boolean has = false;
 		if (worldName == null)
 		{
 			worldName = "world";
@@ -305,22 +305,35 @@ public class PermissionsManager {
 
 		if (PermissionsManager.cashflow.getServer().getPlayer(playerName) != null)
 		{
-			return true;
+			has = true;
 		}
 		else
 		{
 			try
 			{
-				@SuppressWarnings ("unused")
-				FileInputStream test = new FileInputStream(worldName
-						+ "/players/" + playerName + ".dat");
+				String query = "SELECT * FROM 'kr_masterlist' WHERE playername='"
+						+ playerName + "';";
+				ResultSet rs = PermissionsManager.cashflow.getLiteDB().select(
+						query);
+				if (rs.next())
+				{
+					has = true;
+				}
+				else
+				{
+					has = false;
+				}
+				rs.close();
 			}
-			catch (FileNotFoundException e)
+			catch (SQLException e)
 			{
-				return false;
+				PermissionsManager.cashflow.log
+						.warning(PermissionsManager.cashflow.getPluginPrefix()
+								+ " SQL Exception");
+				e.printStackTrace();
 			}
 		}
-		return true;
+		return has;
 	}
 
 	public boolean setWorld(String worldName) {
@@ -338,5 +351,51 @@ public class PermissionsManager {
 		}
 
 		return false;
+	}
+
+	public void importPlayers(String worldName) {
+		File folder = new File(worldName + File.separator + "players"
+				+ File.separator);
+		for (File playerFile : folder.listFiles())
+		{
+			if (playerFile != null)
+			{
+				String name = playerFile.getName().substring(0,
+						playerFile.getName().length() - 4);
+				try
+				{
+					boolean has = false;
+					// Check if player already exists
+					String query = "SELECT COUNT(*) FROM 'kr_masterlist' WHERE playername='"
+							+ name + "';";
+					ResultSet rs = PermissionsManager.cashflow.getLiteDB()
+							.select(query);
+					if (rs.next())
+					{
+						if (rs.getInt(1) >= 1)
+						{
+							// They're already in the database
+							has = true;
+						}
+					}
+					rs.close();
+					if (!has)
+					{
+						// Add to master list
+						query = "INSERT INTO 'kr_masterlist' VALUES('" + name
+								+ "');";
+						PermissionsManager.cashflow.getLiteDB().standardQuery(
+								query);
+					}
+				}
+				catch (SQLException e)
+				{
+					PermissionsManager.cashflow.log
+							.warning(PermissionsManager.cashflow
+									.getPluginPrefix() + " SQL Exception");
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }

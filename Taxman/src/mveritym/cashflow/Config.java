@@ -11,6 +11,7 @@ import org.bukkit.configuration.ConfigurationSection;
 public class Config {
 	//Class variables
 	private CashFlow cf;
+	public boolean debug;
 
 
 	public Config(CashFlow plugin)
@@ -35,6 +36,7 @@ public class Config {
 		{
 			cf.log.info("[" + cf.info.getName() + "] No CashFlow config file found. Creating config file.");
 		}
+		debug = config.getBoolean("debug", false);
 		//Save config
 		cf.saveConfig();
 	}

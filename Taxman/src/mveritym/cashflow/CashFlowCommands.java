@@ -9,6 +9,7 @@ public enum CashFlowCommands {
 	disable,
 	restart,
 	setworld,
+	addplayers,
 
 	create,
 	delete,

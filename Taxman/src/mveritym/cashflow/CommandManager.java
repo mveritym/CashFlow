@@ -1,6 +1,7 @@
 package mveritym.cashflow;
 
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
 public class CommandManager {
@@ -436,6 +437,25 @@ public class CommandManager {
 					return true;
 				} else {
 					return false;
+				}
+			case addplayers:
+				if(args.length == 1)
+				{
+					String worldName = args[0];
+					World w = this.cashFlow.getServer().getWorld(worldName);
+					if(w != null)
+					{
+						this.cashFlow.permsManager.importPlayers(worldName);
+						sender.sendMessage(ChatColor.GREEN + "Imported players of world '" + worldName + "' into master database.");
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + "World not found.");
+					}
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + "World name not given.");
 				}
 			default:
 				return false;
