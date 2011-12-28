@@ -8,22 +8,22 @@ public class CommandManager {
 	private CashFlow cashFlow;
 	private TaxManager taxManager;
 	private SalaryManager salaryManager;
-	
+
 	public CommandManager(CashFlow cashFlow, TaxManager taxManager, SalaryManager salaryManager) {
 		this.cashFlow = cashFlow;
 		this.taxManager = taxManager;
 		this.salaryManager = salaryManager;
 	}
-	
+
 	public boolean taxCommand(CommandSender sender, String[] tempArgs) {
 		CashFlowCommands cmd;
-		
+
 		try {
 			cmd = CashFlowCommands.valueOf(tempArgs[0]);
 		} catch(Exception e) {
 			return false;
 		}
-		
+
 		String args[] = new String[tempArgs.length - 1];
 		for(int i = 1; i < tempArgs.length; i++) {
 			args[i-1] = tempArgs[i];
@@ -41,7 +41,7 @@ public class CommandManager {
 				percentOfBal = args[1];
 				interval = args[2];
 				receiverName = args[3];
-				
+
 				this.taxManager.createTax(sender, name, percentOfBal, interval, receiverName);
 				return true;
 			} else if(args.length == 3) {
@@ -84,7 +84,7 @@ public class CommandManager {
 					} else {
 						sender.sendMessage(ChatColor.RED + "You must install a permissions plugin to use this command.");
 						return true;
-					}					
+					}
 				} else if(args[0].equals("player")) {
 					this.taxManager.addPlayers(sender, args[1], args[2]);
 					return true;
@@ -138,7 +138,7 @@ public class CommandManager {
 			} else {
 				this.taxManager.listTaxes(sender);
 				return true;
-			}	
+			}
 		case info:
 			if(args.length == 1) {
 				this.taxManager.taxInfo(sender, args[0]);
@@ -173,26 +173,45 @@ public class CommandManager {
 			} else {
 				return false;
 			}
+		case fire:
+			if(args.length == 1)
+			{
+				String taxName = args[0];
+				if(cashFlow.getPluginConfig().getStringList("taxes.list").contains(taxName))
+				{
+					this.taxManager.payTax(taxName);
+					return true;
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + " Invalid tax name: " + taxName);
+				}
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.RED + " No tax name given");
+			}
+			return false;
 		default:
 			return false;
 		}
-	
+
 	}
-	
+
 	public boolean salaryCommand(CommandSender sender, String[] tempArgs) {
 		CashFlowCommands cmd;
-		
+
 		try {
 			cmd = CashFlowCommands.valueOf(tempArgs[0]);
 		} catch(Exception e) {
 			return false;
 		}
-		
+
 		String args[] = new String[tempArgs.length - 1];
 		for(int i = 1; i < tempArgs.length; i++) {
 			args[i-1] = tempArgs[i];
 		}
-	
+
 		switch(cmd) {
 			case create:
 				String name;
@@ -205,7 +224,7 @@ public class CommandManager {
 					salary = args[1];
 					interval = args[2];
 					employer = args[3];
-					
+
 					this.salaryManager.createSalary(sender, name, salary, interval, employer);
 					return true;
 				} else if(args.length == 3) {
@@ -302,7 +321,7 @@ public class CommandManager {
 				} else {
 					this.salaryManager.listSalaries(sender);
 					return true;
-				}	
+				}
 			case info:
 				if(args.length == 1) {
 					this.salaryManager.salaryInfo(sender, args[0]);
@@ -337,25 +356,44 @@ public class CommandManager {
 				} else {
 					return false;
 				}
+			case fire:
+				if(args.length == 1)
+				{
+					String salaryName = args[0];
+					if(cashFlow.getPluginConfig().getStringList("salaries.list").contains(salaryName))
+					{
+						this.salaryManager.paySalary(salaryName);
+						return true;
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + " Invalid salary name: " + salaryName);
+					}
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + " No salary name given");
+				}
+				return false;
 			default:
 				return false;
 		}
 	}
-	
+
 	public boolean cashflowCommand(CommandSender sender, String[] tempArgs) {
 		CashFlowCommands cmd;
-		
+
 		try {
 			cmd = CashFlowCommands.valueOf(tempArgs[0]);
 		} catch(Exception e) {
 			return false;
 		}
-		
+
 		String args[] = new String[tempArgs.length - 1];
 		for(int i = 1; i < tempArgs.length; i++) {
 			args[i-1] = tempArgs[i];
 		}
-		
+
 		switch(cmd) {
 			case enable:
 				if(args.length == 0) {
@@ -403,5 +441,5 @@ public class CommandManager {
 				return false;
 		}
 	}
-	
+
 }
