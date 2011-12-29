@@ -57,6 +57,23 @@ public class Taxer {
 		}
 	}
 
+	public String getState()
+	{
+		if(TaxManager.cashFlow.getServer().getScheduler().isCurrentlyRunning(id))
+		{
+			return "running";
+		}
+		else if(bufferId != -1)
+		{
+			return "buffered";
+		}
+		else if(TaxManager.cashFlow.getServer().getScheduler().isQueued(id))
+		{
+			return "queued";
+		}
+		return "cancelled";
+	}
+
 	public void cancel() {
 		TaxManager.cashFlow.getServer().getScheduler().cancelTask(id);
 	}

@@ -199,6 +199,8 @@ public class CommandManager {
 
 	}
 
+	//TODO ability to enable/disable specific salaries
+	//TODO get current state of a salary
 	public boolean salaryCommand(CommandSender sender, String[] tempArgs) {
 		CashFlowCommands cmd;
 
