@@ -55,6 +55,7 @@ public class Taxer {
 				}
 			}
 		}
+		this.clearBuffer();
 	}
 
 	public String getState()
@@ -81,7 +82,13 @@ public class Taxer {
 	public void cancelBuffer()
 	{
 		TaxManager.cashFlow.getServer().getScheduler().cancelTask(bufferId);
-		bufferId = -1;
+		this.bufferId = -1;
+	}
+
+	public void clearBuffer()
+	{
+		//Empty buffer
+		this.buffer = new ArrayList<String>();
 	}
 
     public String getName() {
@@ -112,7 +119,7 @@ public class Taxer {
 
 	class TaxTask implements Runnable {
         public void run() {
-        	System.out.println("[" + TaxManager.cashFlow.info.getName()
+        	TaxManager.cashFlow.log.info("[" + TaxManager.cashFlow.info.getName()
     				+ "] Paying tax " + getName());
         	scheduleBuffer(new CFTask(taxManager.getUsers(getName())));
         }
@@ -120,7 +127,7 @@ public class Taxer {
 
     class SalaryTask implements Runnable {
         public void run() {
-        	System.out.println("[" + SalaryManager.cashFlow.info.getName()
+        	SalaryManager.cashFlow.log.info("[" + SalaryManager.cashFlow.info.getName()
     				+ "] Paying salary " + getName());
         	scheduleBuffer(new CFTask(salaryManager.getUsers(getName())));
         }
@@ -144,7 +151,7 @@ public class Taxer {
 			{
 				try
 				{
-					for(int i = 0; i < 50; i++)
+					for(int i = 0; i < 30; i++)
 					{
 						String name = buffer.remove(0);
 						if(tax)
@@ -161,16 +168,20 @@ public class Taxer {
 				{
 					//buffer is now empty
 					cancelBuffer();
+					clearBuffer();
 				}
 				catch(UnsupportedOperationException r)
 				{
 					//Ignore?
 					cancelBuffer();
+					clearBuffer();
 				}
 			}
 			else
 			{
+				//buffer is now empty
 				cancelBuffer();
+				clearBuffer();
 			}
 		}
     }

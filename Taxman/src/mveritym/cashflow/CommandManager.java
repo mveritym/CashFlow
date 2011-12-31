@@ -6,9 +6,9 @@ import org.bukkit.command.CommandSender;
 
 public class CommandManager {
 
-	private CashFlow cashFlow;
-	private TaxManager taxManager;
-	private SalaryManager salaryManager;
+	private final CashFlow cashFlow;
+	private final TaxManager taxManager;
+	private final SalaryManager salaryManager;
 
 	public CommandManager(CashFlow cashFlow, TaxManager taxManager, SalaryManager salaryManager) {
 		this.cashFlow = cashFlow;
@@ -16,6 +16,7 @@ public class CommandManager {
 		this.salaryManager = salaryManager;
 	}
 
+	//TODO add a more friendly help menu
 	public boolean taxCommand(CommandSender sender, String[] tempArgs) {
 		CashFlowCommands cmd;
 
@@ -180,6 +181,8 @@ public class CommandManager {
 				String taxName = args[0];
 				if(cashFlow.getPluginConfig().getStringList("taxes.list").contains(taxName))
 				{
+					TaxManager.cashFlow.log.info("[" + TaxManager.cashFlow.info.getName()
+		    				+ "] Paying tax " + taxName);
 					this.taxManager.payTax(taxName);
 					return true;
 				}
@@ -365,6 +368,8 @@ public class CommandManager {
 					String salaryName = args[0];
 					if(cashFlow.getPluginConfig().getStringList("salaries.list").contains(salaryName))
 					{
+						SalaryManager.cashFlow.log.info("[" + SalaryManager.cashFlow.info.getName()
+			    				+ "] Paying salary " + salaryName);
 						this.salaryManager.paySalary(salaryName);
 						return true;
 					}

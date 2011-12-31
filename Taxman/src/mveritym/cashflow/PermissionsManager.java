@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-/*import org.anjocaido.groupmanager.GroupManager;
- import org.anjocaido.groupmanager.dataholder.WorldDataHolder;
- import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;*/
+import org.anjocaido.groupmanager.GroupManager;
+import org.anjocaido.groupmanager.dataholder.WorldDataHolder;
+import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
 import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.World;
@@ -31,74 +31,24 @@ import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 public class PermissionsManager {
 
-	String pluginName = "null";
-	Permission perm;
-	PermissionManager pm;
-	WorldPermissionsManager wpm;
-	/* WorldDataHolder wdh; */
-	PermissionSet permissionsSet;
+	private String pluginName = "null";
+	private Permission perm;
+	private PermissionManager pm;
+	private WorldPermissionsManager wpm;
+	private WorldDataHolder wdh;
+	private PermissionSet permissionsSet;
 	protected static CashFlow cashflow;
 	protected Config conf;
 	protected File confFile;
-	String world;
-	PluginManager pluginManager;
-	Plugin plugin;
-	PermissionsPlugin permsPlugin;
+	private String world;
+	private Plugin plugin;
+	private PermissionsPlugin permsPlugin;
 
 	public PermissionsManager(CashFlow cashflow) {
 		PermissionsManager.cashflow = cashflow;
 		conf = cashflow.getPluginConfig();
 		this.world = conf.getString("world");
-		this.setupPermissions();
-
-		pluginManager = PermissionsManager.cashflow.getServer()
-				.getPluginManager();
-
-		if (pluginManager.getPlugin("PermissionsBukkit") != null)
-		{
-			System.out.println("[" + PermissionsManager.cashflow.info.getName()
-					+ "] Using PermissionsBukkit plugin.");
-			pluginName = "PermissionsBukkit";
-			plugin = pluginManager.getPlugin("PermissionsBukkit");
-			permsPlugin = (PermissionsPlugin) plugin;
-		}
-		else if (PermissionsManager.cashflow.getServer().getPluginManager()
-				.getPlugin("PermissionsEx") != null)
-		{
-			System.out.println("[" + PermissionsManager.cashflow.info.getName()
-					+ "] Using PermissionsEx plugin.");
-			pluginName = "PermissionsEx";
-			pm = PermissionsEx.getPermissionManager();
-			plugin = pluginManager.getPlugin("PermissionsEx");
-		}
-		else if (PermissionsManager.cashflow.getServer().getPluginManager()
-				.getPlugin("bPermissions") != null)
-		{
-			System.out.println("[" + PermissionsManager.cashflow.info.getName()
-					+ "] Using bPermissions plugin.");
-			pluginName = "bPermissions";
-			wpm = Permissions.getWorldPermissionsManager();
-			permissionsSet = wpm.getPermissionSet(this.world);
-			plugin = pluginManager.getPlugin("bPermissions");
-
-			/*
-			 * } else if
-			 * (PermissionsManager.cashflow.getServer().getPluginManager
-			 * ().getPlugin("GroupManager") != null) { System.out.println("[" +
-			 * PermissionsManager.cashflow.info.getName() +
-			 * "] Using GroupManager plugin."); pluginName = "GroupManager";
-			 * plugin = pluginManager.getPlugin("GroupManager"); wdh =
-			 * ((GroupManager) plugin).getWorldsHolder().getWorldData(world);
-			 */
-		}
-		else
-		{
-			System.out.println("[" + PermissionsManager.cashflow.info.getName()
-					+ "] No permissions plugin detected.");
-		}
-	}
-
-	private void setupPermissions() {
+		// Setup Vault for permissions
 		RegisteredServiceProvider<Permission> permissionProvider = PermissionsManager.cashflow
 				.getServer()
 				.getServicesManager()
@@ -106,11 +56,40 @@ public class PermissionsManager {
 		if (permissionProvider != null)
 		{
 			perm = permissionProvider.getProvider();
-		}
-	}
+			pluginName = perm.getName();
 
-	public Plugin getPlugin() {
-		return plugin;
+			final PluginManager pluginManager = PermissionsManager.cashflow
+					.getServer().getPluginManager();
+
+			if (pluginName.equals("PermissionsBukkit"))
+			{
+				plugin = pluginManager.getPlugin("PermissionsBukkit");
+				permsPlugin = (PermissionsPlugin) plugin;
+			}
+			else if (pluginName.equals("PermissionsEx"))
+			{
+				pm = PermissionsEx.getPermissionManager();
+				plugin = pluginManager.getPlugin("PermissionsEx");
+			}
+			else if (pluginName.equals("bPermissions"))
+			{
+				wpm = Permissions.getWorldPermissionsManager();
+				permissionsSet = wpm.getPermissionSet(this.world);
+				plugin = pluginManager.getPlugin("bPermissions");
+
+			}
+			else if (pluginName.equals("GroupManager"))
+			{
+				plugin = pluginManager.getPlugin("GroupManager");
+				wdh = ((GroupManager) plugin).getWorldsHolder().getWorldData(
+						world);
+			}
+		}
+		else
+		{
+			System.out.println("[" + PermissionsManager.cashflow.info.getName()
+					+ "] No permissions plugin detected.");
+		}
 	}
 
 	public boolean pluginDetected() {
@@ -133,6 +112,13 @@ public class PermissionsManager {
 		return false;
 	}
 
+	/**
+	 * Determines if given group name is valid, known group
+	 *
+	 * @param name
+	 *            of group
+	 * @return true if permissions has the group, else false
+	 */
 	public boolean isGroup(String groupName) {
 		String[] groups = perm.getGroups();
 		for (int i = 0; i < groups.length; i++)
@@ -145,6 +131,168 @@ public class PermissionsManager {
 		return false;
 	}
 
+	public List<String> getPermissionsEXUsers(List<String> groups) {
+		final List<String> playerList = new ArrayList<String>();
+		for (String groupName : groups)
+		{
+			// Handle for default group
+			if (groupName.equals(pm.getDefaultGroup().getName()))
+			{
+				// Grab all players
+				final List<String> allList = this.getAllPlayers();
+				for (String name : allList)
+				{
+					if (!(playerList.contains(name)))
+					{
+						//Player not in list
+						final PermissionUser user = pm.getUser(name);
+						for (final Entry<String, PermissionGroup[]> e : user
+								.getAllGroups().entrySet())
+						{
+							final PermissionGroup[] g = e.getValue();
+							if (g.length == 0)
+							{
+								// No groups, therefore they are in
+								// default
+								playerList.add(user.getName());
+							}
+							else if (g.length >= 1)
+							{
+								// They have multiple groups, check to
+								// see if its their primary group
+								if (g[0].getName().equals(groupName))
+								{
+									playerList.add(user.getName());
+								}
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				final PermissionUser[] userList = pm.getUsers(groupName);
+				if (userList.length > 0)
+				{
+					for (PermissionUser pu : userList)
+					{
+						if (isPlayer(pu.getName())
+								&& !(playerList.contains(pu.getName())))
+						{
+							playerList.add(pu.getName());
+						}
+					}
+				}
+			}
+		}
+		return playerList;
+	}
+
+	/**
+	 * Specific get users for PermissionsBukkit
+	 *
+	 * @param List of groups to include
+	 * @return List of users
+	 */
+	public List<String> getPermissionsBukkitUsers(List<String> groups) {
+		final List<String> playerList = new ArrayList<String>();
+		for (String groupName : groups)
+		{
+			//Handle default group
+			if (groupName.equals("default"))
+			{
+				// Grab all players
+				final List<String> allList = this.getAllPlayers();
+				for (String name : allList)
+				{
+					if (!(playerList.contains(name)))
+					{
+						//Player not in list
+						final List<Group> userGroups = permsPlugin.getGroups(name);
+						if (userGroups.size() == 0)
+						{
+							// No groups, therefore they are in
+							// default
+							playerList.add(name);
+						}
+						else if (userGroups.size() >= 1)
+						{
+							//TODO check that this is actually correct
+							// I have no idea if, when getting a user's groups
+							// that it includes inherited groups or not.
+							// If it does include inherited groups, rather than explicit groups
+							//Then this will almost always be true, depending on ordering
+							if(userGroups.get(0).getName().equals("default"))
+							{
+								//Their first group is default
+								playerList.add(name);
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				final Group group = permsPlugin.getGroup(groupName);
+				final List<String> groupPlayers = group.getPlayers();
+				if (groupPlayers != null)
+				{
+					for (String player : groupPlayers)
+					{
+						if (!(playerList.contains(player)))
+							playerList.add(player);
+					}
+				}
+			}
+		}
+		return playerList;
+	}
+
+	public List<String> getbPermissionsUsers(List<String> groups)
+	{
+		final List<String> playerList = new ArrayList<String>();
+		for (String groupName : groups)
+		{
+			final List<String> groupPlayers = getAllPlayers();
+			for (String playerName : groupPlayers)
+			{
+				if (!(playerList.contains(playerName)))
+				{
+					final List<String> groupNames = permissionsSet
+							.getGroups(playerName);
+					if (groupNames.contains(groupName))
+					{
+						playerList.add(playerName);
+					}
+				}
+			}
+		}
+		return playerList;
+	}
+
+	public List<String> getGroupManagerUsers(List<String> groups)
+	{
+		final List<String> playerList = new ArrayList<String>();
+		final List<String> groupPlayers = getAllPlayers();
+		for (final String groupName : groups)
+		{
+			if (wdh == null)
+			{
+				break;
+			}
+			final AnjoPermissionsHandler aph = wdh.getPermissionsHandler();
+			for (final String playerName : groupPlayers)
+			{
+				if (!(playerList.contains(playerName))
+						&& aph.inGroup(playerName, groupName))
+				{
+					playerList.add(playerName);
+				}
+			}
+		}
+		return playerList;
+	}
+
 	public List<String> getUsers(List<String> groups, List<String> players,
 			List<String> exceptedPlayers) {
 		List<String> playerList = new ArrayList<String>();
@@ -153,108 +301,23 @@ public class PermissionsManager {
 		{
 			if (pluginName.equals("PermissionsEx"))
 			{
-				for (String groupName : groups)
-				{
-					// Handle for default group
-					if (groupName.equals(pm.getDefaultGroup().getName()))
-					{
-						// Grab all players
-						List<String> allList = this.getAllPlayers();
-						for (String name : allList)
-						{
-							if (!(playerList.contains(name)))
-							{
-								PermissionUser user = pm.getUser(name);
-								for (Entry<String, PermissionGroup[]> e : user
-										.getAllGroups().entrySet())
-								{
-									PermissionGroup[] g = e.getValue();
-									if (g.length == 0)
-									{
-										// No groups, therefore they are in
-										// default
-										playerList.add(user.getName());
-									}
-									else if (g.length >= 1)
-									{
-										// They have multiple groups, check to
-										// see if its their primary group
-										if (g[0].getName().equals(groupName))
-										{
-											playerList.add(user.getName());
-										}
-									}
-								}
-							}
-						}
-					}
-					else
-					{
-						PermissionUser[] userList = pm.getUsers(groupName);
-						if (userList.length > 0)
-						{
-							for (PermissionUser pu : userList)
-							{
-								if (isPlayer(pu.getName())
-										&& !(playerList.contains(pu.getName())))
-								{
-									playerList.add(pu.getName());
-								}
-							}
-						}
-					}
-				}
+				playerList = this.getPermissionsEXUsers(groups);
 			}
 			else if (pluginName.equals("PermissionsBukkit"))
 			{
-				for (String groupName : groups)
-				{
-					if (isGroup(groupName))
-					{
-						Group group = permsPlugin.getGroup(groupName);
-						List<String> groupPlayers = group.getPlayers();
-						if (groupPlayers != null)
-						{
-							for (String player : groupPlayers)
-							{
-								if (!(playerList.contains(player)))
-									playerList.add(player);
-							}
-						}
-					}
-				}
+				playerList = this.getPermissionsBukkitUsers(groups);
 			}
 			else if (pluginName.equals("bPermissions"))
 			{
-				for (String groupName : groups)
-				{
-					List<String> groupPlayers = getAllPlayers();
-					for (String playerName : groupPlayers)
-					{
-						if (!(playerList.contains(playerName)))
-						{
-							List<String> groupNames = permissionsSet
-									.getGroups(playerName);
-							if (groupNames.contains(groupName))
-							{
-								playerList.add(playerName);
-							}
-						}
-					}
-				}
-				/*
-				 * } else if (pluginName.equals("GroupManager")) { List<String>
-				 * groupPlayers = getAllPlayers(); for (String groupName:
-				 * groups) { if (wdh == null) { break; } AnjoPermissionsHandler
-				 * aph = wdh.getPermissionsHandler(); for (String playerName :
-				 * groupPlayers) { if (!(playerList.contains(playerName)) &&
-				 * aph.inGroup(playerName, groupName)) {
-				 * playerList.add(playerName); } } }
-				 */
+				playerList = this.getbPermissionsUsers(groups);
+			}
+			else if (pluginName.equals("GroupManager"))
+			{
+				playerList = this.getGroupManagerUsers(groups);
 			}
 		}
 
-		for (String player : players)
+		for (final String player : players)
 		{
 			if (!(playerList.contains(player)) && isPlayer(player))
 			{
@@ -262,7 +325,7 @@ public class PermissionsManager {
 			}
 		}
 
-		for (String player : exceptedPlayers)
+		for (final String player : exceptedPlayers)
 		{
 			playerList.remove(player);
 		}
@@ -271,11 +334,11 @@ public class PermissionsManager {
 	}
 
 	public List<String> getAllPlayers() {
-		List<String> players = new ArrayList<String>();
+		final List<String> players = new ArrayList<String>();
 		try
 		{
-			String query = "SELECT * FROM 'cashflow'";
-			ResultSet rs = PermissionsManager.cashflow.getLiteDB()
+			final String query = "SELECT * FROM 'cashflow'";
+			final ResultSet rs = PermissionsManager.cashflow.getLiteDB()
 					.select(query);
 			if (rs.next())
 			{
@@ -311,9 +374,9 @@ public class PermissionsManager {
 		{
 			try
 			{
-				String query = "SELECT * FROM 'cashflow' WHERE playername='"
+				final String query = "SELECT * FROM 'cashflow' WHERE playername='"
 						+ playerName + "';";
-				ResultSet rs = PermissionsManager.cashflow.getLiteDB().select(
+				final ResultSet rs = PermissionsManager.cashflow.getLiteDB().select(
 						query);
 				if (rs.next())
 				{
@@ -338,7 +401,7 @@ public class PermissionsManager {
 
 	public boolean setWorld(String worldName) {
 
-		List<World> worlds = PermissionsManager.cashflow.getServer()
+		final List<World> worlds = PermissionsManager.cashflow.getServer()
 				.getWorlds();
 		for (World world : worlds)
 		{
@@ -354,13 +417,13 @@ public class PermissionsManager {
 	}
 
 	public void importPlayers(String worldName) {
-		File folder = new File(worldName + File.separator + "players"
+		final File folder = new File(worldName + File.separator + "players"
 				+ File.separator);
-		for (File playerFile : folder.listFiles())
+		for (final File playerFile : folder.listFiles())
 		{
 			if (playerFile != null)
 			{
-				String name = playerFile.getName().substring(0,
+				final String name = playerFile.getName().substring(0,
 						playerFile.getName().length() - 4);
 				try
 				{
@@ -368,7 +431,7 @@ public class PermissionsManager {
 					// Check if player already exists
 					String query = "SELECT COUNT(*) FROM 'cashflow' WHERE playername='"
 							+ name + "';";
-					ResultSet rs = PermissionsManager.cashflow.getLiteDB()
+					final ResultSet rs = PermissionsManager.cashflow.getLiteDB()
 							.select(query);
 					if (rs.next())
 					{

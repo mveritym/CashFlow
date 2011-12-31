@@ -23,7 +23,7 @@ public class SalaryManager {
 	List<String> paidPlayers;
 	ListIterator<String> iterator;
 	Timer timer = new Timer();
-	Collection<Taxer> salaryTasks = new ArrayList<Taxer>();
+	final Collection<Taxer> salaryTasks = new ArrayList<Taxer>();
 
 	public SalaryManager(CashFlow cashFlow) {
 		SalaryManager.cashFlow = cashFlow;

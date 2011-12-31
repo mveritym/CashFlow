@@ -20,7 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class CashFlow extends JavaPlugin {
 
-	public Logger log = Logger.getLogger("Minecraft");
+	public final Logger log = Logger.getLogger("Minecraft");
 	public PluginDescriptionFile info;
 	public PluginManager pluginManager;
 	public TaxManager taxManager;
@@ -64,6 +64,8 @@ public class CashFlow extends JavaPlugin {
 		this.setupEconomy();
 
 		//Set up command manager
+		//TODO separate command manager into three separate classes
+		//Then use getCommand(command).setExector(class) for the three
 		commandManager = new CommandManager(this, taxManager, salaryManager);
 
 		System.out.println("[" + info.getName() + "] v" + info.getVersion()
