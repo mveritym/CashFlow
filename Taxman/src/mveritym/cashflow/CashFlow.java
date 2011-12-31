@@ -34,7 +34,7 @@ public class CashFlow extends JavaPlugin {
 	private SQLite database;
 
 	public void onLoad() {
-		//Grab info
+		// Grab info
 		info = getDescription();
 		prefix = "[" + info.getName() + "]";
 		// Grab config
@@ -53,9 +53,10 @@ public class CashFlow extends JavaPlugin {
 	public void onEnable() {
 		pluginManager = getServer().getPluginManager();
 
-		//Register Listener
+		// Register Listener
 		Listener listener = new Listener(this);
-		pluginManager.registerEvent(Event.Type.PLAYER_JOIN, listener, Event.Priority.Monitor, this);
+		pluginManager.registerEvent(Event.Type.PLAYER_JOIN, listener,
+				Event.Priority.Monitor, this);
 
 		taxManager = new TaxManager(this);
 		salaryManager = new SalaryManager(this);
@@ -63,15 +64,15 @@ public class CashFlow extends JavaPlugin {
 		// Grab Economy
 		this.setupEconomy();
 
-		//Set up command manager
-		//TODO separate command manager into three separate classes
-		//Then use getCommand(command).setExector(class) for the three
+		// Set up command manager
+		// TODO separate command manager into three separate classes
+		// Then use getCommand(command).setExector(class) for the three
 		commandManager = new CommandManager(this, taxManager, salaryManager);
 
 		System.out.println("[" + info.getName() + "] v" + info.getVersion()
 				+ " has been enabled.");
 
-		//Disable and enable taxes/salaries
+		// Disable and enable taxes/salaries
 		taxManager.disable();
 		salaryManager.disable();
 		taxManager.enable();
@@ -79,12 +80,11 @@ public class CashFlow extends JavaPlugin {
 	}
 
 	public void onDisable() {
-		//Save config
+		// Save config
 		this.saveConfig();
-		//Disable taxes/salaries and finish the buffers if any exist
-		//thus no economy changes are lost
-		log.info(prefix + " "
-				+ " Finishing tax/salary buffers...");
+		// Disable taxes/salaries and finish the buffers if any exist
+		// thus no economy changes are lost
+		log.info(prefix + " " + " Finishing tax/salary buffers...");
 		taxManager.disable();
 		salaryManager.disable();
 		// Disconnect from sql database? Dunno if necessary
@@ -93,8 +93,7 @@ public class CashFlow extends JavaPlugin {
 			// Close connection
 			database.close();
 		}
-		log.info(prefix + " v" + info.getVersion()
-				+ " has been disabled.");
+		log.info(prefix + " v" + info.getVersion() + " has been disabled.");
 	}
 
 	private void setupEconomy() {
@@ -107,7 +106,7 @@ public class CashFlow extends JavaPlugin {
 		}
 		else
 		{
-			//No economy system found, disable
+			// No economy system found, disable
 			log.warning(prefix + " No economy found!");
 			this.getServer().getPluginManager().disablePlugin(this);
 		}
@@ -185,10 +184,6 @@ public class CashFlow extends JavaPlugin {
 		sender.sendMessage(ChatColor.RED
 				+ "You are not allowed to use that command.");
 		return true;
-	}
-
-	public String getPluginPrefix() {
-		return prefix;
 	}
 
 	public SQLite getLiteDB() {

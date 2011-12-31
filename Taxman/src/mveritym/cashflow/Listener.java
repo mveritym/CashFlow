@@ -19,9 +19,9 @@ public class Listener extends PlayerListener {
 
 	@Override
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		if(config.debug)
+		if (config.debug)
 		{
-			cf.log.warning(cf.getPluginPrefix() + " PlayerJoin event");
+			cf.log.warning(cf.prefix + " PlayerJoin event");
 		}
 		String query = "SELECT COUNT(*) FROM 'cashflow' WHERE playername='"
 				+ event.getPlayer().getName() + "';";
@@ -40,20 +40,19 @@ public class Listener extends PlayerListener {
 			rs.close();
 			if (!has)
 			{
-				if(config.debug)
+				if (config.debug)
 				{
-					cf.log.warning(cf.getPluginPrefix() + " PlayerJoin - add new player");
+					cf.log.warning(cf.prefix + " PlayerJoin - add new player");
 				}
 				// Add to master list
 				query = "INSERT INTO 'cashflow' VALUES('"
-						+ event.getPlayer().getName()
-						+ "');";
+						+ event.getPlayer().getName() + "');";
 				cf.getLiteDB().standardQuery(query);
 			}
 		}
 		catch (SQLException e)
 		{
-			cf.log.warning(cf.getPluginPrefix() + " SQL Exception");
+			cf.log.warning(cf.prefix + " SQL Exception");
 			e.printStackTrace();
 		}
 	}
