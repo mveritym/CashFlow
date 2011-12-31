@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Timer;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 
@@ -15,18 +14,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class TaxManager {
-	protected static CashFlow cashFlow;
+	protected CashFlow cashFlow;
 	protected Config conf;
 	protected File confFile;
 	List<String> taxes;
 	List<String> payingGroups;
 	List<String> payingPlayers;
 	ListIterator<String> iterator;
-	Timer timer = new Timer();
 	Collection<Taxer> taxTasks = new ArrayList<Taxer>();
 
 	public TaxManager(CashFlow cashFlow) {
-		TaxManager.cashFlow = cashFlow;
+		this.cashFlow = cashFlow;
 		conf = cashFlow.getPluginConfig();
 
 		taxes = conf.getStringList("taxes.list");
@@ -61,7 +59,7 @@ public class TaxManager {
 					+ "Please choose a tax interval greater than 0.");
 			return;
 		}
-		else if ((TaxManager.cashFlow.eco.bankBalance(taxReceiver).type) == EconomyResponse.ResponseType.FAILURE
+		else if ((this.cashFlow.eco.bankBalance(taxReceiver).type) == EconomyResponse.ResponseType.FAILURE
 				&& !(taxReceiver.equals("null")))
 		{
 			sender.sendMessage(ChatColor.RED + "Player not found.");
@@ -202,7 +200,7 @@ public class TaxManager {
 		{
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
 		}
-		else if (!(TaxManager.cashFlow.permsManager.isGroup(groupName)))
+		else if (!(this.cashFlow.permsManager.isGroup(groupName)))
 		{
 			sender.sendMessage(ChatColor.RED + "Group not found.");
 		}
@@ -238,7 +236,7 @@ public class TaxManager {
 		{
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
 		}
-		else if (!(TaxManager.cashFlow.permsManager.isPlayer(playerName
+		else if (!(this.cashFlow.permsManager.isPlayer(playerName
 				.toLowerCase())))
 		{
 			sender.sendMessage(ChatColor.RED + "Player not found.");
@@ -338,7 +336,7 @@ public class TaxManager {
 		for (String taxName : taxes)
 		{
 			hours = conf.getDouble(("taxes." + taxName + ".taxInterval"), 1);
-			System.out.println("[" + TaxManager.cashFlow.info.getName()
+			System.out.println("[" + this.cashFlow.info.getName()
 					+ "] Enabling " + taxName);
 			Taxer taxer = new Taxer(this, taxName, hours);
 			taxTasks.add(taxer);
@@ -351,7 +349,7 @@ public class TaxManager {
 		for (String player : users)
 		{
 			if (interval == 0
-					&& PermissionsManager.cashflow.getServer()
+					&& this.cashFlow.getServer()
 							.getPlayer(player) != null)
 			{
 				tempPlayerList.add(player);
@@ -369,7 +367,7 @@ public class TaxManager {
 		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName
 				+ ".exceptedPlayers");
 
-		return TaxManager.cashFlow.permsManager.getUsers(groups,
+		return this.cashFlow.permsManager.getUsers(groups,
 				players, exceptedPlayers);
 	}
 
@@ -403,7 +401,7 @@ public class TaxManager {
 
 		if (conf.getBoolean("taxes." + taxName + ".onlineOnly.isEnabled", false) && checkOnline)
 		{
-			if(PermissionsManager.cashflow.getServer().getPlayer(user) == null)
+			if(this.cashFlow.getServer().getPlayer(user) == null)
 			{
 				online = false;
 			}
@@ -411,10 +409,10 @@ public class TaxManager {
 
 		if(online)
 		{
-			EconomyResponse er = TaxManager.cashFlow.eco.bankBalance(user);
+			EconomyResponse er = this.cashFlow.eco.bankBalance(user);
 			if (er.type == EconomyResponse.ResponseType.SUCCESS)
 			{
-				Player player = TaxManager.cashFlow.getServer().getPlayer(user);
+				Player player = this.cashFlow.getServer().getPlayer(user);
 				DecimalFormat twoDForm = new DecimalFormat("#.##");
 				double balance = er.balance;
 				if (tax.contains("%"))
@@ -437,7 +435,7 @@ public class TaxManager {
 						taxRate = balance;
 					}
 
-					er = TaxManager.cashFlow.eco.withdrawPlayer(user, taxRate);
+					er = this.cashFlow.eco.withdrawPlayer(user, taxRate);
 					if (er.type == EconomyResponse.ResponseType.SUCCESS)
 					{
 						if (player != null)
@@ -458,21 +456,21 @@ public class TaxManager {
 					else
 					{
 						withdraw = false;
-						TaxManager.cashFlow.log.warning("["
-								+ TaxManager.cashFlow.info.getName() + "] "
+						this.cashFlow.log.warning(
+								this.cashFlow.prefix + " "
 								+ er.errorMessage + ": " + user);
 					}
 
 					if (!(receiver.equals("null")) && withdraw)
 					{
-						er = TaxManager.cashFlow.eco.bankDeposit(receiver,
+						er = this.cashFlow.eco.bankDeposit(receiver,
 								taxRate);
 						if (er.type == EconomyResponse.ResponseType.SUCCESS)
 						{
-							if (PermissionsManager.cashflow.getServer()
+							if (this.cashFlow.getServer()
 									.getPlayer(receiver) != null)
 							{
-								Player receiverPlayer = TaxManager.cashFlow
+								Player receiverPlayer = this.cashFlow
 										.getServer().getPlayer(receiver);
 								receiverPlayer.sendMessage(ChatColor.BLUE
 										+ "You have received $" + taxRate
@@ -481,22 +479,20 @@ public class TaxManager {
 						}
 						else
 						{
-							TaxManager.cashFlow.log
-									.warning("["
-											+ TaxManager.cashFlow.info
-													.getName()
-											+ "] "
-											+ TaxManager.cashFlow.eco
+							this.cashFlow.log
+									.warning(this.cashFlow.prefix
+											+ " "
+											+ this.cashFlow.eco
 													.bankBalance(user).errorMessage
 											+ ": " + receiver);
 						}
 					}
 					else
 					{
-						if (PermissionsManager.cashflow.getServer().getPlayer(
+						if (this.cashFlow.getServer().getPlayer(
 								receiver) != null)
 						{
-							Player receiverPlayer = TaxManager.cashFlow
+							Player receiverPlayer = this.cashFlow
 									.getServer().getPlayer(receiver);
 							receiverPlayer.sendMessage(ChatColor.RED
 									+ "Could not retrieve tax from " + user

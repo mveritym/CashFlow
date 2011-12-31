@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Timer;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 
@@ -15,18 +14,17 @@ import org.bukkit.entity.Player;
 
 public class SalaryManager {
 
-	protected static CashFlow cashFlow;
+	protected CashFlow cashFlow;
 	protected Config conf;
 	protected File confFile;
 	List<String> salaries;
 	List<String> paidGroups;
 	List<String> paidPlayers;
 	ListIterator<String> iterator;
-	Timer timer = new Timer();
 	final Collection<Taxer> salaryTasks = new ArrayList<Taxer>();
 
 	public SalaryManager(CashFlow cashFlow) {
-		SalaryManager.cashFlow = cashFlow;
+		this.cashFlow = cashFlow;
 		conf = cashFlow.getPluginConfig();
 		salaries = conf.getStringList("salaries.list");
 	}
@@ -54,7 +52,7 @@ public class SalaryManager {
 					+ "Please choose a salary interval greater than 0.");
 			return;
 		}
-		else if ((TaxManager.cashFlow.eco.bankBalance(employer).type) == EconomyResponse.ResponseType.FAILURE
+		else if ((this.cashFlow.eco.bankBalance(employer).type) == EconomyResponse.ResponseType.FAILURE
 				&& !(employer.equals("null")))
 		{
 			sender.sendMessage(ChatColor.RED + "Player not found.");
@@ -206,7 +204,7 @@ public class SalaryManager {
 		{
 			sender.sendMessage(ChatColor.RED + "Salary not found.");
 		}
-		else if (!(SalaryManager.cashFlow.permsManager.isGroup(groupName)))
+		else if (!(this.cashFlow.permsManager.isGroup(groupName)))
 		{
 			sender.sendMessage(ChatColor.RED + "Group not found.");
 		}
@@ -243,7 +241,7 @@ public class SalaryManager {
 		{
 			sender.sendMessage(ChatColor.RED + "Salary not found.");
 		}
-		else if (!(SalaryManager.cashFlow.permsManager.isPlayer(playerName
+		else if (!(this.cashFlow.permsManager.isPlayer(playerName
 				.toLowerCase())))
 		{
 			sender.sendMessage(ChatColor.RED + "Player not found.");
@@ -349,7 +347,7 @@ public class SalaryManager {
 
 			hours = conf.getDouble(
 					("salaries." + salaryName + ".salaryInterval"), 1);
-			System.out.println("[" + SalaryManager.cashFlow.info.getName()
+			System.out.println("[" + this.cashFlow.info.getName()
 					+ "] Enabling " + salaryName);
 			Taxer taxer = new Taxer(this, salaryName, hours);
 			salaryTasks.add(taxer);
@@ -432,7 +430,7 @@ public class SalaryManager {
 		List<String> tempPlayerList = new ArrayList<String>();
 		for (String player : users)
 		{
-			if (PermissionsManager.cashflow.getServer().getPlayer(player) != null)
+			if (this.cashFlow.getServer().getPlayer(player) != null)
 			{
 				tempPlayerList.add(player);
 			}
@@ -449,7 +447,7 @@ public class SalaryManager {
 		List<String> exceptedPlayers = conf.getStringList("salaries."
 				+ salaryName + ".exceptedPlayers");
 
-		return SalaryManager.cashFlow.permsManager.getUsers(
+		return this.cashFlow.permsManager.getUsers(
 				groups, players, exceptedPlayers);
 	}
 
@@ -483,7 +481,7 @@ public class SalaryManager {
 		if (conf.getBoolean("salaries." + salaryName + ".onlineOnly.isEnabled",
 				false) && checkOnline)
 		{
-			if(PermissionsManager.cashflow.getServer().getPlayer(user) == null)
+			if(this.cashFlow.getServer().getPlayer(user) == null)
 			{
 				online = false;
 			}
@@ -491,14 +489,14 @@ public class SalaryManager {
 
 		if(online)
 		{
-			if (SalaryManager.cashFlow.eco.bankBalance(user).type == EconomyResponse.ResponseType.SUCCESS)
+			if (this.cashFlow.eco.bankBalance(user).type == EconomyResponse.ResponseType.SUCCESS)
 			{
 
 				if (!(employer.equals("null")))
 				{
-					double tempSalary = TaxManager.cashFlow.eco
+					double tempSalary = this.cashFlow.eco
 							.bankBalance(employer).amount;
-					Player player = SalaryManager.cashFlow.getServer()
+					Player player = this.cashFlow.getServer()
 							.getPlayer(user);
 					boolean withdraw = false;
 					if (tempSalary != 0)
@@ -507,14 +505,14 @@ public class SalaryManager {
 						{
 							tempSalary = salary;
 						}
-						EconomyResponse er = SalaryManager.cashFlow.eco
+						EconomyResponse er = this.cashFlow.eco
 								.bankWithdraw(employer, tempSalary);
 						if (er.type == EconomyResponse.ResponseType.SUCCESS)
 						{
-							if (PermissionsManager.cashflow.getServer()
+							if (this.cashFlow.getServer()
 									.getPlayer(employer) != null)
 							{
-								Player employerPlayer = TaxManager.cashFlow
+								Player employerPlayer = this.cashFlow
 										.getServer().getPlayer(employer);
 								employerPlayer.sendMessage(ChatColor.BLUE
 										+ "You have paid $" + tempSalary
@@ -524,19 +522,18 @@ public class SalaryManager {
 						}
 						else
 						{
-							if (PermissionsManager.cashflow.getServer()
+							if (this.cashFlow.getServer()
 									.getPlayer(employer) != null)
 							{
-								Player employerPlayer = TaxManager.cashFlow
+								Player employerPlayer = this.cashFlow
 										.getServer().getPlayer(employer);
 								employerPlayer.sendMessage(ChatColor.RED
 										+ "Could not withdraw salary.");
 							}
-							SalaryManager.cashFlow.log.warning("["
-									+ SalaryManager.cashFlow.info.getName()
-									+ "] " + er.errorMessage + ": " + user);
+							this.cashFlow.log.warning(this.cashFlow.prefix
+									+ " " + er.errorMessage + ": " + user);
 						}
-						er = SalaryManager.cashFlow.eco.bankDeposit(user,
+						er = this.cashFlow.eco.bankDeposit(user,
 								tempSalary);
 						if (er.type == EconomyResponse.ResponseType.SUCCESS
 								&& !withdraw)
@@ -556,9 +553,8 @@ public class SalaryManager {
 								String message = "Could not add salary.";
 								player.sendMessage(ChatColor.RED + message);
 							}
-							SalaryManager.cashFlow.log.warning("["
-									+ SalaryManager.cashFlow.info.getName()
-									+ "] " + er.errorMessage + ": " + user);
+							this.cashFlow.log.warning(this.cashFlow.prefix
+									+ " " + er.errorMessage + ": " + user);
 						}
 					}
 					else
@@ -574,8 +570,8 @@ public class SalaryManager {
 				else
 				{
 					// Generate money
-					TaxManager.cashFlow.eco.bankDeposit(user, salary);
-					Player player = SalaryManager.cashFlow.getServer()
+					this.cashFlow.eco.bankDeposit(user, salary);
+					Player player = this.cashFlow.getServer()
 							.getPlayer(user);
 
 					if (player != null)

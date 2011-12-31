@@ -9,7 +9,7 @@ public class Taxer {
 	private String name;
 	private Double hours;
 	private int id, bufferId;
-	private final int tickToHour = 72000;
+	private static final int tickToHour = 72000;
 	private boolean tax;
 	private List<String> buffer;
 
@@ -60,7 +60,7 @@ public class Taxer {
 
 	public String getState()
 	{
-		if(TaxManager.cashFlow.getServer().getScheduler().isCurrentlyRunning(id))
+		if(taxManager.cashFlow.getServer().getScheduler().isCurrentlyRunning(id))
 		{
 			return "running";
 		}
@@ -68,7 +68,7 @@ public class Taxer {
 		{
 			return "buffered";
 		}
-		else if(TaxManager.cashFlow.getServer().getScheduler().isQueued(id))
+		else if(taxManager.cashFlow.getServer().getScheduler().isQueued(id))
 		{
 			return "queued";
 		}
@@ -76,12 +76,12 @@ public class Taxer {
 	}
 
 	public void cancel() {
-		TaxManager.cashFlow.getServer().getScheduler().cancelTask(id);
+		taxManager.cashFlow.getServer().getScheduler().cancelTask(id);
 	}
 
 	public void cancelBuffer()
 	{
-		TaxManager.cashFlow.getServer().getScheduler().cancelTask(bufferId);
+		taxManager.cashFlow.getServer().getScheduler().cancelTask(bufferId);
 		this.bufferId = -1;
 	}
 
@@ -101,25 +101,25 @@ public class Taxer {
 
 	public void schedule(Runnable run, long period)
 	{
-		id = TaxManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(TaxManager.cashFlow, run, period, period);
+		id = taxManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(taxManager.cashFlow, run, period, period);
 		if(id == -1)
 		{
-			TaxManager.cashFlow.log.severe("Could not schedule " + this.getName());
+			taxManager.cashFlow.log.severe("Could not schedule " + this.getName());
 		}
 	}
 
 	public void scheduleBuffer(Runnable run)
 	{
-		bufferId = TaxManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(TaxManager.cashFlow, run, 0, 100);
+		bufferId = taxManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(taxManager.cashFlow, run, 0, 100);
 		if(bufferId == -1)
 		{
-			TaxManager.cashFlow.log.severe("Could not schedule buffer task for: " + this.getName());
+			taxManager.cashFlow.log.severe("Could not schedule buffer task for: " + this.getName());
 		}
 	}
 
 	class TaxTask implements Runnable {
         public void run() {
-        	TaxManager.cashFlow.log.info("[" + TaxManager.cashFlow.info.getName()
+        	taxManager.cashFlow.log.info("[" + taxManager.cashFlow.info.getName()
     				+ "] Paying tax " + getName());
         	scheduleBuffer(new CFTask(taxManager.getUsers(getName())));
         }
@@ -127,7 +127,7 @@ public class Taxer {
 
     class SalaryTask implements Runnable {
         public void run() {
-        	SalaryManager.cashFlow.log.info("[" + SalaryManager.cashFlow.info.getName()
+        	salaryManager.cashFlow.log.info("[" + salaryManager.cashFlow.info.getName()
     				+ "] Paying salary " + getName());
         	scheduleBuffer(new CFTask(salaryManager.getUsers(getName())));
         }

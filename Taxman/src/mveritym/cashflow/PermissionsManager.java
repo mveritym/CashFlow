@@ -37,7 +37,7 @@ public class PermissionsManager {
 	private WorldPermissionsManager wpm;
 	private WorldDataHolder wdh;
 	private PermissionSet permissionsSet;
-	protected static CashFlow cashflow;
+	protected CashFlow cashflow;
 	protected Config conf;
 	protected File confFile;
 	private String world;
@@ -45,11 +45,11 @@ public class PermissionsManager {
 	private PermissionsPlugin permsPlugin;
 
 	public PermissionsManager(CashFlow cashflow) {
-		PermissionsManager.cashflow = cashflow;
+		this.cashflow = cashflow;
 		conf = cashflow.getPluginConfig();
 		this.world = conf.getString("world");
 		// Setup Vault for permissions
-		RegisteredServiceProvider<Permission> permissionProvider = PermissionsManager.cashflow
+		RegisteredServiceProvider<Permission> permissionProvider = this.cashflow
 				.getServer()
 				.getServicesManager()
 				.getRegistration(net.milkbowl.vault.permission.Permission.class);
@@ -58,7 +58,7 @@ public class PermissionsManager {
 			perm = permissionProvider.getProvider();
 			pluginName = perm.getName();
 
-			final PluginManager pluginManager = PermissionsManager.cashflow
+			final PluginManager pluginManager = this.cashflow
 					.getServer().getPluginManager();
 
 			if (pluginName.equals("PermissionsBukkit"))
@@ -87,8 +87,9 @@ public class PermissionsManager {
 		}
 		else
 		{
-			System.out.println("[" + PermissionsManager.cashflow.info.getName()
-					+ "] No permissions plugin detected.");
+			System.out.println(this.cashflow.prefix
+					+ " No permissions plugin detected.");
+			//TODO disable?
 		}
 	}
 
@@ -349,7 +350,7 @@ public class PermissionsManager {
 		try
 		{
 			final String query = "SELECT * FROM 'cashflow'";
-			final ResultSet rs = PermissionsManager.cashflow.getLiteDB()
+			final ResultSet rs = this.cashflow.getLiteDB()
 					.select(query);
 			if (rs.next())
 			{
@@ -362,7 +363,7 @@ public class PermissionsManager {
 		}
 		catch (SQLException e)
 		{
-			PermissionsManager.cashflow.log.warning(PermissionsManager.cashflow
+			this.cashflow.log.warning(this.cashflow
 					.getPluginPrefix() + " SQL Exception");
 			e.printStackTrace();
 		}
@@ -377,7 +378,7 @@ public class PermissionsManager {
 			worldName = "world";
 		}
 
-		if (PermissionsManager.cashflow.getServer().getPlayer(playerName) != null)
+		if (this.cashflow.getServer().getPlayer(playerName) != null)
 		{
 			has = true;
 		}
@@ -387,7 +388,7 @@ public class PermissionsManager {
 			{
 				final String query = "SELECT * FROM 'cashflow' WHERE playername='"
 						+ playerName + "';";
-				final ResultSet rs = PermissionsManager.cashflow.getLiteDB()
+				final ResultSet rs = this.cashflow.getLiteDB()
 						.select(query);
 				if (rs.next())
 				{
@@ -401,8 +402,8 @@ public class PermissionsManager {
 			}
 			catch (SQLException e)
 			{
-				PermissionsManager.cashflow.log
-						.warning(PermissionsManager.cashflow.getPluginPrefix()
+				this.cashflow.log
+						.warning(this.cashflow.prefix
 								+ " SQL Exception");
 				e.printStackTrace();
 			}
@@ -412,14 +413,14 @@ public class PermissionsManager {
 
 	public boolean setWorld(String worldName) {
 
-		final List<World> worlds = PermissionsManager.cashflow.getServer()
+		final List<World> worlds = this.cashflow.getServer()
 				.getWorlds();
 		for (World world : worlds)
 		{
 			if (world.getName().equals(worldName))
 			{
 				conf.setProperty("world", worldName);
-				PermissionsManager.cashflow.saveConfig();
+				this.cashflow.saveConfig();
 				return true;
 			}
 		}
@@ -442,7 +443,7 @@ public class PermissionsManager {
 					// Check if player already exists
 					String query = "SELECT COUNT(*) FROM 'cashflow' WHERE playername='"
 							+ name + "';";
-					final ResultSet rs = PermissionsManager.cashflow
+					final ResultSet rs = this.cashflow
 							.getLiteDB().select(query);
 					if (rs.next())
 					{
@@ -458,14 +459,14 @@ public class PermissionsManager {
 						// Add to master list
 						query = "INSERT INTO 'cashflow' VALUES('" + name
 								+ "');";
-						PermissionsManager.cashflow.getLiteDB().standardQuery(
+						this.cashflow.getLiteDB().standardQuery(
 								query);
 					}
 				}
 				catch (SQLException e)
 				{
-					PermissionsManager.cashflow.log
-							.warning(PermissionsManager.cashflow
+					this.cashflow.log
+							.warning(this.cashflow
 									.getPluginPrefix() + " SQL Exception");
 					e.printStackTrace();
 				}

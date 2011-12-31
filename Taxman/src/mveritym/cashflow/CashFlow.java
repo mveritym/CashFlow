@@ -30,7 +30,7 @@ public class CashFlow extends JavaPlugin {
 	public Economy eco;
 	public Plugin plugin;
 	public Config config;
-	public static String prefix;
+	public String prefix;
 	private SQLite database;
 
 	public void onLoad() {

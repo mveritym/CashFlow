@@ -181,8 +181,8 @@ public class CommandManager {
 				String taxName = args[0];
 				if(cashFlow.getPluginConfig().getStringList("taxes.list").contains(taxName))
 				{
-					TaxManager.cashFlow.log.info("[" + TaxManager.cashFlow.info.getName()
-		    				+ "] Paying tax " + taxName);
+					this.cashFlow.log.info(this.cashFlow.prefix
+		    				+ " Paying tax " + taxName);
 					this.taxManager.payTax(taxName);
 					return true;
 				}
@@ -368,8 +368,8 @@ public class CommandManager {
 					String salaryName = args[0];
 					if(cashFlow.getPluginConfig().getStringList("salaries.list").contains(salaryName))
 					{
-						SalaryManager.cashFlow.log.info("[" + SalaryManager.cashFlow.info.getName()
-			    				+ "] Paying salary " + salaryName);
+						this.cashFlow.log.info(this.cashFlow.prefix
+			    				+ " Paying salary " + salaryName);
 						this.salaryManager.paySalary(salaryName);
 						return true;
 					}
@@ -433,6 +433,7 @@ public class CommandManager {
 					return true;
 				} else {
 					sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
+					return true;
 				}
 			case setworld:
 				if(args.length == 1) {
