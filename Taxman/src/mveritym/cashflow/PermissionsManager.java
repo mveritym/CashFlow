@@ -108,7 +108,6 @@ public class PermissionsManager {
 		{
 			return true;
 		}
-
 		return false;
 	}
 
@@ -144,7 +143,7 @@ public class PermissionsManager {
 				{
 					if (!(playerList.contains(name)))
 					{
-						//Player not in list
+						// Player not in list
 						final PermissionUser user = pm.getUser(name);
 						for (final Entry<String, PermissionGroup[]> e : user
 								.getAllGroups().entrySet())
@@ -191,14 +190,15 @@ public class PermissionsManager {
 	/**
 	 * Specific get users for PermissionsBukkit
 	 *
-	 * @param List of groups to include
+	 * @param List
+	 *            of groups to include
 	 * @return List of users
 	 */
 	public List<String> getPermissionsBukkitUsers(List<String> groups) {
 		final List<String> playerList = new ArrayList<String>();
 		for (String groupName : groups)
 		{
-			//Handle default group
+			// Handle default group
 			if (groupName.equals("default"))
 			{
 				// Grab all players
@@ -207,8 +207,9 @@ public class PermissionsManager {
 				{
 					if (!(playerList.contains(name)))
 					{
-						//Player not in list
-						final List<Group> userGroups = permsPlugin.getGroups(name);
+						// Player not in list
+						final List<Group> userGroups = permsPlugin
+								.getGroups(name);
 						if (userGroups.size() == 0)
 						{
 							// No groups, therefore they are in
@@ -217,14 +218,16 @@ public class PermissionsManager {
 						}
 						else if (userGroups.size() >= 1)
 						{
-							//TODO check that this is actually correct
+							// TODO check that this is actually correct
 							// I have no idea if, when getting a user's groups
 							// that it includes inherited groups or not.
-							// If it does include inherited groups, rather than explicit groups
-							//Then this will almost always be true, depending on ordering
-							if(userGroups.get(0).getName().equals("default"))
+							// If it does include inherited groups, rather than
+							// explicit groups
+							// Then this will almost always be true, depending
+							// on ordering
+							if (userGroups.get(0).getName().equals("default"))
 							{
-								//Their first group is default
+								// Their first group is default
 								playerList.add(name);
 							}
 						}
@@ -248,8 +251,7 @@ public class PermissionsManager {
 		return playerList;
 	}
 
-	public List<String> getbPermissionsUsers(List<String> groups)
-	{
+	public List<String> getbPermissionsUsers(List<String> groups) {
 		final List<String> playerList = new ArrayList<String>();
 		for (String groupName : groups)
 		{
@@ -270,8 +272,7 @@ public class PermissionsManager {
 		return playerList;
 	}
 
-	public List<String> getGroupManagerUsers(List<String> groups)
-	{
+	public List<String> getGroupManagerUsers(List<String> groups) {
 		final List<String> playerList = new ArrayList<String>();
 		final List<String> groupPlayers = getAllPlayers();
 		for (final String groupName : groups)
@@ -376,8 +377,8 @@ public class PermissionsManager {
 			{
 				final String query = "SELECT * FROM 'cashflow' WHERE playername='"
 						+ playerName + "';";
-				final ResultSet rs = PermissionsManager.cashflow.getLiteDB().select(
-						query);
+				final ResultSet rs = PermissionsManager.cashflow.getLiteDB()
+						.select(query);
 				if (rs.next())
 				{
 					has = true;
@@ -431,8 +432,8 @@ public class PermissionsManager {
 					// Check if player already exists
 					String query = "SELECT COUNT(*) FROM 'cashflow' WHERE playername='"
 							+ name + "';";
-					final ResultSet rs = PermissionsManager.cashflow.getLiteDB()
-							.select(query);
+					final ResultSet rs = PermissionsManager.cashflow
+							.getLiteDB().select(query);
 					if (rs.next())
 					{
 						if (rs.getInt(1) >= 1)
