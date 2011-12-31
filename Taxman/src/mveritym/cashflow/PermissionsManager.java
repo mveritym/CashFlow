@@ -12,6 +12,7 @@ import org.anjocaido.groupmanager.dataholder.WorldDataHolder;
 import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
 import net.milkbowl.vault.permission.Permission;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -104,6 +105,16 @@ public class PermissionsManager {
 	}
 
 	public boolean hasPermission(Player player, String node) {
+		//Pex specific supercedes vault
+		if(pluginName.equals("PermissionsEx"))
+		{
+			final PermissionManager permissions = PermissionsEx.getPermissionManager();
+			//Handle pex check
+			if(permissions.has(player, node))
+			{
+				return true;
+			}
+		}
 		if (perm.has(player, node))
 		{
 			return true;

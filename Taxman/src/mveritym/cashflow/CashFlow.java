@@ -83,7 +83,7 @@ public class CashFlow extends JavaPlugin {
 		this.saveConfig();
 		//Disable taxes/salaries and finish the buffers if any exist
 		//thus no economy changes are lost
-		log.info("[" + info.getName() + "] "
+		log.info(prefix + " "
 				+ " Finishing tax/salary buffers...");
 		taxManager.disable();
 		salaryManager.disable();
@@ -93,7 +93,7 @@ public class CashFlow extends JavaPlugin {
 			// Close connection
 			database.close();
 		}
-		log.info("[" + info.getName() + "] " + info.getVersion()
+		log.info(prefix + " v" + info.getVersion()
 				+ " has been disabled.");
 	}
 
@@ -104,6 +104,12 @@ public class CashFlow extends JavaPlugin {
 		if (economyProvider != null)
 		{
 			eco = economyProvider.getProvider();
+		}
+		else
+		{
+			//No economy system found, disable
+			log.warning(prefix + " No economy found!");
+			this.getServer().getPluginManager().disablePlugin(this);
 		}
 	}
 
