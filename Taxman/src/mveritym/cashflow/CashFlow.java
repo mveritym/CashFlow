@@ -67,8 +67,10 @@ public class CashFlow extends JavaPlugin {
 		this.setupEconomy();
 
 		// Set up command manager
-		// TODO separate command manager into three separate classes
+		// TODO separate command manager into two separate classes
 		// Then use getCommand(command).setExector(class) for the three
+		// For salaries/taxes, since they're the same commands
+		// Just check the command label to determine which one to use
 		commandManager = new CommandManager(this, taxManager, salaryManager);
 
 		log.info(prefix + " v" + info.getVersion() + " has been enabled.");

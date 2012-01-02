@@ -28,6 +28,21 @@ public class Taxer {
 		schedule(new Task(), Math.round(this.hours * tickToHour));
 	}
 
+	public void start()
+	{
+		if(id == -1)
+		{
+			if(taxManager != null)
+			{
+				schedule(new Task(), Math.round(this.hours* tickToHour) +  1);
+			}
+			else if(salaryManager != null)
+			{
+				schedule(new Task(), Math.round(this.hours * tickToHour));
+			}
+		}
+	}
+
 	public String getState()
 	{
 		if(id != -1)
@@ -77,6 +92,7 @@ public class Taxer {
 			{
 				salaryManager.cashFlow.getServer().getScheduler().cancelTask(id);
 			}
+			id = -1;
 		}
 	}
 

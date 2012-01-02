@@ -331,13 +331,29 @@ public class TaxManager {
 	public void enable() {
 		conf.save();
 		taxes = conf.getStringList("taxes.list");
-		Double hours;
 
 		for (String taxName : taxes)
 		{
-			hours = conf.getDouble(("taxes." + taxName + ".taxInterval"), 1);
-			System.out.println(this.cashFlow.prefix + " Enabling " + taxName);
-			Taxer taxer = new Taxer(this, taxName, hours);
+			enableTax(taxName);
+		}
+	}
+
+	public void enableTax(String tax)
+	{
+		boolean has = false;
+		for(Taxer t : taxTasks.toArray(new Taxer[0]))
+		{
+			if(t.getName().equals(tax))
+			{
+				t.start();
+				has = true;
+			}
+		}
+		if(!has)
+		{
+			Double hours = conf.getDouble(("taxes." + tax + ".taxInterval"), 1);
+			this.cashFlow.log.info(this.cashFlow.prefix + " Enabling " + tax);
+			Taxer taxer = new Taxer(this, tax, hours);
 			taxTasks.add(taxer);
 		}
 	}
@@ -354,6 +370,18 @@ public class TaxManager {
 			}
 		}
 		return tempPlayerList;
+	}
+
+
+	public void disableTax(String tax)
+	{
+		for(Taxer t : this.taxTasks)
+		{
+			if(t.getName().equals(tax))
+			{
+				t.cancel();
+			}
+		}
 	}
 
 	public List<String> getUsers(String taxName) {

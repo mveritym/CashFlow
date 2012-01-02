@@ -184,12 +184,53 @@ public class CommandManager {
 					this.cashFlow.log.info(this.cashFlow.prefix
 		    				+ " Paying tax " + taxName);
 					this.taxManager.payTax(taxName);
-					return true;
 				}
 				else
 				{
 					sender.sendMessage(ChatColor.RED + " Invalid tax name: " + taxName);
 				}
+				return true;
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.RED + " No tax name given");
+			}
+			return false;
+		case enable:
+			if(args.length == 1)
+			{
+				String taxName = args[0];
+				if(cashFlow.getPluginConfig().getStringList("taxes.list").contains(taxName))
+				{
+					sender.sendMessage(ChatColor.GREEN + "Enabling tax - " + ChatColor.GOLD + taxName);
+					this.taxManager.enableTax(taxName);
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + " Invalid tax name: " + taxName);
+				}
+				return true;
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.RED + " No tax name given");
+			}
+			return false;
+		case disable:
+			if(args.length == 1)
+			{
+				String taxName = args[0];
+				if(cashFlow.getPluginConfig().getStringList("taxes.list").contains(taxName))
+				{
+
+					sender.sendMessage(ChatColor.YELLOW + "Disabling tax - " + ChatColor.AQUA + taxName);
+					this.taxManager.disableTax(taxName);
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + " Invalid tax name: " + taxName);
+				}
+				return true;
 			}
 			else
 			{
@@ -383,6 +424,47 @@ public class CommandManager {
 					sender.sendMessage(ChatColor.RED + " No salary name given");
 				}
 				return false;
+			case enable:
+				if(args.length == 1)
+				{
+					String salaryName = args[0];
+					if(cashFlow.getPluginConfig().getStringList("salaries.list").contains(salaryName))
+					{
+						sender.sendMessage(ChatColor.GREEN + "Enabling salary - " + ChatColor.GOLD + salaryName);
+						this.salaryManager.enableSalary(salaryName);
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + " Invalid salary name: " + salaryName);
+					}
+					return true;
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + " No tax name given");
+				}
+				return false;
+			case disable:
+				if(args.length == 1)
+				{
+					String salaryName = args[0];
+					if(cashFlow.getPluginConfig().getStringList("salaries.list").contains(salaryName))
+					{
+
+						sender.sendMessage(ChatColor.YELLOW + "Disabling salary - " + ChatColor.AQUA + salaryName);
+						this.salaryManager.disableSalary(salaryName);
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + " Invalid salary name: " + salaryName);
+					}
+					return true;
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + " No salary name given");
+				}
+				return false;
 			default:
 				return false;
 		}
@@ -473,11 +555,11 @@ public class CommandManager {
 			case status:
 				for(Taxer t : this.taxManager.taxTasks)
 				{
-					sender.sendMessage(t.getName() + " : " + t.getState());
+					sender.sendMessage(ChatColor.RED + t.getName() + ChatColor.GRAY + " : " + t.getState());
 				}
 				for(Taxer t : this.salaryManager.salaryTasks)
 				{
-					sender.sendMessage(t.getName() + " : " + t.getState());
+					sender.sendMessage(ChatColor.GREEN + t.getName() + ChatColor.GRAY  + " : " + t.getState());
 				}
 				sender.sendMessage("Ops in Buffer : " + Buffer.getInstance().size());
 				return true;

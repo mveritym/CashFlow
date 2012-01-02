@@ -340,17 +340,44 @@ public class SalaryManager {
 	public void enable() {
 		conf.save();
 		salaries = conf.getStringList("salaries.list");
-		Double hours;
 
 		for (String salaryName : salaries)
 		{
 
-			hours = conf.getDouble(
-					("salaries." + salaryName + ".salaryInterval"), 1);
-			System.out.println("[" + this.cashFlow.info.getName()
-					+ "] Enabling " + salaryName);
-			Taxer taxer = new Taxer(this, salaryName, hours);
+			enableSalary(salaryName);
+		}
+	}
+
+	public void enableSalary(String salary)
+	{
+		boolean has = false;
+		for(Taxer t : salaryTasks.toArray(new Taxer[0]))
+		{
+			if(t.getName().equals(salary))
+			{
+				t.start();
+				has = true;
+			}
+		}
+		if(!has)
+		{
+			Double hours = conf.getDouble(
+					("salaries." + salary + ".salaryInterval"), 1);
+			this.cashFlow.log.info(this.cashFlow.prefix
+					+ " Enabling " + salary);
+			Taxer taxer = new Taxer(this, salary, hours);
 			salaryTasks.add(taxer);
+		}
+	}
+
+	public void disableSalary(String salary)
+	{
+		for(Taxer t : this.salaryTasks)
+		{
+			if(t.getName().equals(salary))
+			{
+				t.cancel();
+			}
 		}
 	}
 
