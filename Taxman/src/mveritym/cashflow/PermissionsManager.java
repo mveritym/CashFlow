@@ -29,6 +29,7 @@ import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 
+//TODO Fix GroupManager
 public class PermissionsManager {
 
 	private String pluginName = "null";
@@ -89,7 +90,7 @@ public class PermissionsManager {
 		{
 			System.out.println(this.cashflow.prefix
 					+ " No permissions plugin detected.");
-			// TODO disable?
+			this.cashflow.getServer().getPluginManager().disablePlugin(cashflow);
 		}
 	}
 

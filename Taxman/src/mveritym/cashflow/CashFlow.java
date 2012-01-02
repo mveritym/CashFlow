@@ -59,12 +59,19 @@ public class CashFlow extends JavaPlugin {
 		Listener listener = new Listener(this);
 		pluginManager.registerEvent(Event.Type.PLAYER_JOIN, listener,
 				Event.Priority.Monitor, this);
-
-		taxManager = new TaxManager(this);
-		salaryManager = new SalaryManager(this);
+		//Grab Permissions
 		permsManager = new PermissionsManager(this);
 		// Grab Economy
 		this.setupEconomy();
+
+		//Create tax/salary managers
+		taxManager = new TaxManager(this);
+		salaryManager = new SalaryManager(this);
+
+		//Instantiate Buffer
+		Buffer buffer = Buffer.getInstance();
+		buffer.setup(this, taxManager, salaryManager);
+		buffer.start();
 
 		// Set up command manager
 		// TODO separate command manager into two separate classes
@@ -74,11 +81,6 @@ public class CashFlow extends JavaPlugin {
 		commandManager = new CommandManager(this, taxManager, salaryManager);
 
 		log.info(prefix + " v" + info.getVersion() + " has been enabled.");
-
-		//Instantiate Buffer
-		Buffer buffer = Buffer.getInstance();
-		buffer.setup(this, taxManager, salaryManager);
-		buffer.start();
 
 		// Enable taxes/salaries
 		taxManager.enable();
