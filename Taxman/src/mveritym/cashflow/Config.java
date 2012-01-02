@@ -56,7 +56,6 @@ public class Config {
 	}
 
 	public List<String> getStringList(String path) {
-		@SuppressWarnings ("unchecked")
 		List<String> list = cf.getConfig().getStringList(path);
 		if(list != null)
 		{

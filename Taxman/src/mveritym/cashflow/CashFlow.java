@@ -33,6 +33,7 @@ public class CashFlow extends JavaPlugin {
 	public String prefix;
 	private SQLite database;
 
+	@Override
 	public void onLoad() {
 		// Grab info
 		info = getDescription();
@@ -50,6 +51,7 @@ public class CashFlow extends JavaPlugin {
 		}
 	}
 
+	@Override
 	public void onEnable() {
 		pluginManager = getServer().getPluginManager();
 
@@ -69,16 +71,19 @@ public class CashFlow extends JavaPlugin {
 		// Then use getCommand(command).setExector(class) for the three
 		commandManager = new CommandManager(this, taxManager, salaryManager);
 
-		System.out.println("[" + info.getName() + "] v" + info.getVersion()
-				+ " has been enabled.");
+		log.info(prefix + " v" + info.getVersion() + " has been enabled.");
 
-		// Disable and enable taxes/salaries
-		taxManager.disable();
-		salaryManager.disable();
+		//Instantiate Buffer
+		Buffer buffer = Buffer.getInstance();
+		buffer.setup(this, taxManager, salaryManager);
+		buffer.start();
+
+		// Enable taxes/salaries
 		taxManager.enable();
 		salaryManager.enable();
 	}
 
+	@Override
 	public void onDisable() {
 		// Save config
 		this.saveConfig();
@@ -87,6 +92,7 @@ public class CashFlow extends JavaPlugin {
 		log.info(prefix + " " + " Finishing tax/salary buffers...");
 		taxManager.disable();
 		salaryManager.disable();
+		Buffer.getInstance().cancelBuffer();
 		// Disconnect from sql database? Dunno if necessary
 		if (database.checkConnection())
 		{
@@ -116,6 +122,7 @@ public class CashFlow extends JavaPlugin {
 		return config;
 	}
 
+	@Override
 	public boolean onCommand(CommandSender sender, Command cmd,
 			String commandLabel, String[] args) {
 		boolean playerCanDo = false;

@@ -241,8 +241,8 @@ public class SalaryManager {
 		{
 			sender.sendMessage(ChatColor.RED + "Salary not found.");
 		}
-		else if (!(this.cashFlow.permsManager.isPlayer(playerName
-				.toLowerCase())))
+		else if (!(this.cashFlow.permsManager
+				.isPlayer(playerName.toLowerCase())))
 		{
 			sender.sendMessage(ChatColor.RED + "Player not found.");
 		}
@@ -357,7 +357,6 @@ public class SalaryManager {
 	public void disable() {
 		for (Taxer salaryTask : salaryTasks)
 		{
-			salaryTask.finishBuffer();
 			salaryTask.cancel();
 		}
 	}
@@ -438,8 +437,7 @@ public class SalaryManager {
 		return tempPlayerList;
 	}
 
-	public List<String> getUsers(String salaryName)
-	{
+	public List<String> getUsers(String salaryName) {
 		List<String> groups = conf.getStringList("salaries." + salaryName
 				+ ".paidGroups");
 		List<String> players = conf.getStringList("salaries." + salaryName
@@ -447,8 +445,8 @@ public class SalaryManager {
 		List<String> exceptedPlayers = conf.getStringList("salaries."
 				+ salaryName + ".exceptedPlayers");
 
-		return this.cashFlow.permsManager.getUsers(
-				groups, players, exceptedPlayers);
+		return this.cashFlow.permsManager.getUsers(groups, players,
+				exceptedPlayers);
 	}
 
 	public void paySalary(String salaryName) {
@@ -466,92 +464,56 @@ public class SalaryManager {
 
 		for (String user : users)
 		{
-			this.paySalary(user, salaryName, false);
+			Buffer.getInstance().addToBuffer(user, salaryName, false);
 		}
 	}
 
-	public void paySalary(String user, String salaryName, boolean checkOnline)
-	{
+	public void paySalaryToUser(String user, String salaryName) {
 		Double salary = Double.parseDouble(conf.getString("salaries."
 				+ salaryName + ".salary"));
 		String employer = conf
 				.getString("salaries." + salaryName + ".employer");
-		boolean online = true;
-
-		if (conf.getBoolean("salaries." + salaryName + ".onlineOnly.isEnabled",
-				false) && checkOnline)
+		if (this.cashFlow.eco.bankBalance(user).type == EconomyResponse.ResponseType.SUCCESS)
 		{
-			if(this.cashFlow.getServer().getPlayer(user) == null)
+			final Player p = this.cashFlow.getServer().getPlayer(user);
+			final Player r = this.cashFlow.getServer().getPlayer(employer);
+			// pay salary
+			if (!employer.equals("null"))
 			{
-				online = false;
-			}
-		}
-
-		if(online)
-		{
-			if (this.cashFlow.eco.bankBalance(user).type == EconomyResponse.ResponseType.SUCCESS)
-			{
-
-				if (!(employer.equals("null")))
+				double tempSalary = this.cashFlow.eco.bankBalance(employer).amount;
+				if (tempSalary != 0)
 				{
-					double tempSalary = this.cashFlow.eco
-							.bankBalance(employer).amount;
-					Player player = this.cashFlow.getServer()
-							.getPlayer(user);
-					boolean withdraw = false;
-					if (tempSalary != 0)
+					if (tempSalary > salary)
 					{
-						if (tempSalary > salary)
+						tempSalary = salary;
+					}
+					EconomyResponse er = this.cashFlow.eco.bankWithdraw(
+							employer, tempSalary);
+					if (er.type == EconomyResponse.ResponseType.SUCCESS)
+					{
+						if (r != null)
 						{
-							tempSalary = salary;
+							r.sendMessage(ChatColor.BLUE + "You have paid $"
+									+ tempSalary + " in salary to " + user
+									+ ".");
 						}
-						EconomyResponse er = this.cashFlow.eco
-								.bankWithdraw(employer, tempSalary);
+						er = this.cashFlow.eco.bankDeposit(user, tempSalary);
 						if (er.type == EconomyResponse.ResponseType.SUCCESS)
 						{
-							if (this.cashFlow.getServer()
-									.getPlayer(employer) != null)
+							if (p != null)
 							{
-								Player employerPlayer = this.cashFlow
-										.getServer().getPlayer(employer);
-								employerPlayer.sendMessage(ChatColor.BLUE
-										+ "You have paid $" + tempSalary
-										+ " in salary to " + user + ".");
-							}
-							withdraw = true;
-						}
-						else
-						{
-							if (this.cashFlow.getServer()
-									.getPlayer(employer) != null)
-							{
-								Player employerPlayer = this.cashFlow
-										.getServer().getPlayer(employer);
-								employerPlayer.sendMessage(ChatColor.RED
-										+ "Could not withdraw salary.");
-							}
-							this.cashFlow.log.warning(this.cashFlow.prefix
-									+ " " + er.errorMessage + ": " + user);
-						}
-						er = this.cashFlow.eco.bankDeposit(user,
-								tempSalary);
-						if (er.type == EconomyResponse.ResponseType.SUCCESS
-								&& !withdraw)
-						{
-							if (player != null)
-							{
-								String message = "You have received $"
-										+ tempSalary + " for your salary from "
-										+ employer + ".";
-								player.sendMessage(ChatColor.BLUE + message);
+								p.sendMessage(ChatColor.BLUE
+										+ "You have received $" + tempSalary
+										+ " for your salary from " + employer
+										+ ".");
 							}
 						}
 						else
 						{
-							if (player != null)
+							if (p != null)
 							{
-								String message = "Could not add salary.";
-								player.sendMessage(ChatColor.RED + message);
+								p.sendMessage(ChatColor.RED
+										+ "Could not give salary.");
 							}
 							this.cashFlow.log.warning(this.cashFlow.prefix
 									+ " " + er.errorMessage + ": " + user);
@@ -559,47 +521,62 @@ public class SalaryManager {
 					}
 					else
 					{
-						if (player != null)
+						if (p != null)
 						{
-							String message = employer
-									+ " does not have enough money to pay your salary.";
-							player.sendMessage(ChatColor.BLUE + message);
+							p.sendMessage(ChatColor.RED
+									+ "Could not get salary.");
 						}
+						if (r != null)
+						{
+							r.sendMessage(ChatColor.RED
+									+ "Could not get salary.");
+						}
+						this.cashFlow.log.warning(this.cashFlow.prefix + " "
+								+ er.errorMessage + ": " + employer);
 					}
 				}
 				else
 				{
-					// Generate money
-					this.cashFlow.eco.bankDeposit(user, salary);
-					Player player = this.cashFlow.getServer()
-							.getPlayer(user);
-
-					if (player != null)
+					if (p != null)
 					{
-						String message = "You have received $" + salary
-								+ " for your salary";
-						if (employer.equals("null"))
-						{
-							message += ".";
-						}
-						else
-						{
-							message += " from " + employer + ".";
-						}
-						player.sendMessage(ChatColor.BLUE + message);
+						p.sendMessage(ChatColor.BLUE
+								+ employer
+								+ " does not have enough money to pay your salary.");
 					}
 				}
 			}
 			else
 			{
-				// Acount does not exist
-				/*
-				 * SalaryManager.cashFlow.log.warning("[" +
-				 * SalaryManager.cashFlow.info.getName() + "] " +
-				 * SalaryManager.cashFlow.eco.bankBalance(user).errorMessage
-				 * +": " + user);
-				 */
+				EconomyResponse er = this.cashFlow.eco
+						.bankDeposit(user, salary);
+				if (er.type == EconomyResponse.ResponseType.SUCCESS)
+				{
+					if (p != null)
+					{
+						p.sendMessage(ChatColor.BLUE + "You have received $"
+								+ salary + " for your salary.");
+					}
+				}
+				else
+				{
+					if (p != null)
+					{
+						p.sendMessage(ChatColor.RED + "Could not give salary.");
+					}
+					this.cashFlow.log.warning(this.cashFlow.prefix + " "
+							+ er.errorMessage + ": " + user);
+				}
 			}
+		}
+		else
+		{
+			// Acount does not exist
+			/*
+			 * SalaryManager.cashFlow.log.warning("[" +
+			 * SalaryManager.cashFlow.info.getName() + "] " +
+			 * SalaryManager.cashFlow.eco.bankBalance(user).errorMessage +": " +
+			 * user);
+			 */
 		}
 	}
 

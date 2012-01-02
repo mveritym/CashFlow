@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.anjocaido.groupmanager.GroupManager;
+/*import org.anjocaido.groupmanager.GroupManager;
 import org.anjocaido.groupmanager.dataholder.WorldDataHolder;
-import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
+import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;*/
 import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.World;
@@ -35,7 +35,7 @@ public class PermissionsManager {
 	private Permission perm;
 	private PermissionManager pm;
 	private WorldPermissionsManager wpm;
-	private WorldDataHolder wdh;
+	/*private WorldDataHolder wdh;*/
 	private PermissionSet permissionsSet;
 	protected CashFlow cashflow;
 	protected Config conf;
@@ -78,12 +78,12 @@ public class PermissionsManager {
 				plugin = pluginManager.getPlugin("bPermissions");
 
 			}
-			else if (pluginName.equals("GroupManager"))
+			/*else if (pluginName.equals("GroupManager"))
 			{
 				plugin = pluginManager.getPlugin("GroupManager");
 				wdh = ((GroupManager) plugin).getWorldsHolder().getWorldData(
 						world);
-			}
+			}*/
 		}
 		else
 		{
@@ -284,7 +284,7 @@ public class PermissionsManager {
 		return playerList;
 	}
 
-	public List<String> getGroupManagerUsers(List<String> groups) {
+	/*public List<String> getGroupManagerUsers(List<String> groups) {
 		final List<String> playerList = new ArrayList<String>();
 		final List<String> groupPlayers = getAllPlayers();
 		for (final String groupName : groups)
@@ -304,7 +304,7 @@ public class PermissionsManager {
 			}
 		}
 		return playerList;
-	}
+	}*/
 
 	public List<String> getUsers(List<String> groups, List<String> players,
 			List<String> exceptedPlayers) {
@@ -324,10 +324,10 @@ public class PermissionsManager {
 			{
 				playerList = this.getbPermissionsUsers(groups);
 			}
-			else if (pluginName.equals("GroupManager"))
+			/*else if (pluginName.equals("GroupManager"))
 			{
 				playerList = this.getGroupManagerUsers(groups);
-			}
+			}*/
 		}
 
 		for (final String player : players)

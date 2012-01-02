@@ -236,8 +236,8 @@ public class TaxManager {
 		{
 			sender.sendMessage(ChatColor.RED + "Tax not found.");
 		}
-		else if (!(this.cashFlow.permsManager.isPlayer(playerName
-				.toLowerCase())))
+		else if (!(this.cashFlow.permsManager
+				.isPlayer(playerName.toLowerCase())))
 		{
 			sender.sendMessage(ChatColor.RED + "Player not found.");
 		}
@@ -336,8 +336,7 @@ public class TaxManager {
 		for (String taxName : taxes)
 		{
 			hours = conf.getDouble(("taxes." + taxName + ".taxInterval"), 1);
-			System.out.println("[" + this.cashFlow.info.getName()
-					+ "] Enabling " + taxName);
+			System.out.println(this.cashFlow.prefix + " Enabling " + taxName);
 			Taxer taxer = new Taxer(this, taxName, hours);
 			taxTasks.add(taxer);
 		}
@@ -349,8 +348,7 @@ public class TaxManager {
 		for (String player : users)
 		{
 			if (interval == 0
-					&& this.cashFlow.getServer()
-							.getPlayer(player) != null)
+					&& this.cashFlow.getServer().getPlayer(player) != null)
 			{
 				tempPlayerList.add(player);
 			}
@@ -358,8 +356,7 @@ public class TaxManager {
 		return tempPlayerList;
 	}
 
-	public List<String> getUsers(String taxName)
-	{
+	public List<String> getUsers(String taxName) {
 		List<String> groups = conf.getStringList("taxes." + taxName
 				+ ".payingGroups");
 		List<String> players = conf.getStringList("taxes." + taxName
@@ -367,8 +364,8 @@ public class TaxManager {
 		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName
 				+ ".exceptedPlayers");
 
-		return this.cashFlow.permsManager.getUsers(groups,
-				players, exceptedPlayers);
+		return this.cashFlow.permsManager.getUsers(groups, players,
+				exceptedPlayers);
 	}
 
 	public void payTax(String taxName) {
@@ -385,126 +382,50 @@ public class TaxManager {
 
 		for (String user : users)
 		{
-			this.payTax(user, taxName, false);
+			Buffer.getInstance().addToBuffer(user, taxName, true);
 		}
 	}
 
-	public void payTax(String user, String taxName, boolean checkOnline)
-	{
+	public void payTaxToUser(String user, String taxName) {
 		conf.save();
 
 		String tax = conf.getString("taxes." + taxName + ".tax");
 		String receiver = conf.getString("taxes." + taxName + ".receiver");
 		Double taxRate;
 		boolean withdraw = true;
-		boolean online = true;
-
-		if (conf.getBoolean("taxes." + taxName + ".onlineOnly.isEnabled", false) && checkOnline)
+		EconomyResponse er = this.cashFlow.eco.bankBalance(user);
+		if (er.type == EconomyResponse.ResponseType.SUCCESS)
 		{
-			if(this.cashFlow.getServer().getPlayer(user) == null)
+			Player player = this.cashFlow.getServer().getPlayer(user);
+			DecimalFormat twoDForm = new DecimalFormat("#.##");
+			double balance = er.balance;
+			if (tax.contains("%"))
 			{
-				online = false;
+				taxRate = Double.parseDouble(tax.split("%")[0]) / 100.0;
+				taxRate *= balance;
 			}
-		}
-
-		if(online)
-		{
-			EconomyResponse er = this.cashFlow.eco.bankBalance(user);
-			if (er.type == EconomyResponse.ResponseType.SUCCESS)
+			else
 			{
-				Player player = this.cashFlow.getServer().getPlayer(user);
-				DecimalFormat twoDForm = new DecimalFormat("#.##");
-				double balance = er.balance;
-				if (tax.contains("%"))
+				taxRate = Double.parseDouble(tax);
+			}
+
+			taxRate = Double.valueOf(twoDForm.format(taxRate));
+			if (balance != 0)
+			{
+				if (balance < taxRate)
 				{
-					taxRate = Double.parseDouble(tax.split("%")[0]) / 100.0;
-					taxRate *= balance;
-				}
-				else
-				{
-					taxRate = Double.parseDouble(tax);
+					// If they don't have enough in their account, set
+					// it to take everything
+					taxRate = balance;
 				}
 
-				taxRate = Double.valueOf(twoDForm.format(taxRate));
-				if (balance != 0)
-				{
-					if (balance < taxRate)
-					{
-						// If they don't have enough in their account, set
-						// it to take everything
-						taxRate = balance;
-					}
-
-					er = this.cashFlow.eco.withdrawPlayer(user, taxRate);
-					if (er.type == EconomyResponse.ResponseType.SUCCESS)
-					{
-						if (player != null)
-						{
-							String message = "You have paid $" + taxRate
-									+ " in tax";
-							if (receiver.equals("null"))
-							{
-								message += ".";
-							}
-							else
-							{
-								message += " to " + receiver + ".";
-							}
-							player.sendMessage(ChatColor.BLUE + message);
-						}
-					}
-					else
-					{
-						withdraw = false;
-						this.cashFlow.log.warning(
-								this.cashFlow.prefix + " "
-								+ er.errorMessage + ": " + user);
-					}
-
-					if (!(receiver.equals("null")) && withdraw)
-					{
-						er = this.cashFlow.eco.bankDeposit(receiver,
-								taxRate);
-						if (er.type == EconomyResponse.ResponseType.SUCCESS)
-						{
-							if (this.cashFlow.getServer()
-									.getPlayer(receiver) != null)
-							{
-								Player receiverPlayer = this.cashFlow
-										.getServer().getPlayer(receiver);
-								receiverPlayer.sendMessage(ChatColor.BLUE
-										+ "You have received $" + taxRate
-										+ " in tax from " + user + ".");
-							}
-						}
-						else
-						{
-							this.cashFlow.log
-									.warning(this.cashFlow.prefix
-											+ " "
-											+ this.cashFlow.eco
-													.bankBalance(user).errorMessage
-											+ ": " + receiver);
-						}
-					}
-					else
-					{
-						if (this.cashFlow.getServer().getPlayer(
-								receiver) != null)
-						{
-							Player receiverPlayer = this.cashFlow
-									.getServer().getPlayer(receiver);
-							receiverPlayer.sendMessage(ChatColor.RED
-									+ "Could not retrieve tax from " + user
-									+ ".");
-						}
-					}
-				}
-				else
+				er = this.cashFlow.eco.withdrawPlayer(user, taxRate);
+				if (er.type == EconomyResponse.ResponseType.SUCCESS)
 				{
 					if (player != null)
 					{
-						String message = "No money to pay tax";
+						String message = "You have paid $" + taxRate
+								+ " in tax";
 						if (receiver.equals("null"))
 						{
 							message += ".";
@@ -516,17 +437,73 @@ public class TaxManager {
 						player.sendMessage(ChatColor.BLUE + message);
 					}
 				}
+				else
+				{
+					withdraw = false;
+					this.cashFlow.log.warning(this.cashFlow.prefix + " "
+							+ er.errorMessage + ": " + user);
+				}
+
+				if (!(receiver.equals("null")) && withdraw)
+				{
+					er = this.cashFlow.eco.bankDeposit(receiver, taxRate);
+					if (er.type == EconomyResponse.ResponseType.SUCCESS)
+					{
+						if (this.cashFlow.getServer().getPlayer(receiver) != null)
+						{
+							Player receiverPlayer = this.cashFlow.getServer()
+									.getPlayer(receiver);
+							receiverPlayer.sendMessage(ChatColor.BLUE
+									+ "You have received $" + taxRate
+									+ " in tax from " + user + ".");
+						}
+					}
+					else
+					{
+						this.cashFlow.log
+								.warning(this.cashFlow.prefix
+										+ " "
+										+ this.cashFlow.eco.bankBalance(user).errorMessage
+										+ ": " + receiver);
+					}
+				}
+				else
+				{
+					if (this.cashFlow.getServer().getPlayer(receiver) != null)
+					{
+						Player receiverPlayer = this.cashFlow.getServer()
+								.getPlayer(receiver);
+						receiverPlayer.sendMessage(ChatColor.RED
+								+ "Could not retrieve tax from " + user + ".");
+					}
+				}
 			}
 			else
 			{
-				// Account does not exist
-				/*
-				 * TaxManager.cashFlow.log .warning("[" +
-				 * TaxManager.cashFlow.info.getName() + "] " +
-				 * TaxManager.cashFlow.eco.bankBalance(user).errorMessage + ": "
-				 * + user);
-				 */
+				if (player != null)
+				{
+					String message = "No money to pay tax";
+					if (receiver.equals("null"))
+					{
+						message += ".";
+					}
+					else
+					{
+						message += " to " + receiver + ".";
+					}
+					player.sendMessage(ChatColor.BLUE + message);
+				}
 			}
+		}
+		else
+		{
+			// Account does not exist
+			/*
+			 * TaxManager.cashFlow.log .warning("[" +
+			 * TaxManager.cashFlow.info.getName() + "] " +
+			 * TaxManager.cashFlow.eco.bankBalance(user).errorMessage + ": " +
+			 * user);
+			 */
 		}
 	}
 
@@ -534,7 +511,6 @@ public class TaxManager {
 		conf.save();
 		for (Taxer taxTask : taxTasks)
 		{
-			taxTask.finishBuffer();
 			taxTask.cancel();
 		}
 	}

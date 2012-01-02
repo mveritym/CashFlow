@@ -407,6 +407,7 @@ public class CommandManager {
 				if(args.length == 0) {
 					this.taxManager.enable();
 					this.salaryManager.enable();
+					Buffer.getInstance().start();
 					sender.sendMessage(ChatColor.GREEN + "Taxes and salaries enabled.");
 					return true;
 				} else {
@@ -417,6 +418,7 @@ public class CommandManager {
 				if(args.length == 0) {
 					this.taxManager.disable();
 					this.salaryManager.disable();
+					Buffer.getInstance().cancelBuffer();
 					sender.sendMessage(ChatColor.GREEN + "Taxes and salaries disabled.");
 					return true;
 				} else {
@@ -427,8 +429,10 @@ public class CommandManager {
 				if(args.length == 0) {
 					this.taxManager.disable();
 					this.salaryManager.disable();
+					Buffer.getInstance().cancelBuffer();
 					this.taxManager.enable();
 					this.salaryManager.enable();
+					Buffer.getInstance().start();
 					sender.sendMessage(ChatColor.GREEN + "Taxes and salaries restarted.");
 					return true;
 				} else {
@@ -466,6 +470,17 @@ public class CommandManager {
 				{
 					sender.sendMessage(ChatColor.RED + "World name not given.");
 				}
+			case status:
+				for(Taxer t : this.taxManager.taxTasks)
+				{
+					sender.sendMessage(t.getName() + " : " + t.getState());
+				}
+				for(Taxer t : this.salaryManager.salaryTasks)
+				{
+					sender.sendMessage(t.getName() + " : " + t.getState());
+				}
+				sender.sendMessage("Buffer : " + Buffer.getInstance().buffering());
+				return true;
 			default:
 				return false;
 		}
