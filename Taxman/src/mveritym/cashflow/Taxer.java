@@ -28,25 +28,35 @@ public class Taxer {
 
 	public String getState()
 	{
-		if(taxManager.cashFlow.getServer().getScheduler().isCurrentlyRunning(id))
+		if(id != -1)
 		{
-			return "running";
-		}
-		else if(Buffer.getInstance().buffering())
-		{
-			return "buffered";
-		}
-		else if(taxManager.cashFlow.getServer().getScheduler().isQueued(id))
-		{
-			return "queued";
+			if(taxManager.cashFlow.getServer().getScheduler().isCurrentlyRunning(id))
+			{
+				return "running";
+			}
+			else if(Buffer.getInstance().buffering())
+			{
+				return "buffered";
+			}
+			else if(taxManager.cashFlow.getServer().getScheduler().isQueued(id))
+			{
+				return "queued";
+			}
 		}
 		return "cancelled";
 	}
 
-	public void cancel() {
+	public void cancelTax() {
 		if(id != -1)
 		{
 			taxManager.cashFlow.getServer().getScheduler().cancelTask(id);
+		}
+	}
+
+	public void cancelSalary() {
+		if(id != -1)
+		{
+			salaryManager.cashFlow.getServer().getScheduler().cancelTask(id);
 		}
 	}
 

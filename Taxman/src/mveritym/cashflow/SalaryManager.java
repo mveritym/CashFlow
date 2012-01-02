@@ -104,7 +104,7 @@ public class SalaryManager {
 			{
 				if (task.getName().equals(name))
 				{
-					task.cancel();
+					task.cancelSalary();
 				}
 			}
 
@@ -357,7 +357,7 @@ public class SalaryManager {
 	public void disable() {
 		for (Taxer salaryTask : salaryTasks)
 		{
-			salaryTask.cancel();
+			salaryTask.cancelSalary();
 		}
 	}
 
