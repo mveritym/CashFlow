@@ -108,7 +108,7 @@ public class TaxManager {
 			{
 				if (task.getName().equals(name))
 				{
-					task.cancelTax();
+					task.cancel();
 				}
 			}
 
@@ -511,7 +511,7 @@ public class TaxManager {
 		conf.save();
 		for (Taxer taxTask : taxTasks)
 		{
-			taxTask.cancelTax();
+			taxTask.cancel();
 		}
 	}
 

@@ -479,7 +479,7 @@ public class CommandManager {
 				{
 					sender.sendMessage(t.getName() + " : " + t.getState());
 				}
-				sender.sendMessage("Buffer : " + Buffer.getInstance().buffering());
+				sender.sendMessage("Ops in Buffer : " + Buffer.getInstance().size());
 				return true;
 			default:
 				return false;

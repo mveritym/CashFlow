@@ -53,6 +53,11 @@ public class Buffer implements Runnable {
 		return false;
 	}
 
+	public synchronized int size()
+	{
+		return queue.size();
+	}
+
 	public synchronized void addToBuffer(String name, String contract, boolean tax)
 	{
 		queue.add(new Tax(name, contract, tax));
