@@ -34,7 +34,7 @@ public class Config {
 		}
 		if(gen)
 		{
-			cf.log.info("[" + cf.info.getName() + "] No CashFlow config file found. Creating config file.");
+			cf.log.info(cf.prefix + " No CashFlow config file found. Creating config file.");
 		}
 		debug = config.getBoolean("debug", false);
 		//Save config

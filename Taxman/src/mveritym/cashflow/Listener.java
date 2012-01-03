@@ -18,7 +18,7 @@ public class Listener extends PlayerListener {
 	}
 
 	@Override
-	public void onPlayerJoin(PlayerJoinEvent event) {
+	public void onPlayerJoin(final PlayerJoinEvent event) {
 		if (config.debug)
 		{
 			cf.log.warning(cf.prefix + " PlayerJoin event");
