@@ -79,14 +79,21 @@ public class Buffer implements Runnable {
 				{
 					//Remove from queue
 					final Tax t = array[i];
-					if(t.tax)
+					try
 					{
-						//Pay tax
-						taxManager.payTaxToUser(t.user, t.contract);
+						if(t.tax)
+						{
+							//Pay tax
+							taxManager.payTaxToUser(t.user, t.contract);
+						}
+						else
+						{
+							salaryManager.paySalaryToUser(t.user, t.contract);
+						}
 					}
-					else
+					catch(NullPointerException e)
 					{
-						salaryManager.paySalaryToUser(t.user, t.contract);
+						//ignore
 					}
 					queue.remove(array[i]);
 				}
