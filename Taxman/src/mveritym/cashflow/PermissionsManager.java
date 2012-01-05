@@ -426,44 +426,59 @@ public class PermissionsManager {
 	}
 
 	public void importPlayers(String worldName) {
-		final File folder = new File(worldName + File.separator + "players"
-				+ File.separator);
-		for (final File playerFile : folder.listFiles())
+		this.cashflow.getServer().getScheduler().scheduleAsyncDelayedTask(cashflow, new ImportPlayersTask(worldName));
+	}
+
+	class ImportPlayersTask implements Runnable
+	{
+		private String worldName;
+
+		public ImportPlayersTask(String world)
 		{
-			if (playerFile != null)
+			worldName = world;
+		}
+
+		@Override
+		public void run() {
+			final File folder = new File(worldName + File.separator + "players"
+					+ File.separator);
+			for (final File playerFile : folder.listFiles())
 			{
-				final String name = playerFile.getName().substring(0,
-						playerFile.getName().length() - 4);
-				try
+				if (playerFile != null)
 				{
-					boolean has = false;
-					// Check if player already exists
-					String query = "SELECT COUNT(*) FROM 'cashflow' WHERE playername='"
-							+ name + "';";
-					final ResultSet rs = this.cashflow.getLiteDB()
-							.select(query);
-					if (rs.next())
+					final String name = playerFile.getName().substring(0,
+							playerFile.getName().length() - 4);
+					try
 					{
-						if (rs.getInt(1) >= 1)
+						boolean has = false;
+						// Check if player already exists
+						String query = "SELECT COUNT(*) FROM 'cashflow' WHERE playername='"
+								+ name + "';";
+						final ResultSet rs = cashflow.getLiteDB()
+								.select(query);
+						if (rs.next())
 						{
-							// They're already in the database
-							has = true;
+							if (rs.getInt(1) >= 1)
+							{
+								// They're already in the database
+								has = true;
+							}
+						}
+						rs.close();
+						if (!has)
+						{
+							// Add to master list
+							query = "INSERT INTO 'cashflow' VALUES('" + name
+									+ "');";
+							cashflow.getLiteDB().standardQuery(query);
 						}
 					}
-					rs.close();
-					if (!has)
+					catch (SQLException e)
 					{
-						// Add to master list
-						query = "INSERT INTO 'cashflow' VALUES('" + name
-								+ "');";
-						this.cashflow.getLiteDB().standardQuery(query);
+						cashflow.log.warning(cashflow.prefix
+								+ " SQL Exception");
+						e.printStackTrace();
 					}
-				}
-				catch (SQLException e)
-				{
-					this.cashflow.log.warning(this.cashflow.prefix
-							+ " SQL Exception");
-					e.printStackTrace();
 				}
 			}
 		}
