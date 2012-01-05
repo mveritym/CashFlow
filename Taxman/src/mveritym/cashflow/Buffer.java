@@ -63,6 +63,9 @@ public class Buffer implements Runnable {
 		queue.add(new Tax(name, contract, tax));
 	}
 
+	//TODO maybe have the payTaxToUser give a boolean on wether or not it
+	//actually edited the account. And possibly, if it fails, then keep
+	//it in the buffer until it resolves?
 	@Override
 	public void run() {
 		if(!queue.isEmpty())
@@ -91,6 +94,9 @@ public class Buffer implements Runnable {
 		}
 	}
 
+	//TODO Although, I don't want to do that here because this is called
+	//when the server is being stopped/plugin is disabled. And if it doesn't
+	//work out, then it'd be in a continuous loop :\
 	public synchronized void cancelBuffer()
 	{
 		if(id != -1)
