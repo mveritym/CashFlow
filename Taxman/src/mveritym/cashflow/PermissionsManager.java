@@ -13,6 +13,7 @@ import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;*/
 import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -425,17 +426,19 @@ public class PermissionsManager {
 		return false;
 	}
 
-	public void importPlayers(String worldName) {
-		this.cashflow.getServer().getScheduler().scheduleAsyncDelayedTask(cashflow, new ImportPlayersTask(worldName));
+	public void importPlayers(CommandSender sender, String worldName) {
+		this.cashflow.getServer().getScheduler().scheduleAsyncDelayedTask(cashflow, new ImportPlayersTask(sender, worldName));
 	}
 
 	class ImportPlayersTask implements Runnable
 	{
 		private String worldName;
+		private CommandSender sender;
 
-		public ImportPlayersTask(String world)
+		public ImportPlayersTask(CommandSender sender, String world)
 		{
 			worldName = world;
+			this.sender = sender;
 		}
 
 		@Override
@@ -481,6 +484,10 @@ public class PermissionsManager {
 					}
 				}
 			}
+			sender.sendMessage(cashflow.prefix
+					+ " Done importing players from " + worldName + " into database");
+			cashflow.log.info(cashflow.prefix
+					+ " Done importing players from " + worldName + " into database");
 		}
 	}
 }

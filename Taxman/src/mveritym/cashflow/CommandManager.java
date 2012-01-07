@@ -539,8 +539,8 @@ public class CommandManager {
 					World w = this.cashFlow.getServer().getWorld(worldName);
 					if(w != null)
 					{
-						this.cashFlow.permsManager.importPlayers(worldName);
-						sender.sendMessage(ChatColor.GREEN + "Imported players of world '" + worldName + "' into master database.");
+						this.cashFlow.permsManager.importPlayers(sender, worldName);
+						sender.sendMessage(ChatColor.GREEN + "Importing players of world '" + worldName + "' into master database...");
 						return true;
 					}
 					else
