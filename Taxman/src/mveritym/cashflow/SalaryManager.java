@@ -500,22 +500,51 @@ public class SalaryManager {
 				+ salaryName + ".salary"));
 		String employer = conf
 				.getString("salaries." + salaryName + ".employer");
-		if (this.cashFlow.eco.bankBalance(user).type == EconomyResponse.ResponseType.SUCCESS)
+		boolean ico5 = false;
+		if(this.cashFlow.eco.getName().equals("iConomy 5"))
+		{
+			ico5 = true;
+		}
+		EconomyResponse er = new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "EconomyResponse object not initialized.");
+		if(ico5)
+		{
+			er = this.cashFlow.eco.depositPlayer(user, 0);
+		}
+		else
+		{
+			er = this.cashFlow.eco.bankBalance(user);
+		}
+		if (er.type == EconomyResponse.ResponseType.SUCCESS)
 		{
 			final Player p = this.cashFlow.getServer().getPlayer(user);
 			final Player r = this.cashFlow.getServer().getPlayer(employer);
 			// pay salary
 			if (!employer.equals("null"))
 			{
-				double tempSalary = this.cashFlow.eco.bankBalance(employer).amount;
+				double tempSalary = 0;
+				if(ico5)
+				{
+					tempSalary = this.cashFlow.eco.getBalance(user);
+				}
+				else
+				{
+					tempSalary = this.cashFlow.eco.bankBalance(employer).amount;
+				}
 				if (tempSalary != 0)
 				{
 					if (tempSalary > salary)
 					{
 						tempSalary = salary;
 					}
-					EconomyResponse er = this.cashFlow.eco.bankWithdraw(
-							employer, tempSalary);
+					if(ico5)
+					{
+						er = this.cashFlow.eco.withdrawPlayer(employer, tempSalary);
+					}
+					else
+					{
+						er = this.cashFlow.eco.bankWithdraw(employer, tempSalary);
+					}
+
 					if (er.type == EconomyResponse.ResponseType.SUCCESS)
 					{
 						if (r != null)
@@ -524,7 +553,14 @@ public class SalaryManager {
 									+ tempSalary + " in salary to " + user
 									+ ".");
 						}
-						er = this.cashFlow.eco.bankDeposit(user, tempSalary);
+						if(ico5)
+						{
+							er = this.cashFlow.eco.depositPlayer(user, tempSalary);
+						}
+						else
+						{
+							er = this.cashFlow.eco.bankDeposit(user, tempSalary);
+						}
 						if (er.type == EconomyResponse.ResponseType.SUCCESS)
 						{
 							if (p != null)
@@ -574,8 +610,14 @@ public class SalaryManager {
 			}
 			else
 			{
-				EconomyResponse er = this.cashFlow.eco
-						.bankDeposit(user, salary);
+				if(ico5)
+				{
+					er = this.cashFlow.eco.depositPlayer(user, salary);
+				}
+				else
+				{
+					er = this.cashFlow.eco.bankDeposit(user, salary);
+				}
 				if (er.type == EconomyResponse.ResponseType.SUCCESS)
 				{
 					if (p != null)

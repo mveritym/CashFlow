@@ -421,7 +421,20 @@ public class TaxManager {
 		String receiver = conf.getString("taxes." + taxName + ".receiver");
 		Double taxRate;
 		boolean withdraw = true;
-		EconomyResponse er = this.cashFlow.eco.bankBalance(user);
+		boolean ico5 = false;
+		if(this.cashFlow.eco.getName().equals("iConomy 5"))
+		{
+			ico5 = true;
+		}
+		EconomyResponse er = new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "EconomyResponse object not initialized.");
+		if(ico5)
+		{
+			er = this.cashFlow.eco.withdrawPlayer(user, 0);
+		}
+		else
+		{
+			er = this.cashFlow.eco.bankBalance(user);
+		}
 		if (er.type == EconomyResponse.ResponseType.SUCCESS)
 		{
 			Player player = this.cashFlow.getServer().getPlayer(user);
@@ -447,7 +460,14 @@ public class TaxManager {
 					taxRate = balance;
 				}
 
-				er = this.cashFlow.eco.withdrawPlayer(user, taxRate);
+				if(ico5)
+				{
+					er = this.cashFlow.eco.withdrawPlayer(user, taxRate);
+				}
+				else
+				{
+					er = this.cashFlow.eco.bankWithdraw(user, taxRate);
+				}
 				if (er.type == EconomyResponse.ResponseType.SUCCESS)
 				{
 					if (player != null)
@@ -474,7 +494,14 @@ public class TaxManager {
 
 				if (!(receiver.equals("null")) && withdraw)
 				{
-					er = this.cashFlow.eco.bankDeposit(receiver, taxRate);
+					if(ico5)
+					{
+						er = this.cashFlow.eco.depositPlayer(receiver, taxRate);
+					}
+					else
+					{
+						er = this.cashFlow.eco.bankDeposit(receiver, taxRate);
+					}
 					if (er.type == EconomyResponse.ResponseType.SUCCESS)
 					{
 						if (this.cashFlow.getServer().getPlayer(receiver) != null)
@@ -526,12 +553,12 @@ public class TaxManager {
 		else
 		{
 			// Account does not exist
-			/*
-			 * TaxManager.cashFlow.log .warning("[" +
-			 * TaxManager.cashFlow.info.getName() + "] " +
-			 * TaxManager.cashFlow.eco.bankBalance(user).errorMessage + ": " +
-			 * user);
-			 */
+
+			 /*cashFlow.log .warning("[" +
+			 cashFlow.info.getName() + "] " +
+			 cashFlow.eco.bankBalance(user).errorMessage + ": " +
+			 user);*/
+
 		}
 	}
 
