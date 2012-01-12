@@ -104,6 +104,8 @@ public class Buffer implements Runnable {
 	//TODO Although, I don't want to do that here because this is called
 	//when the server is being stopped/plugin is disabled. And if it doesn't
 	//work out, then it'd be in a continuous loop :\
+	//TODO also, catch the null pointer exception from iconomy. Happens on server stop.
+	// Might have to save the buffer instead...?
 	public synchronized void cancelBuffer()
 	{
 		if(id != -1)
