@@ -439,7 +439,15 @@ public class TaxManager {
 		{
 			Player player = this.cashFlow.getServer().getPlayer(user);
 			DecimalFormat twoDForm = new DecimalFormat("#.##");
-			double balance = er.balance;
+			double balance = 0;
+			if(ico5)
+			{
+				balance = this.cashFlow.eco.getBalance(user);
+			}
+			else
+			{
+				balance = this.cashFlow.eco.bankBalance(user).balance;
+			}
 			if (tax.contains("%"))
 			{
 				taxRate = Double.parseDouble(tax.split("%")[0]) / 100.0;
