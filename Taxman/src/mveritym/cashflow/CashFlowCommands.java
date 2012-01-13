@@ -4,12 +4,14 @@ public enum CashFlowCommands {
 	tax,
 	salary,
 	cashflow,
-	
+
 	enable,
 	disable,
 	restart,
 	setworld,
-	
+	addplayers,
+	status,
+
 	create,
 	delete,
 	apply,
@@ -23,5 +25,5 @@ public enum CashFlowCommands {
 	setinterval,
 	setemployer,
 	setreceiver,
-	
+	fire,
 }

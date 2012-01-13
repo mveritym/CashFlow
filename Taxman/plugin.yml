@@ -1,7 +1,11 @@
 name: CashFlow
 main: mveritym.cashflow.CashFlow
-version: 1.0.0
+version: 1.0.4
 softdepend: [BOSEconomy7, MultiCurrency, Essentials, iCo5, iCo6]
+depend: [Vault]
+authors:
+  - Perichor
+  - Mitsugaru
 commands:
     tax:
       description: Provides access to tax commands.
@@ -19,6 +23,8 @@ commands:
            /<command> info <taxname> - Lists information about a tax
            /<command> setonlineonly <taxname> <true|false> [interval] - Sets a particular tax to be collected only from players who have been online in the last x hours.
            /<command> setrate <taxname> <tax> - Sets the tax rate
+           /<command> enable <salaryname> - Enables given salary.
+           /<command> disable <salaryname> - Disables given salary.
     salary:
       description: Provides access to salary commands.
       usage: |
@@ -35,6 +41,8 @@ commands:
           /<command> info <salaryname> - Lists information about a salary
           /<command> setonlineonly <salaryname> <true|false> [interval] - Sets a particular salary to be paid only to players who have been online in the last x hours.
           /<command> setrate <salaryname> <salary> - Sets the salary rate
+          /<command> enable <salaryname> - Enables given salary.
+          /<command> disable <salaryname> - Disables given salary.
     cashflow:
         description: Lets you enable, disable, restart or set the world.
         usage: |
@@ -43,6 +51,8 @@ commands:
             /<command> disable - Disables payment of taxes and salaries.
             /<command> restart - Disables then enables payment of taxes and salaries. Use this to refresh timer threads.
             /<command> setworld - Specifies the world name so you can create taxes/salaries that go to/come from offline players.
+            /<command> addplayers <world> - adds player names from the world's player.dat files to internal database.
+            /<command> status - Check status of all taxes/salaries and number of buffered operations.
 permissions:
     cashflow.*:
         description: Allows access to all cashflow commands.
@@ -51,7 +61,7 @@ permissions:
             cashflow.salary: true
             cashflow.basic: true
         default: false
-    cashflow.tax: 
+    cashflow.tax:
         description: Allows control of tax commands.
         default: false
     cashflow.salary:
