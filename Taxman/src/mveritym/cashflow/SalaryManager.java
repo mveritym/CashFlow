@@ -210,8 +210,8 @@ public class SalaryManager {
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + salaryName
-					+ " applied successfully to " + groupName);
+			sender.sendMessage(ChatColor.GOLD + salaryName + ChatColor.GREEN
+					+ " applied successfully to " + ChatColor.GRAY  + groupName);
 			paidGroups.add(groupName);
 			conf.setProperty("salaries." + salaryName + ".paidGroups",
 					paidGroups);
@@ -253,8 +253,8 @@ public class SalaryManager {
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + salaryName
-					+ " applied successfully to " + playerName);
+			sender.sendMessage(ChatColor.GOLD + salaryName + ChatColor.GREEN
+					+ " applied successfully to " + ChatColor.GRAY + playerName);
 			paidPlayers.add(playerName);
 			conf.setProperty("salaries." + salaryName + ".paidPlayers",
 					paidPlayers);
@@ -290,8 +290,8 @@ public class SalaryManager {
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + salaryName
-					+ " removed successfully from " + groupName);
+			sender.sendMessage(ChatColor.GOLD + salaryName + ChatColor.GREEN
+					+ " removed successfully from " + ChatColor.GRAY + groupName);
 			paidGroups.remove(groupName);
 			conf.setProperty("salaries." + salaryName + ".paidGroups",
 					paidGroups);
@@ -328,8 +328,8 @@ public class SalaryManager {
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + salaryName
-					+ " removed successfully from " + playerName);
+			sender.sendMessage(ChatColor.GOLD + salaryName + ChatColor.GREEN
+					+ " removed successfully from " + ChatColor.GRAY + playerName);
 			paidPlayers.remove(playerName);
 			conf.setProperty("salaries." + salaryName + ".paidPlayers",
 					paidPlayers);

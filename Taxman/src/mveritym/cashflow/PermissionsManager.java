@@ -133,12 +133,26 @@ public class PermissionsManager {
 	 * @return true if permissions has the group, else false
 	 */
 	public boolean isGroup(String groupName) {
-		String[] groups = perm.getGroups();
-		for (int i = 0; i < groups.length; i++)
+		//bPermissions compatibility
+		if(perm.getName().equals("bPermissions"))
 		{
-			if (groups[i].equals(groupName))
+			for(PermissionSet p : wpm.getPermissionSets())
 			{
-				return true;
+				if(!p.getGroupNodes(groupName).isEmpty())
+				{
+					return true;
+				}
+			}
+		}
+		else
+		{
+			String[] groups = perm.getGroups();
+			for (int i = 0; i < groups.length; i++)
+			{
+				if (groups[i].equals(groupName))
+				{
+					return true;
+				}
 			}
 		}
 		return false;

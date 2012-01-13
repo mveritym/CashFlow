@@ -206,8 +206,8 @@ public class TaxManager {
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + taxName
-					+ " applied successfully to " + groupName);
+			sender.sendMessage(ChatColor.GOLD + taxName + ChatColor.GREEN
+					+ " applied successfully to " + ChatColor.GRAY + groupName);
 			payingGroups.add(groupName);
 			conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
 			conf.save();
@@ -248,8 +248,8 @@ public class TaxManager {
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + taxName
-					+ " applied successfully to " + playerName);
+			sender.sendMessage(ChatColor.GOLD + taxName + ChatColor.GREEN
+					+ " applied successfully to " + ChatColor.GRAY + playerName);
 			payingPlayers.add(playerName);
 			conf.setProperty("taxes." + taxName + ".payingPlayers",
 					payingPlayers);
@@ -284,8 +284,8 @@ public class TaxManager {
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + taxName
-					+ " removed successfully from " + groupName);
+			sender.sendMessage(ChatColor.GOLD + taxName + ChatColor.GREEN
+					+ " removed successfully from " + ChatColor.GRAY + groupName);
 			payingGroups.remove(groupName);
 			conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
 			conf.save();
@@ -319,8 +319,8 @@ public class TaxManager {
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + taxName
-					+ " removed successfully from " + playerName);
+			sender.sendMessage(ChatColor.GOLD + taxName + ChatColor.GREEN
+					+ " removed successfully from " + ChatColor.GRAY  + playerName);
 			payingPlayers.remove(playerName);
 			conf.setProperty("taxes." + taxName + ".payingPlayers",
 					payingPlayers);
