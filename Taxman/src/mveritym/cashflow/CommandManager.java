@@ -1,29 +1,31 @@
 package mveritym.cashflow;
 
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
 public class CommandManager {
 
-	private CashFlow cashFlow;
-	private TaxManager taxManager;
-	private SalaryManager salaryManager;
-	
+	private final CashFlow cashFlow;
+	private final TaxManager taxManager;
+	private final SalaryManager salaryManager;
+
 	public CommandManager(CashFlow cashFlow, TaxManager taxManager, SalaryManager salaryManager) {
 		this.cashFlow = cashFlow;
 		this.taxManager = taxManager;
 		this.salaryManager = salaryManager;
 	}
-	
+
+	//TODO add a more friendly help menu
 	public boolean taxCommand(CommandSender sender, String[] tempArgs) {
 		CashFlowCommands cmd;
-		
+
 		try {
 			cmd = CashFlowCommands.valueOf(tempArgs[0]);
 		} catch(Exception e) {
 			return false;
 		}
-		
+
 		String args[] = new String[tempArgs.length - 1];
 		for(int i = 1; i < tempArgs.length; i++) {
 			args[i-1] = tempArgs[i];
@@ -41,7 +43,7 @@ public class CommandManager {
 				percentOfBal = args[1];
 				interval = args[2];
 				receiverName = args[3];
-				
+
 				this.taxManager.createTax(sender, name, percentOfBal, interval, receiverName);
 				return true;
 			} else if(args.length == 3) {
@@ -84,7 +86,7 @@ public class CommandManager {
 					} else {
 						sender.sendMessage(ChatColor.RED + "You must install a permissions plugin to use this command.");
 						return true;
-					}					
+					}
 				} else if(args[0].equals("player")) {
 					this.taxManager.addPlayers(sender, args[1], args[2]);
 					return true;
@@ -138,7 +140,7 @@ public class CommandManager {
 			} else {
 				this.taxManager.listTaxes(sender);
 				return true;
-			}	
+			}
 		case info:
 			if(args.length == 1) {
 				this.taxManager.taxInfo(sender, args[0]);
@@ -173,26 +175,90 @@ public class CommandManager {
 			} else {
 				return false;
 			}
+		case fire:
+			if(args.length == 1)
+			{
+				String taxName = args[0];
+				if(cashFlow.getPluginConfig().getStringList("taxes.list").contains(taxName))
+				{
+					this.cashFlow.log.info(this.cashFlow.prefix
+		    				+ " Paying tax " + taxName);
+					this.taxManager.payTax(taxName);
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + " Invalid tax name: " + taxName);
+				}
+				return true;
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.RED + " No tax name given");
+			}
+			return false;
+		case enable:
+			if(args.length == 1)
+			{
+				String taxName = args[0];
+				if(cashFlow.getPluginConfig().getStringList("taxes.list").contains(taxName))
+				{
+					sender.sendMessage(ChatColor.GREEN + "Enabling tax - " + ChatColor.GOLD + taxName);
+					this.taxManager.enableTax(taxName);
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + " Invalid tax name: " + taxName);
+				}
+				return true;
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.RED + " No tax name given");
+			}
+			return false;
+		case disable:
+			if(args.length == 1)
+			{
+				String taxName = args[0];
+				if(cashFlow.getPluginConfig().getStringList("taxes.list").contains(taxName))
+				{
+
+					sender.sendMessage(ChatColor.YELLOW + "Disabling tax - " + ChatColor.AQUA + taxName);
+					this.taxManager.disableTax(taxName);
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + " Invalid tax name: " + taxName);
+				}
+				return true;
+			}
+			else
+			{
+				sender.sendMessage(ChatColor.RED + " No tax name given");
+			}
+			return false;
 		default:
 			return false;
 		}
-	
+
 	}
-	
+
+	//TODO ability to enable/disable specific salaries
+	//TODO get current state of a salary
 	public boolean salaryCommand(CommandSender sender, String[] tempArgs) {
 		CashFlowCommands cmd;
-		
+
 		try {
 			cmd = CashFlowCommands.valueOf(tempArgs[0]);
 		} catch(Exception e) {
 			return false;
 		}
-		
+
 		String args[] = new String[tempArgs.length - 1];
 		for(int i = 1; i < tempArgs.length; i++) {
 			args[i-1] = tempArgs[i];
 		}
-	
+
 		switch(cmd) {
 			case create:
 				String name;
@@ -205,7 +271,7 @@ public class CommandManager {
 					salary = args[1];
 					interval = args[2];
 					employer = args[3];
-					
+
 					this.salaryManager.createSalary(sender, name, salary, interval, employer);
 					return true;
 				} else if(args.length == 3) {
@@ -302,7 +368,7 @@ public class CommandManager {
 				} else {
 					this.salaryManager.listSalaries(sender);
 					return true;
-				}	
+				}
 			case info:
 				if(args.length == 1) {
 					this.salaryManager.salaryInfo(sender, args[0]);
@@ -337,30 +403,93 @@ public class CommandManager {
 				} else {
 					return false;
 				}
+			case fire:
+				if(args.length == 1)
+				{
+					String salaryName = args[0];
+					if(cashFlow.getPluginConfig().getStringList("salaries.list").contains(salaryName))
+					{
+						this.cashFlow.log.info(this.cashFlow.prefix
+			    				+ " Paying salary " + salaryName);
+						this.salaryManager.paySalary(salaryName);
+						return true;
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + " Invalid salary name: " + salaryName);
+					}
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + " No salary name given");
+				}
+				return false;
+			case enable:
+				if(args.length == 1)
+				{
+					String salaryName = args[0];
+					if(cashFlow.getPluginConfig().getStringList("salaries.list").contains(salaryName))
+					{
+						sender.sendMessage(ChatColor.GREEN + "Enabling salary - " + ChatColor.GOLD + salaryName);
+						this.salaryManager.enableSalary(salaryName);
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + " Invalid salary name: " + salaryName);
+					}
+					return true;
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + " No tax name given");
+				}
+				return false;
+			case disable:
+				if(args.length == 1)
+				{
+					String salaryName = args[0];
+					if(cashFlow.getPluginConfig().getStringList("salaries.list").contains(salaryName))
+					{
+
+						sender.sendMessage(ChatColor.YELLOW + "Disabling salary - " + ChatColor.AQUA + salaryName);
+						this.salaryManager.disableSalary(salaryName);
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + " Invalid salary name: " + salaryName);
+					}
+					return true;
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + " No salary name given");
+				}
+				return false;
 			default:
 				return false;
 		}
 	}
-	
+
 	public boolean cashflowCommand(CommandSender sender, String[] tempArgs) {
 		CashFlowCommands cmd;
-		
+
 		try {
 			cmd = CashFlowCommands.valueOf(tempArgs[0]);
 		} catch(Exception e) {
 			return false;
 		}
-		
+
 		String args[] = new String[tempArgs.length - 1];
 		for(int i = 1; i < tempArgs.length; i++) {
 			args[i-1] = tempArgs[i];
 		}
-		
+
 		switch(cmd) {
 			case enable:
 				if(args.length == 0) {
 					this.taxManager.enable();
 					this.salaryManager.enable();
+					Buffer.getInstance().start();
 					sender.sendMessage(ChatColor.GREEN + "Taxes and salaries enabled.");
 					return true;
 				} else {
@@ -371,6 +500,7 @@ public class CommandManager {
 				if(args.length == 0) {
 					this.taxManager.disable();
 					this.salaryManager.disable();
+					Buffer.getInstance().cancelBuffer();
 					sender.sendMessage(ChatColor.GREEN + "Taxes and salaries disabled.");
 					return true;
 				} else {
@@ -381,12 +511,15 @@ public class CommandManager {
 				if(args.length == 0) {
 					this.taxManager.disable();
 					this.salaryManager.disable();
+					Buffer.getInstance().cancelBuffer();
 					this.taxManager.enable();
 					this.salaryManager.enable();
+					Buffer.getInstance().start();
 					sender.sendMessage(ChatColor.GREEN + "Taxes and salaries restarted.");
 					return true;
 				} else {
 					sender.sendMessage(ChatColor.RED + "Command takes no arguments.");
+					return true;
 				}
 			case setworld:
 				if(args.length == 1) {
@@ -399,9 +532,40 @@ public class CommandManager {
 				} else {
 					return false;
 				}
+			case addplayers:
+				if(args.length == 1)
+				{
+					String worldName = args[0];
+					World w = this.cashFlow.getServer().getWorld(worldName);
+					if(w != null)
+					{
+						this.cashFlow.permsManager.importPlayers(sender, worldName);
+						sender.sendMessage(ChatColor.GREEN + "Importing players of world '" + worldName + "' into master database...");
+						return true;
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + "World not found.");
+					}
+				}
+				else
+				{
+					sender.sendMessage(ChatColor.RED + "World name not given.");
+				}
+			case status:
+				for(Taxer t : this.taxManager.taxTasks)
+				{
+					sender.sendMessage(ChatColor.RED + t.getName() + ChatColor.GRAY + " : " + t.getState());
+				}
+				for(Taxer t : this.salaryManager.salaryTasks)
+				{
+					sender.sendMessage(ChatColor.GREEN + t.getName() + ChatColor.GRAY  + " : " + t.getState());
+				}
+				sender.sendMessage("Ops in Buffer : " + Buffer.getInstance().size());
+				return true;
 			default:
 				return false;
 		}
 	}
-	
+
 }

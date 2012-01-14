@@ -2,16 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-9fb6a29/lib/BOSEconomy7.jar"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-9fb6a29/lib/MultiCurrency.jar"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-9fb6a29/lib/Essentials.jar"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-9fb6a29/lib/iCo4.jar"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-9fb6a29/lib/iCo5.jar"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Register/iConomy-Register-9fb6a29/lib/iCo6.jar"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/MyServer/plugins/PermissionsBukkit-1.2.jar"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/MyServer/craftbukkit.jar"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/MyServer/plugins/Register.jar"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Permissions Plugins/bPermissions-1.2.5.jar"/>
-	<classpathentry kind="lib" path="C:/Documents and Settings/Mel/My Documents/Minecraft Dev/Permissions Plugins/PermissionsEx.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Bukkit"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/PermissionsEX"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bPermissions"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/PermissionsBukkit"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Essentials"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Vault"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
