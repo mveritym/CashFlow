@@ -513,6 +513,7 @@ public class TaxManager {
 						{
 							Player receiverPlayer = this.cashFlow.getServer()
 									.getPlayer(receiver);
+							//TODO configurable prefix / suffix from config.
 							receiverPlayer.sendMessage(ChatColor.BLUE
 									+ "You have received $" + taxRate
 									+ " in tax from " + user + ".");
