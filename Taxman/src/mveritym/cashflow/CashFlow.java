@@ -32,6 +32,7 @@ public class CashFlow extends JavaPlugin {
 	public Config config;
 	public String prefix;
 	private SQLite database;
+	private boolean economyFound;
 
 	@Override
 	public void onLoad() {
@@ -94,9 +95,12 @@ public class CashFlow extends JavaPlugin {
 		// Disable taxes/salaries and finish the buffers if any exist
 		// thus no economy changes are lost
 		log.info(prefix + " " + " Finishing tax/salary buffers...");
-		taxManager.disable();
-		salaryManager.disable();
-		Buffer.getInstance().cancelBuffer();
+		if(economyFound)
+		{
+			taxManager.disable();
+			salaryManager.disable();
+			Buffer.getInstance().cancelBuffer();
+		}
 		// Disconnect from sql database? Dunno if necessary
 		if (database.checkConnection())
 		{
@@ -113,12 +117,14 @@ public class CashFlow extends JavaPlugin {
 		if (economyProvider != null)
 		{
 			eco = economyProvider.getProvider();
+			economyFound = true;
 		}
 		else
 		{
 			// No economy system found, disable
 			log.warning(prefix + " No economy found!");
 			this.getServer().getPluginManager().disablePlugin(this);
+			economyFound = false;
 		}
 	}
 

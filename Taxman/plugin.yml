@@ -1,6 +1,6 @@
 name: CashFlow
 main: mveritym.cashflow.CashFlow
-version: 1.0.5
+version: 1.0.6
 softdepend: [BOSEconomy7, MultiCurrency, Essentials, iCo5, iCo6]
 depend: [Vault]
 authors:

@@ -1,7 +1,6 @@
 package mveritym.cashflow;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -419,7 +418,7 @@ public class TaxManager {
 
 		String tax = conf.getString("taxes." + taxName + ".tax");
 		String receiver = conf.getString("taxes." + taxName + ".receiver");
-		Double taxRate;
+		double taxRate = 0;
 		boolean withdraw = true;
 		boolean ico5 = false;
 		if(this.cashFlow.eco.getName().equals("iConomy 5") || this.cashFlow.eco.getName().equals("Essentials Economy"))
@@ -438,7 +437,6 @@ public class TaxManager {
 		if (er.type == EconomyResponse.ResponseType.SUCCESS)
 		{
 			Player player = this.cashFlow.getServer().getPlayer(user);
-			DecimalFormat twoDForm = new DecimalFormat("#.##");
 			double balance = 0;
 			if(ico5)
 			{
@@ -457,8 +455,6 @@ public class TaxManager {
 			{
 				taxRate = Double.parseDouble(tax);
 			}
-
-			taxRate = Double.valueOf(twoDForm.format(taxRate));
 			if (balance != 0)
 			{
 				if (balance < taxRate)
