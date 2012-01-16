@@ -450,6 +450,7 @@ public class TaxManager {
 			{
 				taxRate = Double.parseDouble(tax.split("%")[0]) / 100.0;
 				taxRate *= balance;
+				//TODO format to double digits correctly
 			}
 			else
 			{
