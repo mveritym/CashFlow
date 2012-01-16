@@ -501,7 +501,7 @@ public class SalaryManager {
 		String employer = conf
 				.getString("salaries." + salaryName + ".employer");
 		boolean ico5 = false;
-		if(this.cashFlow.eco.getName().equals("iConomy 5"))
+		if(this.cashFlow.eco.getName().equals("iConomy 5") || this.cashFlow.eco.getName().equals("Essentials Economy"))
 		{
 			ico5 = true;
 		}
