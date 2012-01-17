@@ -94,7 +94,7 @@ public class CashFlow extends JavaPlugin {
 		this.saveConfig();
 		// Disable taxes/salaries and finish the buffers if any exist
 		// thus no economy changes are lost
-		log.info(prefix + " " + " Finishing tax/salary buffers...");
+		log.info(prefix + " Finishing tax/salary buffers...");
 		if(economyFound)
 		{
 			taxManager.disable();

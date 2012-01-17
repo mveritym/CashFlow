@@ -505,7 +505,7 @@ public class SalaryManager {
 		{
 			ico5 = true;
 		}
-		EconomyResponse er = new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "EconomyResponse object not initialized.");
+		EconomyResponse er = new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Not initialized.");
 		if(ico5)
 		{
 			er = this.cashFlow.eco.depositPlayer(user, 0);
@@ -528,7 +528,7 @@ public class SalaryManager {
 				}
 				else
 				{
-					tempSalary = this.cashFlow.eco.bankBalance(employer).amount;
+					tempSalary = this.cashFlow.eco.bankBalance(employer).balance;
 				}
 				if (tempSalary != 0)
 				{
