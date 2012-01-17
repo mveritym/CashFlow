@@ -421,7 +421,7 @@ public class TaxManager {
 		double taxRate = 0;
 		boolean withdraw = true;
 		boolean ico5 = false;
-		if(this.cashFlow.eco.getName().equals("iConomy 5") || this.cashFlow.eco.getName().equals("Essentials Economy"))
+		if(this.cashFlow.eco.getName().equals("iConomy 5") || this.cashFlow.eco.getName().equals("Essentials Economy") || this.cashFlow.eco.getName().equals("BOSEconomy"))
 		{
 			ico5 = true;
 		}

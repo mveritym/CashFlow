@@ -501,7 +501,7 @@ public class SalaryManager {
 		String employer = conf
 				.getString("salaries." + salaryName + ".employer");
 		boolean ico5 = false;
-		if(this.cashFlow.eco.getName().equals("iConomy 5") || this.cashFlow.eco.getName().equals("Essentials Economy"))
+		if(this.cashFlow.eco.getName().equals("iConomy 5") || this.cashFlow.eco.getName().equals("Essentials Economy") || this.cashFlow.eco.getName().equals("BOSEconomy"))
 		{
 			ico5 = true;
 		}
@@ -524,7 +524,7 @@ public class SalaryManager {
 				double tempSalary = 0;
 				if(ico5)
 				{
-					tempSalary = this.cashFlow.eco.getBalance(user);
+					tempSalary = this.cashFlow.eco.getBalance(employer);
 				}
 				else
 				{
