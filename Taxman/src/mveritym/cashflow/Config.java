@@ -17,7 +17,7 @@ public class Config {
 	public Config(CashFlow plugin)
 	{
 		cf = plugin;
-		ConfigurationSection config = cf.getConfig();
+		final ConfigurationSection config = cf.getConfig();
 		//Hashmap of defaults
 		final Map<String, Object> defaults = new HashMap<String, Object>();
 		defaults.put("world", "world");
@@ -44,6 +44,13 @@ public class Config {
 	public void save()
 	{
 		cf.saveConfig();
+	}
+
+	public void reload()
+	{
+		cf.reloadConfig();
+		final ConfigurationSection config = cf.getConfig();
+		debug = config.getBoolean("debug", false);
 	}
 
 	public void setProperty(String path, Object o) {

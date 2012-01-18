@@ -25,7 +25,7 @@ public class Buffer implements Runnable {
 		return _instance;
 	}
 
-	public void start()
+	public synchronized void start()
 	{
 		if(id == -1)
 		{
@@ -37,14 +37,14 @@ public class Buffer implements Runnable {
 		}
 	}
 
-	public void setup(CashFlow cf, TaxManager rm, SalaryManager sm)
+	public synchronized void setup(CashFlow cf, TaxManager rm, SalaryManager sm)
 	{
 		plugin = cf;
 		taxManager = rm;
 		salaryManager = sm;
 	}
 
-	public boolean buffering()
+	public synchronized boolean buffering()
 	{
 		if(!queue.isEmpty())
 		{
@@ -67,7 +67,7 @@ public class Buffer implements Runnable {
 	//actually edited the account. And possibly, if it fails, then keep
 	//it in the buffer until it resolves?
 	@Override
-	public void run() {
+	public synchronized void run() {
 		if(!queue.isEmpty())
 		{
 			//Generate array
@@ -81,6 +81,7 @@ public class Buffer implements Runnable {
 					final Tax t = array[i];
 					try
 					{
+						//TODO Inconsistent synchronization of mveritym.cashflow.Buffer.taxManager; locked 66% of time
 						if(t.tax)
 						{
 							//Pay tax
@@ -132,10 +133,9 @@ public class Buffer implements Runnable {
 		}
 	}
 
-	class Tax
+	static class Tax
 	{
 		String user, contract;
-		double amount;
 		boolean tax;
 
 		public Tax(String n, String r, boolean t)

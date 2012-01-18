@@ -12,6 +12,7 @@ import org.anjocaido.groupmanager.dataholder.WorldDataHolder;
 import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;*/
 import net.milkbowl.vault.permission.Permission;
 
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -498,8 +499,8 @@ public class PermissionsManager {
 					}
 				}
 			}
-			sender.sendMessage(cashflow.prefix
-					+ " Done importing players from " + worldName + " into database");
+			sender.sendMessage(ChatColor.GREEN + cashflow.prefix
+					+ " Done importing players from '" + ChatColor.GRAY + worldName + ChatColor.GREEN + "' into database");
 			cashflow.log.info(cashflow.prefix
 					+ " Done importing players from " + worldName + " into database");
 		}

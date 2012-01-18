@@ -1,6 +1,6 @@
 name: CashFlow
 main: mveritym.cashflow.CashFlow
-version: 1.0.8
+version: 1.0.9
 softdepend: [BOSEconomy7, MultiCurrency, Essentials, iCo5, iCo6]
 depend: [Vault]
 authors:
@@ -23,8 +23,8 @@ commands:
            /<command> info <taxname> - Lists information about a tax
            /<command> setonlineonly <taxname> <true|false> [interval] - Sets a particular tax to be collected only from players who have been online in the last x hours.
            /<command> setrate <taxname> <tax> - Sets the tax rate
-           /<command> enable <salaryname> - Enables given salary.
-           /<command> disable <salaryname> - Disables given salary.
+           /<command> enable <salaryname> - Enables given tax.
+           /<command> disable <salaryname> - Disables given tax.
     salary:
       description: Provides access to salary commands.
       usage: |

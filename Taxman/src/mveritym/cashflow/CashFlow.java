@@ -6,11 +6,6 @@ import lib.PatPeter.SQLibrary.SQLite;
 
 import net.milkbowl.vault.economy.Economy;
 
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -25,7 +20,6 @@ public class CashFlow extends JavaPlugin {
 	public PluginManager pluginManager;
 	public TaxManager taxManager;
 	public SalaryManager salaryManager;
-	public CommandManager commandManager;
 	public PermissionsManager permsManager;
 	public Economy eco;
 	public Plugin plugin;
@@ -74,12 +68,17 @@ public class CashFlow extends JavaPlugin {
 		buffer.setup(this, taxManager, salaryManager);
 		buffer.start();
 
-		// Set up command manager
+		// Set up command exect
 		// TODO separate command manager into two separate classes
 		// Then use getCommand(command).setExector(class) for the three
 		// For salaries/taxes, since they're the same commands
 		// Just check the command label to determine which one to use
-		commandManager = new CommandManager(this, taxManager, salaryManager);
+		CashFlowCommand cashFlowCom = new CashFlowCommand(this, permsManager, taxManager, salaryManager);
+		TaxCommand taxCom = new TaxCommand(this, permsManager, taxManager);
+		SalaryCommand salaryCom = new SalaryCommand(this, permsManager, salaryManager);
+		getCommand("cashflow").setExecutor(cashFlowCom);
+		getCommand("tax").setExecutor(taxCom);
+		getCommand("salary").setExecutor(salaryCom);
 
 		log.info(prefix + " v" + info.getVersion() + " has been enabled.");
 
@@ -130,77 +129,6 @@ public class CashFlow extends JavaPlugin {
 
 	public Config getPluginConfig() {
 		return config;
-	}
-
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd,
-			String commandLabel, String[] args) {
-		boolean playerCanDo = false;
-		boolean isConsole = false;
-		Player senderPlayer = null;
-
-		if (sender instanceof Player)
-		{
-			senderPlayer = (Player) sender;
-			String node = "cashflow." + cmd.getName();
-			if (senderPlayer.isOp()
-					|| permsManager.hasPermission(senderPlayer, node))
-			{
-				playerCanDo = true;
-			}
-		}
-		else if (sender instanceof ConsoleCommandSender)
-		{
-			isConsole = true;
-		}
-
-		CashFlowCommands execCmd = CashFlowCommands.valueOf(cmd.getName());
-
-		if (playerCanDo || isConsole)
-		{
-			switch (execCmd)
-			{
-				case tax:
-					if (args.length > 0)
-					{
-						return commandManager.taxCommand(sender, args);
-					}
-					else
-					{
-						return false;
-					}
-				case salary:
-					if (args.length > 0)
-					{
-						if (commandManager == null)
-						{
-							log.severe("Command manger is null");
-						}
-						else
-						{
-							return commandManager.salaryCommand(sender, args);
-						}
-					}
-					else
-					{
-						return false;
-					}
-				case cashflow:
-					if (args.length > 0)
-					{
-						return commandManager.cashflowCommand(sender, args);
-					}
-					else
-					{
-						return false;
-					}
-				default:
-					break;
-			}
-		}
-		sender.sendMessage(ChatColor.RED
-				+ "You are not allowed to use that command.");
-		return true;
 	}
 
 	public SQLite getLiteDB() {

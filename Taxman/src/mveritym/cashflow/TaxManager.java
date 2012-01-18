@@ -31,6 +31,7 @@ public class TaxManager {
 
 	public void createTax(CommandSender sender, String name, String tax,
 			String interval, String taxReceiver) {
+		conf.reload();
 		String taxName = name;
 		double taxInterval = Double.parseDouble(interval);
 		List<String> payingGroups = null;
@@ -45,8 +46,8 @@ public class TaxManager {
 			double percentIncome = Double.parseDouble(tax.split("%")[0]);
 			if (percentIncome > 100 || percentIncome <= 0)
 			{
-				sender.sendMessage(ChatColor.RED
-						+ "Please choose a % of income between 0 and 100.");
+				sender.sendMessage(ChatColor.RED + cashFlow.prefix
+						+ " Please choose a % of income between 0 and 100.");
 				return;
 			}
 		}
@@ -54,14 +55,14 @@ public class TaxManager {
 		// Checks arguments in general.
 		if (taxInterval <= 0)
 		{
-			sender.sendMessage(ChatColor.RED
-					+ "Please choose a tax interval greater than 0.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix
+					+ " Please choose a tax interval greater than 0.");
 			return;
 		}
 		else if ((this.cashFlow.eco.bankBalance(taxReceiver).type) == EconomyResponse.ResponseType.FAILURE
 				&& !(taxReceiver.equals("null")))
 		{
-			sender.sendMessage(ChatColor.RED + "Player not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " '"+ ChatColor.GOLD + taxReceiver + ChatColor.RED + "' not found.");
 			return;
 		}
 		else
@@ -70,8 +71,8 @@ public class TaxManager {
 			{
 				if (iterator.next().equals(taxName))
 				{
-					sender.sendMessage(ChatColor.RED
-							+ "A tax with that name has already been created.");
+					sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							+ " A tax with that name has already been created.");
 					return;
 				}
 			}
@@ -90,11 +91,12 @@ public class TaxManager {
 		conf.setProperty("taxes." + taxName + ".onlineOnly.interval", 0.0);
 		conf.save();
 
-		sender.sendMessage(ChatColor.GREEN + "New tax " + taxName
-				+ " created successfully.");
+		sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + "New tax '" + ChatColor.GRAY + taxName
+				+ ChatColor.GREEN + "' created successfully.");
 	}
 
 	public void deleteTax(CommandSender sender, String name) {
+		conf.reload();
 		String taxName = name;
 
 		taxes = conf.getStringList("taxes.list");
@@ -115,21 +117,22 @@ public class TaxManager {
 			conf.removeProperty("taxes." + taxName);
 			conf.save();
 
-			sender.sendMessage(ChatColor.GREEN + "Tax " + taxName
-					+ " deleted successfully.");
+			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + "Tax '" + ChatColor.GRAY + taxName
+					+ ChatColor.GREEN + "' deleted successfully.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.RED + "No tax, " + taxName);
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Tax '"  + ChatColor.GRAY + taxName + ChatColor.RED + "' does not exist.");
 		}
 
 		return;
 	}
 
 	public void taxInfo(CommandSender sender, String taxName) {
-		conf.save();
+		conf.reload();
 		taxes = conf.getStringList("taxes.list");
 
+		//TODO reformat
 		if (taxes.contains(taxName))
 		{
 			sender.sendMessage(ChatColor.BLUE + "Tax: "
@@ -157,19 +160,22 @@ public class TaxManager {
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.RED + "Tax not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Tax '" + ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 		}
 
 		return;
 	}
 
 	public void listTaxes(CommandSender sender) {
-		conf.save();
+		conf.reload();
 		taxes = conf.getStringList("taxes.list");
 		iterator = taxes.listIterator();
 
 		if (taxes.size() != 0)
 		{
+			//Header
+			sender.sendMessage(ChatColor.RED + "=====" + ChatColor.WHITE
+					+ "Tax List" + ChatColor.RED + "=====");
 			while (iterator.hasNext())
 			{
 				sender.sendMessage(ChatColor.BLUE + iterator.next());
@@ -177,12 +183,12 @@ public class TaxManager {
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.RED + "No taxes to list.");
+			sender.sendMessage(ChatColor.RED  + cashFlow.prefix + " No taxes to list.");
 		}
 	}
 
 	public void addGroups(CommandSender sender, String taxName, String groups) {
-		conf.save();
+		conf.reload();
 		String[] groupNames = groups.split(",");
 		for (String name : groupNames)
 		{
@@ -191,22 +197,22 @@ public class TaxManager {
 	}
 
 	public void addGroup(CommandSender sender, String taxName, String groupName) {
-		conf.save();
+		conf.reload();
 		taxes = conf.getStringList("taxes.list");
 		payingGroups = conf.getStringList("taxes." + taxName + ".payingGroups");
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + "Tax not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Tax '" +ChatColor.GRAY + taxName + ChatColor.RED+ "' not found.");
 		}
 		else if (!(this.cashFlow.permsManager.isGroup(groupName)))
 		{
-			sender.sendMessage(ChatColor.RED + "Group not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Group '" + ChatColor.GOLD + groupName + ChatColor.RED+"' not found.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GOLD + taxName + ChatColor.GREEN
-					+ " applied successfully to " + ChatColor.GRAY + groupName);
+			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix +" "+ChatColor.GRAY + taxName + ChatColor.GREEN
+					+ " applied successfully to " + ChatColor.GOLD + groupName);
 			payingGroups.add(groupName);
 			conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
 			conf.save();
@@ -216,7 +222,7 @@ public class TaxManager {
 	}
 
 	public void addPlayers(CommandSender sender, String taxName, String players) {
-		conf.save();
+		conf.reload();
 		String[] playerNames = players.split(",");
 		for (String name : playerNames)
 		{
@@ -226,29 +232,29 @@ public class TaxManager {
 
 	public void addPlayer(CommandSender sender, String taxName,
 			String playerName) {
-		conf.save();
+		conf.reload();
 		taxes = conf.getStringList("taxes.list");
 		payingPlayers = conf.getStringList("taxes." + taxName
 				+ ".payingPlayers");
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + "Tax not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Tax '" + ChatColor.GRAY + taxName + ChatColor.RED +"' not found.");
 		}
 		else if (!(this.cashFlow.permsManager
 				.isPlayer(playerName.toLowerCase())))
 		{
-			sender.sendMessage(ChatColor.RED + "Player not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Player '" + ChatColor.GOLD + playerName + ChatColor.RED +"' not found.");
 		}
 		else if (payingPlayers.contains(playerName.toLowerCase()))
 		{
-			sender.sendMessage(ChatColor.RED + playerName
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " " + ChatColor.GOLD + playerName + ChatColor.RED
 					+ " is already paying this tax.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GOLD + taxName + ChatColor.GREEN
-					+ " applied successfully to " + ChatColor.GRAY + playerName);
+			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " " + ChatColor.GRAY + taxName + ChatColor.GREEN
+					+ " applied successfully to " + ChatColor.GOLD + playerName);
 			payingPlayers.add(playerName);
 			conf.setProperty("taxes." + taxName + ".payingPlayers",
 					payingPlayers);
@@ -259,7 +265,7 @@ public class TaxManager {
 	}
 
 	public void removeGroups(CommandSender sender, String taxName, String groups) {
-		conf.save();
+		conf.reload();
 		String[] groupNames = groups.split(",");
 		for (String name : groupNames)
 		{
@@ -269,22 +275,22 @@ public class TaxManager {
 
 	public void removeGroup(CommandSender sender, String taxName,
 			String groupName) {
-		conf.save();
+		conf.reload();
 		taxes = conf.getStringList("taxes.list");
 		payingGroups = conf.getStringList("taxes." + taxName + ".payingGroups");
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + "Tax not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Tax '" + ChatColor.GRAY + taxName + ChatColor.RED +"' not found.");
 		}
 		else if (!(payingGroups.contains(groupName)))
 		{
-			sender.sendMessage(ChatColor.RED + "Group not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Group '" + ChatColor.GOLD + groupName + ChatColor.RED +"' not found.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GOLD + taxName + ChatColor.GREEN
-					+ " removed successfully from " + ChatColor.GRAY + groupName);
+			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " " + ChatColor.GRAY + taxName + ChatColor.GREEN
+					+ " removed successfully from " + ChatColor.GOLD + groupName);
 			payingGroups.remove(groupName);
 			conf.setProperty("taxes." + taxName + ".payingGroups", payingGroups);
 			conf.save();
@@ -293,7 +299,7 @@ public class TaxManager {
 
 	public void removePlayers(CommandSender sender, String taxName,
 			String players) {
-		conf.save();
+		conf.reload();
 		String[] playerNames = players.split(",");
 		for (String name : playerNames)
 		{
@@ -303,23 +309,23 @@ public class TaxManager {
 
 	public void removePlayer(CommandSender sender, String taxName,
 			String playerName) {
-		conf.save();
+		conf.reload();
 		taxes = conf.getStringList("taxes.list");
 		payingPlayers = conf.getStringList("taxes." + taxName
 				+ ".payingPlayers");
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + "Tax not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Tax '"+ ChatColor.GRAY + taxName + ChatColor.RED +"' not found.");
 		}
 		else if (!(payingPlayers.contains(playerName)))
 		{
-			sender.sendMessage(ChatColor.RED + "Player not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Player '" + ChatColor.GOLD + playerName + ChatColor.RED + "' not found.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GOLD + taxName + ChatColor.GREEN
-					+ " removed successfully from " + ChatColor.GRAY  + playerName);
+			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " "  + ChatColor.GRAY + taxName + ChatColor.GREEN
+					+ " removed successfully from " + ChatColor.GOLD  + playerName);
 			payingPlayers.remove(playerName);
 			conf.setProperty("taxes." + taxName + ".payingPlayers",
 					payingPlayers);
@@ -328,7 +334,7 @@ public class TaxManager {
 	}
 
 	public void enable() {
-		conf.save();
+		conf.reload();
 		taxes = conf.getStringList("taxes.list");
 
 		for (String taxName : taxes)
@@ -339,6 +345,7 @@ public class TaxManager {
 
 	public void enableTax(String tax)
 	{
+		conf.reload();
 		boolean has = false;
 		for(Taxer t : taxTasks.toArray(new Taxer[0]))
 		{
@@ -351,14 +358,14 @@ public class TaxManager {
 		if(!has)
 		{
 			Double hours = conf.getDouble(("taxes." + tax + ".taxInterval"), 1);
-			this.cashFlow.log.info(this.cashFlow.prefix + " Enabling " + tax);
+			this.cashFlow.log.info(cashFlow.prefix + " Enabling " + tax);
 			Taxer taxer = new Taxer(this, tax, hours);
 			taxTasks.add(taxer);
 		}
 	}
 
 	public List<String> checkOnline(List<String> users, Double interval) {
-		conf.save();
+		conf.reload();
 		List<String> tempPlayerList = new ArrayList<String>();
 		for (String player : users)
 		{
@@ -396,7 +403,7 @@ public class TaxManager {
 	}
 
 	public void payTax(String taxName) {
-		conf.save();
+		conf.reload();
 
 		List<String> users = this.getUsers(taxName);
 
@@ -414,7 +421,7 @@ public class TaxManager {
 	}
 
 	public void payTaxToUser(String user, String taxName) {
-		conf.save();
+		conf.reload();
 
 		String tax = conf.getString("taxes." + taxName + ".tax");
 		String receiver = conf.getString("taxes." + taxName + ".receiver");
@@ -477,7 +484,9 @@ public class TaxManager {
 				{
 					if (player != null)
 					{
-						String message = "You have paid $" + taxRate
+						//TODO colorize
+						//TODO configurable prefix / suffix from config.
+						String message = " You have paid $" + taxRate
 								+ " in tax";
 						if (receiver.equals("null"))
 						{
@@ -487,7 +496,7 @@ public class TaxManager {
 						{
 							message += " to " + receiver + ".";
 						}
-						player.sendMessage(ChatColor.BLUE + message);
+						player.sendMessage(ChatColor.GREEN + cashFlow.prefix + ChatColor.BLUE + message);
 					}
 				}
 				else
@@ -513,9 +522,10 @@ public class TaxManager {
 						{
 							Player receiverPlayer = this.cashFlow.getServer()
 									.getPlayer(receiver);
+							//TODO colorize
 							//TODO configurable prefix / suffix from config.
-							receiverPlayer.sendMessage(ChatColor.BLUE
-									+ "You have received $" + taxRate
+							receiverPlayer.sendMessage(ChatColor.GREEN + cashFlow.prefix + ChatColor.BLUE
+									+ " You have received $" + taxRate
 									+ " in tax from " + user + ".");
 						}
 					}
@@ -534,8 +544,8 @@ public class TaxManager {
 					{
 						Player receiverPlayer = this.cashFlow.getServer()
 								.getPlayer(receiver);
-						receiverPlayer.sendMessage(ChatColor.RED
-								+ "Could not retrieve tax from " + user + ".");
+						receiverPlayer.sendMessage(ChatColor.RED + cashFlow.prefix
+								+ " Could not retrieve tax from '" + ChatColor.GOLD + user + ChatColor.RED + "'.");
 					}
 				}
 			}
@@ -543,7 +553,7 @@ public class TaxManager {
 			{
 				if (player != null)
 				{
-					String message = "No money to pay tax";
+					String message = " No money to pay tax";
 					if (receiver.equals("null"))
 					{
 						message += ".";
@@ -552,7 +562,7 @@ public class TaxManager {
 					{
 						message += " to " + receiver + ".";
 					}
-					player.sendMessage(ChatColor.BLUE + message);
+					player.sendMessage(ChatColor.RED + cashFlow.prefix + ChatColor.BLUE + message);
 				}
 			}
 		}
@@ -569,7 +579,6 @@ public class TaxManager {
 	}
 
 	public void disable() {
-		conf.save();
 		for (Taxer taxTask : taxTasks)
 		{
 			taxTask.cancel();
@@ -577,7 +586,7 @@ public class TaxManager {
 	}
 
 	public void setOnlineOnly(String taxName, Boolean online, Double interval) {
-		conf.save();
+		conf.reload();
 		conf.setProperty("taxes." + taxName + ".onlineOnly.isEnabled", online);
 		conf.setProperty("taxes." + taxName + ".onlineOnly.interval", interval);
 		conf.save();
@@ -586,24 +595,24 @@ public class TaxManager {
 
 	public void addException(CommandSender sender, String taxName,
 			String userName) {
-		conf.save();
+		conf.reload();
 		taxes = conf.getStringList("taxes.list");
 		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName
 				+ ".exceptedPlayers");
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + "Tax not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Tax '"+ ChatColor.GRAY + taxName + ChatColor.RED +"' not found.");
 		}
 		else if (taxes.contains(userName))
 		{
-			sender.sendMessage(ChatColor.RED + userName
-					+ " is already listed as excepted.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " '" + ChatColor.GOLD + userName
+					+ ChatColor.RED + "' is already listed as excepted.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + userName
-					+ " added as an exception.");
+			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " '" + ChatColor.GOLD + userName
+					+ ChatColor.GREEN + "' added as an exception.");
 			exceptedPlayers.add(userName);
 			conf.setProperty("taxes." + taxName + ".exceptedPlayers",
 					exceptedPlayers);
@@ -615,23 +624,23 @@ public class TaxManager {
 
 	public void removeException(CommandSender sender, String taxName,
 			String userName) {
-		conf.save();
+		conf.reload();
 		taxes = conf.getStringList("taxes.list");
 		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName
 				+ ".exceptedPlayers");
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + "Tax not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Tax '"+ ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 		}
 		else if (!(exceptedPlayers.contains(userName)))
 		{
-			sender.sendMessage(ChatColor.RED + "Player not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " '" + ChatColor.GOLD + userName + ChatColor.RED +"' not found.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + userName
-					+ " removed as an exception.");
+			sender.sendMessage(ChatColor.GREEN +cashFlow.prefix+ " '" + ChatColor.GOLD + userName
+					+ ChatColor.GREEN + "' removed as an exception.");
 			exceptedPlayers.remove(userName);
 			conf.setProperty("taxes." + taxName + ".exceptedPlayers",
 					exceptedPlayers);
@@ -640,12 +649,12 @@ public class TaxManager {
 	}
 
 	public void setRate(CommandSender sender, String taxName, String tax) {
-		conf.save();
+		conf.reload();
 		taxes = conf.getStringList("taxes.list");
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + "Tax not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Tax '"+ ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 			return;
 		}
 		else if (tax.contains("%"))
@@ -653,15 +662,15 @@ public class TaxManager {
 			double percentIncome = Double.parseDouble(tax.split("%")[0]);
 			if (percentIncome > 100 || percentIncome <= 0)
 			{
-				sender.sendMessage(ChatColor.RED
-						+ "Please choose a % of income between 0 and 100.");
+				sender.sendMessage(ChatColor.RED + cashFlow.prefix
+						+ " Please choose a % of income between 0 and 100.");
 				return;
 			}
 		}
 
 		conf.setProperty("taxes." + taxName + ".tax", tax);
 		conf.save();
-		sender.sendMessage(ChatColor.GREEN + "Rate of tax " + taxName
-				+ " is set to " + tax + ".");
+		sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " Rate of tax '" +ChatColor.GRAY + taxName
+				+ ChatColor.GREEN + "' is set to '" +ChatColor.LIGHT_PURPLE + tax + ChatColor.GREEN + "'.");
 	}
 }

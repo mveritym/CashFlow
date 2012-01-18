@@ -756,6 +756,7 @@ public class CommandManager {
 				{
 					sender.sendMessage(ChatColor.RED + "World name not given.");
 				}
+				return false;
 			case status:
 				for (Taxer t : this.taxManager.taxTasks)
 				{
