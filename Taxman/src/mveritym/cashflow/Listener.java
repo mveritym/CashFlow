@@ -22,6 +22,7 @@ public class Listener extends PlayerListener {
     {
 		//Update last on time for player
 		cf.getLiteDB().standardQuery("UPDATE 'cashflow' SET laston='" + System.currentTimeMillis() + "' WHERE playername='" + event.getPlayer().getName() + "';");
+		//TODO need another database boolean to determine to check or not for specific interval slot
     }
 
 	@Override
