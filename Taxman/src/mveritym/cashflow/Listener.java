@@ -20,7 +20,8 @@ public class Listener extends PlayerListener {
 	@Override
 	public void onPlayerQuit(final PlayerQuitEvent event)
     {
-
+		//Update last on time for player
+		cf.getLiteDB().standardQuery("UPDATE 'cashflow' SET laston='" + System.currentTimeMillis() + "' WHERE playername='" + event.getPlayer().getName() + "';");
     }
 
 	@Override

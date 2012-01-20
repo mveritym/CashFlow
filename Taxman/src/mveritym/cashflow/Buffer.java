@@ -35,7 +35,7 @@ public class Buffer implements Runnable {
 		}
 		if(id == -1)
 		{
-			plugin.log.severe("Could not schedule buffer task.");
+			plugin.log.severe("Could not schedule buffer task!");
 		}
 		else
 		{
