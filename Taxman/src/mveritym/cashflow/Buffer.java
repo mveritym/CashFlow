@@ -1,5 +1,7 @@
 package mveritym.cashflow;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,12 +10,12 @@ public class Buffer implements Runnable {
 	private CashFlow plugin;
 	private TaxManager taxManager;
 	private SalaryManager salaryManager;
-	private List<Tax> queue =  new ArrayList<Tax>();
+	private final List<Tax> queue =  new ArrayList<Tax>();
 	private int id = -1;
 
 	private Buffer()
 	{
-
+		//Empty constructor
 	}
 
 	public static synchronized Buffer getInstance()
@@ -34,6 +36,38 @@ public class Buffer implements Runnable {
 		if(id == -1)
 		{
 			plugin.log.severe("Could not schedule buffer task.");
+		}
+		else
+		{
+			//Add old entries into buffer
+			try
+			{
+				final ResultSet rs = plugin.getLiteDB().select("SELECT * FROM 'buffer'");
+				if(rs.next())
+				{
+					do
+					{
+						final int isTax = rs.getInt("tax");
+						if(isTax == 1)
+						{
+							addToBuffer(rs.getString("name"), rs.getString("contract"), true);
+						}
+						else
+						{
+							addToBuffer(rs.getString("name"), rs.getString("contract"), false);
+						}
+					}while(rs.next());
+					plugin.log.info(plugin.prefix + " Added old entries into buffer");
+				}
+				rs.close();
+				//Clear buffer table of entries
+				plugin.getLiteDB().standardQuery("DELETE * FROM 'buffer'");
+			}
+			catch (SQLException e)
+			{
+				plugin.log.warning(plugin.prefix + " SQL Exception");
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -101,11 +135,9 @@ public class Buffer implements Runnable {
 		}
 	}
 
-	//TODO Although, I don't want to do that here because this is called
-	//when the server is being stopped/plugin is disabled. And if it doesn't
-	//work out, then it'd be in a continuous loop :\
-	//TODO also, catch the null pointer exception from iconomy. Happens on server stop.
-	// Might have to save the buffer instead...?
+	/**
+	 * Save the buffer to table
+	 */
 	public synchronized void cancelBuffer()
 	{
 		if(id != -1)
@@ -119,12 +151,12 @@ public class Buffer implements Runnable {
 				{
 					if(tax.tax)
 					{
-						//Pay tax
-						taxManager.payTaxToUser(tax.user, tax.contract);
+						//Save tax
+						plugin.getLiteDB().standardQuery("INSERT INTO 'buffer' (name,contract,tax) VALUES('" + tax.user +"','" + tax.contract + "','1');");
 					}
 					else
 					{
-						salaryManager.paySalaryToUser(tax.user, tax.contract);
+						plugin.getLiteDB().standardQuery("INSERT INTO 'buffer' (name,contract,tax) VALUES('" + tax.user +"','" + tax.contract + "','0');");
 					}
 				}
 			}

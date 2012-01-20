@@ -42,13 +42,19 @@ public class CashFlow extends JavaPlugin {
 		{
 			log.info(prefix + " Created master list table");
 			// Master table
-			database.createTable("CREATE TABLE `cashflow` (`playername` varchar(32) NOT NULL, `laston` REAL, UNIQUE(`playername`);");
+			database.createTable("CREATE TABLE `cashflow` (`playername` varchar(32) NOT NULL, `laston` REAL, UNIQUE(`playername`));");
 		}
 		if (!database.checkTable("lastpaid"))
 		{
 			log.info(prefix + " Created lastpaid table");
 			// Tax/Salary table for last paid
-			database.createTable("CREATE TABLE `lastpaid` (`contract` TEXT NOT NULL, `date` REAL, UNIQUE(`contract`);");
+			database.createTable("CREATE TABLE `lastpaid` (`contract` TEXT NOT NULL, `date` REAL, UNIQUE(`contract`));");
+		}
+		if (!database.checkTable("buffer"))
+		{
+			log.info(prefix + " Created buffer table");
+			// Table to save buffer items
+			database.createTable("CREATE TABLE `buffer` (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
 		}
 	}
 
@@ -98,11 +104,11 @@ public class CashFlow extends JavaPlugin {
 		this.saveConfig();
 		// Disable taxes/salaries and finish the buffers if any exist
 		// thus no economy changes are lost
-		log.info(prefix + " Finishing tax/salary buffers...");
 		if(economyFound)
 		{
 			taxManager.disable();
 			salaryManager.disable();
+			log.info(prefix + " Saving buffer...");
 			Buffer.getInstance().cancelBuffer();
 		}
 		// Disconnect from sql database? Dunno if necessary
@@ -110,6 +116,7 @@ public class CashFlow extends JavaPlugin {
 		{
 			// Close connection
 			database.close();
+			log.info(prefix + " Closed database connection.");
 		}
 		log.info(prefix + " v" + info.getVersion() + " has been disabled.");
 	}
