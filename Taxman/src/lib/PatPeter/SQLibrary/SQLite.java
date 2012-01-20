@@ -170,18 +170,6 @@ public class SQLite extends DatabaseHandler {
 
 		while (!passed && count < timeout) {
 			try {
-				//WARN ODR_OPEN_DATABASE_RESOURCE
-				/*
-				 * The method creates a database resource
-				 * (such as a database connection or row set),
-				 * does not assign it to any fields, pass it to other
-				 * methods, or return it, and does not appear to close
-				 * the object on all paths out of the method.
-				 * Failure to close database resources on all paths out
-				 * of a method may result in poor performance, and could
-				 *  cause the application to have problems communicating
-				 *   with the database.
-				 */
 				statement = connection.createStatement();
 				statement.executeQuery(query);
 				statement.close();

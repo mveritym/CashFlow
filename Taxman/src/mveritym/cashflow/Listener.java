@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class Listener extends PlayerListener {
 	// Class variables
@@ -16,7 +17,11 @@ public class Listener extends PlayerListener {
 		cf = plugin;
 		config = cf.getPluginConfig();
 	}
-	//TODO onPlayerQuit change player's laston time
+	@Override
+	public void onPlayerQuit(final PlayerQuitEvent event)
+    {
+
+    }
 
 	@Override
 	public void onPlayerJoin(final PlayerJoinEvent event) {

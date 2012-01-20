@@ -26,8 +26,7 @@ public class Config {
 		defaults.put("salaries.list", new ArrayList<String>());
 		defaults.put("prefix", "$");
 		defaults.put("suffix", "");
-		//TODO replace static with cf.getDescription().getVersion() for 1.1
-		defaults.put("version", 0.01);
+		defaults.put("version", cf.getDescription().getVersion());
 		boolean gen = false;
 		for(final Entry<String, Object> e : defaults.entrySet())
 		{
@@ -55,8 +54,7 @@ public class Config {
 	public void checkUpdate()
 	{
 		// Check if need to update
-		//TODO uncomment for 1.1
-		/*ConfigurationSection config = cf.getConfig();
+		ConfigurationSection config = cf.getConfig();
 		if (Double.parseDouble(cf.getDescription().getVersion()) > Double
 				.parseDouble(config.getString("version")))
 		{
@@ -65,7 +63,7 @@ public class Config {
 					cf.prefix + " Updating to v"
 							+ cf.getDescription().getVersion());
 			this.update();
-		}*/
+		}
 	}
 
 	/**
@@ -74,16 +72,15 @@ public class Config {
 	 */
 	private void update() {
 		//Grab current version
-		/*final double ver = Double.parseDouble(cf.getConfig().getString("version"));
+		final double ver = Double.parseDouble(cf.getConfig().getString("version"));
 		String query = "";
-		//TODO uncomment for 1.1 release
 		if(ver < 1.1)
 		{
 			//Update table to add laston column
 			cf.log.info(cf.prefix + " Altering cashflow table to add laston column");
 			query = "ALTER TABLE cashflow ADD laston REAL;";
 			cf.getLiteDB().standardQuery(query);
-		}*/
+		}
 	}
 
 	public void save()
