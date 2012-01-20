@@ -136,8 +136,6 @@ public class SalaryCommand implements CommandExecutor {
 								this.salaryManager.addPlayers(sender, args[2],
 										args[3]);
 							}
-							sender.sendMessage(ChatColor.RED
-									+ " Incorrect argument.");
 						}
 						else
 						{

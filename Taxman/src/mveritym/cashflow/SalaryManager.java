@@ -248,12 +248,12 @@ public class SalaryManager {
 		else if (!(this.cashFlow.permsManager
 				.isPlayer(playerName.toLowerCase())))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " '" + ChatColor.GOLD + playerName + ChatColor.RED + " not found.");
+			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " '" + ChatColor.GOLD + playerName + ChatColor.RED + "' not found.");
 		}
 		else if (paidPlayers.contains(playerName.toLowerCase()))
 		{
 			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " '" + ChatColor.GOLD + playerName
-					+ ChatColor.RED + " is already paying this tax.");
+					+ ChatColor.RED + "' is already paying this tax.");
 		}
 		else
 		{
