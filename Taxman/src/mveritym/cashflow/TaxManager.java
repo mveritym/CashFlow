@@ -485,8 +485,7 @@ public class TaxManager {
 					if (player != null)
 					{
 						//TODO colorize
-						//TODO configurable prefix / suffix from config.
-						String message = " You have paid $" + taxRate
+						String message = " You have paid "+ conf.prefix + taxRate + conf.suffix
 								+ " in tax";
 						if (receiver.equals("null"))
 						{
@@ -523,9 +522,8 @@ public class TaxManager {
 							Player receiverPlayer = this.cashFlow.getServer()
 									.getPlayer(receiver);
 							//TODO colorize
-							//TODO configurable prefix / suffix from config.
 							receiverPlayer.sendMessage(ChatColor.GREEN + cashFlow.prefix + ChatColor.BLUE
-									+ " You have received $" + taxRate
+									+ " You have received " + conf.prefix + taxRate + conf.suffix
 									+ " in tax from " + user + ".");
 						}
 					}

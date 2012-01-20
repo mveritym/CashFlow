@@ -55,7 +55,8 @@ public class Config {
 	public void checkUpdate()
 	{
 		// Check if need to update
-		ConfigurationSection config = cf.getConfig();
+		//TODO uncomment for 1.1
+		/*ConfigurationSection config = cf.getConfig();
 		if (Double.parseDouble(cf.getDescription().getVersion()) > Double
 				.parseDouble(config.getString("version")))
 		{
@@ -64,7 +65,7 @@ public class Config {
 					cf.prefix + " Updating to v"
 							+ cf.getDescription().getVersion());
 			this.update();
-		}
+		}*/
 	}
 
 	/**

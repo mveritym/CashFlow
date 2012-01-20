@@ -232,7 +232,7 @@ public class SalaryCommand implements CommandExecutor {
 										onlineInterval);
 								sender.sendMessage(ChatColor.GREEN
 										+ cashFlow.prefix
-										+ "Online only set to " + args[1]);
+										+ "Online only set to " + ChatColor.GRAY+ args[1]);
 							}
 							else
 							{
