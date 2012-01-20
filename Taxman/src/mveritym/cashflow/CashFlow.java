@@ -42,12 +42,20 @@ public class CashFlow extends JavaPlugin {
 		{
 			log.info(prefix + " Created master list table");
 			// Master table
-			database.createTable("CREATE TABLE `cashflow` (`playername` varchar(32) NOT NULL);");
+			database.createTable("CREATE TABLE `cashflow` (`playername` varchar(32) NOT NULL, `laston` REAL, UNIQUE(`playername`);");
+		}
+		if (!database.checkTable("lastpaid"))
+		{
+			log.info(prefix + " Created lastpaid table");
+			// Tax/Salary table for last paid
+			database.createTable("CREATE TABLE `lastpaid` (`contract` TEXT NOT NULL, `date` REAL, UNIQUE(`contract`);");
 		}
 	}
 
 	@Override
 	public void onEnable() {
+		//Check for updates to database:
+		config.checkUpdate();
 		pluginManager = getServer().getPluginManager();
 
 		// Register Listener
@@ -68,11 +76,7 @@ public class CashFlow extends JavaPlugin {
 		buffer.setup(this, taxManager, salaryManager);
 		buffer.start();
 
-		// Set up command exect
-		// TODO separate command manager into two separate classes
-		// Then use getCommand(command).setExector(class) for the three
-		// For salaries/taxes, since they're the same commands
-		// Just check the command label to determine which one to use
+		// Set up command executors
 		CashFlowCommand cashFlowCom = new CashFlowCommand(this, permsManager, taxManager, salaryManager);
 		TaxCommand taxCom = new TaxCommand(this, permsManager, taxManager);
 		SalaryCommand salaryCom = new SalaryCommand(this, permsManager, salaryManager);
@@ -85,6 +89,7 @@ public class CashFlow extends JavaPlugin {
 		// Enable taxes/salaries
 		taxManager.enable();
 		salaryManager.enable();
+		//TODO check the last paid and see how many times to iterate the tax/salary
 	}
 
 	@Override

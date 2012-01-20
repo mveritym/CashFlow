@@ -81,7 +81,6 @@ public class Buffer implements Runnable {
 					final Tax t = array[i];
 					try
 					{
-						//TODO Inconsistent synchronization of mveritym.cashflow.Buffer.taxManager; locked 66% of time
 						if(t.tax)
 						{
 							//Pay tax

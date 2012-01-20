@@ -16,6 +16,7 @@ public class Listener extends PlayerListener {
 		cf = plugin;
 		config = cf.getPluginConfig();
 	}
+	//TODO onPlayerQuit change player's laston time
 
 	@Override
 	public void onPlayerJoin(final PlayerJoinEvent event) {
@@ -45,7 +46,7 @@ public class Listener extends PlayerListener {
 					cf.log.warning(cf.prefix + " PlayerJoin - add new player");
 				}
 				// Add to master list
-				query = "INSERT INTO 'cashflow' VALUES('"
+				query = "INSERT INTO 'cashflow' (playername) VALUES('"
 						+ event.getPlayer().getName() + "');";
 				cf.getLiteDB().standardQuery(query);
 			}

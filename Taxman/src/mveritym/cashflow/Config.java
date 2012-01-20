@@ -12,6 +12,7 @@ public class Config {
 	//Class variables
 	private CashFlow cf;
 	public boolean debug;
+	public String prefix, suffix;
 
 
 	public Config(CashFlow plugin)
@@ -23,6 +24,10 @@ public class Config {
 		defaults.put("world", "world");
 		defaults.put("taxes.list", new ArrayList<String>());
 		defaults.put("salaries.list", new ArrayList<String>());
+		defaults.put("prefix", "$");
+		defaults.put("suffix", "");
+		//TODO replace static with cf.getDescription().getVersion() for 1.1
+		defaults.put("version", 0.01);
 		boolean gen = false;
 		for(final Entry<String, Object> e : defaults.entrySet())
 		{
@@ -36,9 +41,48 @@ public class Config {
 		{
 			cf.log.info(cf.prefix + " No CashFlow config file found. Creating config file.");
 		}
+		//Initialize variables
 		debug = config.getBoolean("debug", false);
+		prefix = config.getString("prefix", "");
+		suffix = config.getString("suffix", "");
 		//Save config
 		cf.saveConfig();
+	}
+
+	/**
+	 * Check if updates are necessary
+	 */
+	public void checkUpdate()
+	{
+		// Check if need to update
+		ConfigurationSection config = cf.getConfig();
+		if (Double.parseDouble(cf.getDescription().getVersion()) > Double
+				.parseDouble(config.getString("version")))
+		{
+			// Update to latest version
+			cf.log.info(
+					cf.prefix + " Updating to v"
+							+ cf.getDescription().getVersion());
+			this.update();
+		}
+	}
+
+	/**
+	 * This method is called to make the appropriate changes, most likely only
+	 * necessary for database schema modification, for a proper update.
+	 */
+	private void update() {
+		//Grab current version
+		/*final double ver = Double.parseDouble(cf.getConfig().getString("version"));
+		String query = "";
+		//TODO uncomment for 1.1 release
+		if(ver < 1.1)
+		{
+			//Update table to add laston column
+			cf.log.info(cf.prefix + " Altering cashflow table to add laston column");
+			query = "ALTER TABLE cashflow ADD laston REAL;";
+			cf.getLiteDB().standardQuery(query);
+		}*/
 	}
 
 	public void save()
@@ -51,6 +95,10 @@ public class Config {
 		cf.reloadConfig();
 		final ConfigurationSection config = cf.getConfig();
 		debug = config.getBoolean("debug", false);
+		//Reinitialize variables
+		debug = config.getBoolean("debug", false);
+		prefix = config.getString("prefix", "");
+		suffix = config.getString("suffix", "");
 	}
 
 	public void setProperty(String path, Object o) {
