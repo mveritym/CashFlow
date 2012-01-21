@@ -100,11 +100,11 @@ public class SalaryCommand implements CommandExecutor {
 						}
 						break;
 					case delete:
-						if (args.length == 1)
+						if (args.length == 2)
 						{
-							this.salaryManager.deleteSalary(sender, args[0]);
+							this.salaryManager.deleteSalary(sender, args[1]);
 						}
-						else if (args.length > 1)
+						else if (args.length > 2)
 						{
 							sender.sendMessage(ChatColor.RED + cashFlow.prefix
 									+ " Too many arguments.");
@@ -202,9 +202,9 @@ public class SalaryCommand implements CommandExecutor {
 						this.salaryManager.listSalaries(sender);
 						break;
 					case info:
-						if (args.length == 1)
+						if (args.length == 2)
 						{
-							this.salaryManager.salaryInfo(sender, args[0]);
+							this.salaryManager.salaryInfo(sender, args[1]);
 						}
 						else
 						{
@@ -347,7 +347,7 @@ public class SalaryCommand implements CommandExecutor {
 			catch (IllegalArgumentException e)
 			{
 				sender.sendMessage(ChatColor.RED + cashFlow.prefix
-						+ " Syntax error. For help, use /tax");
+						+ " Syntax error. For help, use /salary");
 			}
 		}
 		return true;
