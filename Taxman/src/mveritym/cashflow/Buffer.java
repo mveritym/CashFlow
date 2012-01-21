@@ -42,7 +42,7 @@ public class Buffer implements Runnable {
 			//Add old entries into buffer
 			try
 			{
-				final ResultSet rs = plugin.getLiteDB().select("SELECT * FROM 'buffer'");
+				final ResultSet rs = plugin.getLiteDB().select("SELECT * FROM 'buffer';");
 				if(rs.next())
 				{
 					do
@@ -61,7 +61,7 @@ public class Buffer implements Runnable {
 				}
 				rs.close();
 				//Clear buffer table of entries
-				plugin.getLiteDB().standardQuery("DELETE * FROM 'buffer'");
+				plugin.getLiteDB().standardQuery("DELETE FROM 'buffer'");
 			}
 			catch (SQLException e)
 			{

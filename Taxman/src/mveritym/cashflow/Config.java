@@ -161,6 +161,19 @@ public class Config {
 
 	public long getLong(String path)
 	{
-		return (long) Long.parseLong(this.getString(path));
+		final String temp = this.getString(path);
+		long l = 0;
+		if(temp != null)
+		{
+			try
+			{
+				l = Long.parseLong(temp);
+			}
+			catch(NumberFormatException e)
+			{
+				l = 0;
+			}
+		}
+		return l;
 	}
 }

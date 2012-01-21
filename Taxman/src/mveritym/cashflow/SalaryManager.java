@@ -500,7 +500,9 @@ public class SalaryManager {
 			Buffer.getInstance().addToBuffer(user, salaryName, false);
 		}
 		//Set last paid
-		conf.setProperty("salaries." + salaryName + ".lastPaid", System.currentTimeMillis());
+		final String time = "" + System.currentTimeMillis();
+		cashFlow.getConfig().set("salaries." + salaryName + ".lastPaid", time);
+		cashFlow.saveConfig();
 	}
 
 	public void paySalaryToUser(String user, String salaryName) {

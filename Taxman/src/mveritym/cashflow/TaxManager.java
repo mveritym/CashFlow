@@ -420,7 +420,9 @@ public class TaxManager {
 			Buffer.getInstance().addToBuffer(user, taxName, true);
 		}
 		//Update last paid time to current time
-		conf.setProperty("taxes." + taxName + ".lastPaid", System.currentTimeMillis());
+		final String time = "" + System.currentTimeMillis();
+		cashFlow.getConfig().set("taxes." + taxName + ".lastPaid", time);
+		cashFlow.saveConfig();
 	}
 
 	public void payTaxToUser(String user, String taxName) {

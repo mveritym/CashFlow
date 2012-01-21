@@ -190,7 +190,11 @@ public class CashFlow extends JavaPlugin {
 				}
 				//Set delay time
 				final long period = Math.round(interval * tickToHour) + 1;
-				final long delay = (long) (hoursDiff % interval);
+				long delay = (long) ((hoursDiff % interval) - (config.catchUpDelay * tickToHour));
+				if(delay < 0)
+				{
+					delay = 0;
+				}
 				tax.reschedule(delay, period);
 			}
 			//Grab all enabled salaries and check their time
@@ -212,7 +216,11 @@ public class CashFlow extends JavaPlugin {
 				}
 				// Set delay time
 				final long period = Math.round(interval * tickToHour) + 1;
-				final long delay = (long) (hoursDiff % interval);
+				long delay = (long) ((hoursDiff % interval) - (config.catchUpDelay * tickToHour));
+				if(delay < 0)
+				{
+					delay = 0;
+				}
 				salary.reschedule(delay, period);
 			}
 			log.info(prefix + " Buffered iterations + Rescheduled threads");
