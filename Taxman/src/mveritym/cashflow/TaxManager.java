@@ -78,6 +78,7 @@ public class TaxManager {
 			}
 		}
 
+		//Add to config.yml
 		taxes.add(taxName);
 		conf.setProperty("taxes.list", taxes);
 		conf.setProperty("taxes." + taxName + ".tax", tax);
@@ -418,6 +419,8 @@ public class TaxManager {
 		{
 			Buffer.getInstance().addToBuffer(user, taxName, true);
 		}
+		//Update last paid time to current time
+		conf.setProperty("taxes." + taxName + ".lastPaid", System.currentTimeMillis());
 	}
 
 	public void payTaxToUser(String user, String taxName) {

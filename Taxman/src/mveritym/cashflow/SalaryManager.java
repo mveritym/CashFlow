@@ -499,6 +499,8 @@ public class SalaryManager {
 		{
 			Buffer.getInstance().addToBuffer(user, salaryName, false);
 		}
+		//Set last paid
+		conf.setProperty("salaries." + salaryName + ".lastPaid", System.currentTimeMillis());
 	}
 
 	public void paySalaryToUser(String user, String salaryName) {

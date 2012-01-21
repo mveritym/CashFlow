@@ -20,9 +20,8 @@ public class Listener extends PlayerListener {
 	@Override
 	public void onPlayerQuit(final PlayerQuitEvent event)
     {
-		//Update last on time for player
-		cf.getLiteDB().standardQuery("UPDATE 'cashflow' SET laston='" + System.currentTimeMillis() + "' WHERE playername='" + event.getPlayer().getName() + "';");
-		//TODO need another database boolean to determine to check or not for specific interval slot
+		//Update last on time for player and to check it
+		cf.getLiteDB().standardQuery("UPDATE 'cashflow' SET laston='" + System.currentTimeMillis() + "', check='1' WHERE playername='" + event.getPlayer().getName() + "';");
     }
 
 	@Override

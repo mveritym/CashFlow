@@ -124,6 +124,28 @@ public class Taxer {
 		}
 	}
 
+	public void reschedule(long delay, long period)
+	{
+		//Stop previous task
+		cancel();
+		if(taxManager != null)
+		{
+			id = taxManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(taxManager.cashFlow, new Task(), delay, period);
+			if(id == -1)
+			{
+				taxManager.cashFlow.log.severe("Could not schedule " + this.getName());
+			}
+		}
+		else if(salaryManager != null)
+		{
+			id = salaryManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(salaryManager.cashFlow, new Task(), delay, period);
+			if(id == -1)
+			{
+				salaryManager.cashFlow.log.severe("Could not schedule " + this.getName());
+			}
+		}
+	}
+
 	class Task implements Runnable {
         public void run() {
         	if(taxManager != null)

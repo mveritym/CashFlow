@@ -44,12 +44,6 @@ public class CashFlow extends JavaPlugin {
 			// Master table
 			database.createTable("CREATE TABLE `cashflow` (`playername` varchar(32) NOT NULL, `laston` REAL, UNIQUE(`playername`));");
 		}
-		if (!database.checkTable("lastpaid"))
-		{
-			log.info(prefix + " Created lastpaid table");
-			// Tax/Salary table for last paid
-			database.createTable("CREATE TABLE `lastpaid` (`contract` TEXT NOT NULL, `date` REAL, UNIQUE(`contract`));");
-		}
 		if (!database.checkTable("buffer"))
 		{
 			log.info(prefix + " Created buffer table");
@@ -95,7 +89,13 @@ public class CashFlow extends JavaPlugin {
 		// Enable taxes/salaries
 		taxManager.enable();
 		salaryManager.enable();
-		//TODO check the last paid and see how many times to iterate the tax/salary
+		//Check the last paid and see how many times to iterate the tax/salary
+		final int tickToHour = 72000;
+		int id = this.getServer().getScheduler().scheduleSyncDelayedTask(this, new CatchUp(log, config, taxManager, salaryManager, prefix), (long) (config.catchUpDelay * tickToHour));
+		if(id == -1)
+		{
+			this.log.severe("Could not schedule the CatchUp thread...");
+		}
 	}
 
 	@Override
@@ -147,4 +147,75 @@ public class CashFlow extends JavaPlugin {
 		return database;
 	}
 
+	static class CatchUp implements Runnable
+	{
+		private Logger log;
+		private Config config;
+		private TaxManager taxManager;
+		private SalaryManager salaryManager;
+		private String prefix;
+
+		public CatchUp(Logger l, Config conf, TaxManager tax, SalaryManager sal, String p)
+		{
+			log = l;
+			config = conf;
+			taxManager = tax;
+			salaryManager = sal;
+			prefix = p;
+		}
+		@Override
+		public void run() {
+			//Grab current time
+			final long currentTime = System.currentTimeMillis();
+			//Unit conversion
+			final double millisecondToSecond = 0.001;
+			final long hoursToSeconds = 3600;
+			final int tickToHour = 72000;
+			//Grab all enabled taxes and check their time
+			for(Taxer tax : taxManager.taxTasks)
+			{
+				final String name = tax.getName();
+				final long past = config.getLong("taxes." + name + ".lastpaid");
+				double hoursDiff = ((currentTime - past)*millisecondToSecond)/hoursToSeconds;
+				final double interval = config.getDouble(("taxes." + name + ".taxInterval"), 1);
+				if(hoursDiff > interval)
+				{
+					//The difference in hours is greater than the interval
+					//Do the number of iterations of the specified tax
+					final double iterations = hoursDiff / interval;
+					for(int i = 0; i < iterations; i++)
+					{
+						taxManager.payTax(name);
+					}
+				}
+				//Set delay time
+				final long period = Math.round(interval * tickToHour) + 1;
+				final long delay = (long) (hoursDiff % interval);
+				tax.reschedule(delay, period);
+			}
+			//Grab all enabled salaries and check their time
+			for(Taxer salary : salaryManager.salaryTasks)
+			{
+				final String name = salary.getName();
+				final long past = config.getLong("salaries." + name + ".lastpaid");
+				double hoursDiff = ((currentTime - past)*millisecondToSecond)/hoursToSeconds;
+				final double interval = config.getDouble(("salaries." + name + ".taxInterval"), 1);
+				if(hoursDiff > interval)
+				{
+					//The difference in hours is greater than the interval
+					//Do the number of iterations of the specified tax
+					final double iterations = hoursDiff / interval;
+					for(int i = 0; i < iterations; i++)
+					{
+						salaryManager.paySalary(name);
+					}
+				}
+				// Set delay time
+				final long period = Math.round(interval * tickToHour) + 1;
+				final long delay = (long) (hoursDiff % interval);
+				salary.reschedule(delay, period);
+			}
+			log.info(prefix + " Buffered iterations + Rescheduled threads");
+		}
+	}
 }
