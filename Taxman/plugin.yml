@@ -50,7 +50,7 @@ commands:
             /<command> enable - Enables payment of taxes and salaries.
             /<command> disable - Disables payment of taxes and salaries.
             /<command> restart - Disables then enables payment of taxes and salaries. Use this to refresh timer threads.
-            /<command> setworld - Specifies the world name so you can create taxes/salaries that go to/come from offline players.
+            /<command> setworld <world> - Specifies the world name so you can create taxes/salaries that go to/come from offline players.
             /<command> addplayers <world> - adds player names from the world's player.dat files to internal database.
             /<command> status - Check status of all taxes/salaries and number of buffered operations.
 permissions:
