@@ -42,13 +42,13 @@ public class CashFlow extends JavaPlugin {
 		{
 			log.info(prefix + " Created master list table");
 			// Master table
-			database.createTable("CREATE TABLE `cashflow` (`playername` varchar(32) NOT NULL, `laston` REAL, UNIQUE(`playername`));");
+			database.createTable("CREATE TABLE cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, UNIQUE(`playername`));");
 		}
 		if (!database.checkTable("buffer"))
 		{
 			log.info(prefix + " Created buffer table");
 			// Table to save buffer items
-			database.createTable("CREATE TABLE `buffer` (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
+			database.createTable("CREATE TABLE buffer (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
 		}
 	}
 
