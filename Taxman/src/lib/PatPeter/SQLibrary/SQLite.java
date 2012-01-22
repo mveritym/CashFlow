@@ -258,12 +258,15 @@ public class SQLite extends DatabaseHandler {
 	public boolean checkTable(String table) {
 		DatabaseMetaData dbm = null;
 		try {
+			boolean has = false;
 			dbm = this.open().getMetaData();
 			ResultSet tables = dbm.getTables(null, null, table, null);
 			if (tables.next())
-			  return true;
-			else
-			  return false;
+			{
+				has = true;
+			}
+			tables.close();
+			return has;
 		} catch (SQLException e) {
 			this.writeError("Failed to check if table \"" + table + "\" exists: " + e.getMessage(), true);
 			return false;
