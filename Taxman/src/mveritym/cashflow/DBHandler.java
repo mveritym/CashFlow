@@ -94,7 +94,7 @@ public class DBHandler {
 						hasLast = true;
 					}
 					sb.append("INSERT INTO " + config.tablePrefix
-							+ "items (playename");
+							+ "cashflow (playername");
 					if (hasLast)
 					{
 						sb.append(",laston");
@@ -125,7 +125,7 @@ public class DBHandler {
 					final String contract = rs.getString("contract");
 					final int tax = rs.getInt("tax");
 					sb.append("INSERT INTO " + config.tablePrefix
-							+ "buffer (playername,contract,tax) VALUES('" + name+ "','" + contract + "','" + tax + "');");
+							+ "buffer (name,contract,tax) VALUES('" + name+ "','" + contract + "','" + tax + "');");
 					final String query = sb.toString();
 					mysql.standardQuery(query);
 					sb = new StringBuilder();
