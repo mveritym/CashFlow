@@ -62,8 +62,8 @@ public class Buffer implements Runnable {
 				}
 				rs.close();
 				//Clear buffer table of entries
-				plugin.getDatabaseHandler().standardQuery("DELETE FROM '" + plugin.getPluginConfig().tablePrefix
-					+ "buffer'");
+				plugin.getDatabaseHandler().standardQuery("DELETE FROM " + plugin.getPluginConfig().tablePrefix
+					+ "buffer");
 			}
 			catch (SQLException e)
 			{

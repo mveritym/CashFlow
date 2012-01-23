@@ -36,17 +36,17 @@ public class DBHandler {
 			mysql = new MySQL(plugin.log, plugin.prefix, config.host,
 					config.port, config.database, config.user, config.password);
 			// Check if master table exists
-			if (!mysql.checkTable("cashflow"))
+			if (!mysql.checkTable(config.tablePrefix + "cashflow"))
 			{
 				plugin.log.info(plugin.prefix + " Created master list table");
 				// Master table
-				mysql.createTable("CREATE TABLE cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, UNIQUE(`playername`));");
+				mysql.createTable("CREATE TABLE "+config.tablePrefix + "cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, `check` INTEGER, UNIQUE(`playername`));");
 			}
-			if (!mysql.checkTable("buffer"))
+			if (!mysql.checkTable(config.tablePrefix + "buffer"))
 			{
 				plugin.log.info(plugin.prefix + " Created buffer table");
 				// Table to save buffer items
-				mysql.createTable("CREATE TABLE buffer (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
+				mysql.createTable("CREATE TABLE "+config.tablePrefix + "buffer (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
 			}
 		}
 		else
@@ -59,7 +59,7 @@ public class DBHandler {
 			{
 				plugin.log.info(plugin.prefix + " Created master list table");
 				// Master table
-				sqlite.createTable("CREATE TABLE cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, UNIQUE(`playername`));");
+				sqlite.createTable("CREATE TABLE cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, `check` INTEGER, UNIQUE(`playername`));");
 			}
 			if (!sqlite.checkTable(config.tablePrefix + "buffer"))
 			{
@@ -88,10 +88,18 @@ public class DBHandler {
 				{
 					boolean hasLast = false;
 					final String name = rs.getString("playername");
-					long laston = rs.getLong("laston");
-					if (!rs.wasNull())
+					long laston = 0;
+					try
 					{
-						hasLast = true;
+						laston = rs.getLong("laston");
+						if (!rs.wasNull())
+						{
+							hasLast = true;
+						}
+					}
+					catch(SQLException noColumn)
+					{
+						//Ignore
 					}
 					sb.append("INSERT INTO " + config.tablePrefix
 							+ "cashflow (playername");

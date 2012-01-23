@@ -95,6 +95,7 @@ public class CashFlow extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		// Save config
+		this.reloadConfig();
 		this.saveConfig();
 		// Disable taxes/salaries and finish the buffers if any exist
 		// thus no economy changes are lost
