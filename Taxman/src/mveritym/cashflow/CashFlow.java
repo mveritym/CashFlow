@@ -2,8 +2,6 @@ package mveritym.cashflow;
 
 import java.util.logging.Logger;
 
-import lib.PatPeter.SQLibrary.SQLite;
-
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.event.Event;
@@ -25,7 +23,7 @@ public class CashFlow extends JavaPlugin {
 	public Plugin plugin;
 	public Config config;
 	public String prefix;
-	private SQLite database;
+	private DBHandler database;
 	private boolean economyFound;
 
 	@Override
@@ -36,20 +34,7 @@ public class CashFlow extends JavaPlugin {
 		// Grab config
 		config = new Config(this);
 		// Check if master player table exists
-		database = new SQLite(log, prefix, "database", this.getDataFolder()
-				.getAbsolutePath());
-		if (!database.checkTable("cashflow"))
-		{
-			log.info(prefix + " Created master list table");
-			// Master table
-			database.createTable("CREATE TABLE cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, UNIQUE(`playername`));");
-		}
-		if (!database.checkTable("buffer"))
-		{
-			log.info(prefix + " Created buffer table");
-			// Table to save buffer items
-			database.createTable("CREATE TABLE buffer (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
-		}
+		database = new DBHandler(this, config);
 	}
 
 	@Override
@@ -152,7 +137,7 @@ public class CashFlow extends JavaPlugin {
 		return config;
 	}
 
-	public SQLite getLiteDB() {
+	public DBHandler getDatabaseHandler() {
 		return database;
 	}
 

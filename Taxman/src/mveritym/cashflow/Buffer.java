@@ -42,7 +42,8 @@ public class Buffer implements Runnable {
 			//Add old entries into buffer
 			try
 			{
-				final ResultSet rs = plugin.getLiteDB().select("SELECT * FROM 'buffer';");
+				final ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM " + plugin.getPluginConfig().tablePrefix
+					+ "buffer;");
 				if(rs.next())
 				{
 					do
@@ -61,7 +62,8 @@ public class Buffer implements Runnable {
 				}
 				rs.close();
 				//Clear buffer table of entries
-				plugin.getLiteDB().standardQuery("DELETE FROM 'buffer'");
+				plugin.getDatabaseHandler().standardQuery("DELETE FROM '" + plugin.getPluginConfig().tablePrefix
+					+ "buffer'");
 			}
 			catch (SQLException e)
 			{
@@ -152,11 +154,13 @@ public class Buffer implements Runnable {
 					if(tax.tax)
 					{
 						//Save tax
-						plugin.getLiteDB().standardQuery("INSERT INTO 'buffer' (name,contract,tax) VALUES('" + tax.user +"','" + tax.contract + "','1');");
+						plugin.getDatabaseHandler().standardQuery("INSERT INTO " + plugin.getPluginConfig().tablePrefix
+					+ "buffer (name,contract,tax) VALUES('" + tax.user +"','" + tax.contract + "','1');");
 					}
 					else
 					{
-						plugin.getLiteDB().standardQuery("INSERT INTO 'buffer' (name,contract,tax) VALUES('" + tax.user +"','" + tax.contract + "','0');");
+						plugin.getDatabaseHandler().standardQuery("INSERT INTO " + plugin.getPluginConfig().tablePrefix
+					+ "buffer (name,contract,tax) VALUES('" + tax.user +"','" + tax.contract + "','0');");
 					}
 				}
 			}

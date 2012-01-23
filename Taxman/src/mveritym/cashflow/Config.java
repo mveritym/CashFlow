@@ -11,8 +11,8 @@ import org.bukkit.configuration.ConfigurationSection;
 public class Config {
 	// Class variables
 	private CashFlow cf;
-	public boolean debug;
-	public String prefix, suffix;
+	public boolean debug, useMySQL, importSQL;
+	public String prefix, suffix, host, port, database, user, password, tablePrefix;
 	public double catchUpDelay;
 
 	public Config(CashFlow plugin) {
@@ -26,6 +26,14 @@ public class Config {
 		defaults.put("prefix", "$");
 		defaults.put("suffix", "");
 		defaults.put("catchUpDelay", 0.08);
+		defaults.put("mysql.use", false);
+		defaults.put("mysql.host", "localhost");
+		defaults.put("mysql.port", 3306);
+		defaults.put("mysql.database", "minecraft");
+		defaults.put("mysql.user", "username");
+		defaults.put("mysql.password", "pass");
+		defaults.put("mysql.tablePrefix", "cf_");
+		defaults.put("mysql.import", false);
 		defaults.put("version", cf.getDescription().getVersion());
 		boolean gen = false;
 		for (final Entry<String, Object> e : defaults.entrySet())
@@ -46,8 +54,22 @@ public class Config {
 		prefix = config.getString("prefix", "");
 		suffix = config.getString("suffix", "");
 		catchUpDelay = config.getDouble("catchUpDelay", 0.08);
+		useMySQL = config.getBoolean("mysql.use", false);
+		host = config.getString("mysql.host", "localhost");
+		port = config.getString("mysql.port", "3306");
+		database = config.getString("mysql.database", "minecraft");
+		user = config.getString("mysql.user", "user");
+		password = config.getString("mysql.password", "password");
+		tablePrefix = config.getString("mysql.prefix", "cf_");
+		importSQL = config.getBoolean("mysql.import", false);
 		checkBounds();
 		// Save config
+		cf.saveConfig();
+	}
+
+	public void set(String path, Object o) {
+		final ConfigurationSection config = cf.getConfig();
+		config.set(path, o);
 		cf.saveConfig();
 	}
 
@@ -93,21 +115,42 @@ public class Config {
 			cf.log.info(cf.prefix
 					+ " Altering cashflow table to add laston column");
 			query = "ALTER TABLE cashflow ADD laston REAL;";
-			cf.getLiteDB().standardQuery(query);
+			cf.getDatabaseHandler().standardQuery(query);
 			// Update table to add check column
 			cf.log.info(cf.prefix
 					+ " Altering cashflow table to add check column");
 			query = "ALTER TABLE cashflow ADD check INTEGER;";
-			cf.getLiteDB().standardQuery(query);
+			cf.getDatabaseHandler().standardQuery(query);
 			//Drop unneeded lastpaid table
 			cf.log.info(cf.prefix
 					+ " Dropping lastpaid table");
 			query = "DROP TABLE lastpaid;";
-			cf.getLiteDB().standardQuery(query);
+			cf.getDatabaseHandler().standardQuery(query);
+		}
+		if(ver < 1.12)
+		{
+			//Drop newly created tables
+			cf.log.info(
+					cf.prefix
+							+ " Dropping empty tables.");
+			cf.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "cashflow;");
+			cf.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "buffer;");
+			// Update tables to have prefix
+			cf.log.info(
+					cf.prefix
+							+ " Renaming cashflow table to '" + tablePrefix +"cashflow'.");
+			query = "ALTER TABLE cashflow RENAME TO " + tablePrefix + "cashflow;";
+			cf.getDatabaseHandler().standardQuery(query);
+			cf.log.info(
+					cf.prefix
+							+ " Renaming buffer table to '" + tablePrefix +"buffer'.");
+			query = "ALTER TABLE buffer RENAME TO " + tablePrefix + "buffer;";
+			cf.getDatabaseHandler().standardQuery(query);
 		}
 		// Update version number in config.yml
 		cf.getConfig().set("version", cf.getDescription().getVersion());
 		cf.saveConfig();
+		cf.log.info(cf.prefix + " Upgrade complete");
 	}
 
 	public void save() {

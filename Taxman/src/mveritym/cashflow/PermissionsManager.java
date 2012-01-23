@@ -367,8 +367,9 @@ public class PermissionsManager {
 		final List<String> players = new ArrayList<String>();
 		try
 		{
-			final String query = "SELECT * FROM 'cashflow'";
-			final ResultSet rs = this.cashflow.getLiteDB().select(query);
+			final String query = "SELECT * FROM " + cashflow.getPluginConfig().tablePrefix
+					+ "cashflow;";
+			final ResultSet rs = this.cashflow.getDatabaseHandler().select(query);
 			if (rs.next())
 			{
 				do
@@ -402,9 +403,10 @@ public class PermissionsManager {
 		{
 			try
 			{
-				final String query = "SELECT * FROM 'cashflow' WHERE playername='"
+				final String query = "SELECT * FROM " + cashflow.getPluginConfig().tablePrefix
+					+ "cashflow WHERE playername='"
 						+ playerName + "';";
-				final ResultSet rs = this.cashflow.getLiteDB().select(query);
+				final ResultSet rs = this.cashflow.getDatabaseHandler().select(query);
 				if (rs.next())
 				{
 					has = true;
@@ -470,9 +472,10 @@ public class PermissionsManager {
 					{
 						boolean has = false;
 						// Check if player already exists
-						String query = "SELECT COUNT(*) FROM 'cashflow' WHERE playername='"
+						String query = "SELECT COUNT(*) FROM " + cashflow.getPluginConfig().tablePrefix
+					+ "cashflow WHERE playername='"
 								+ name + "';";
-						final ResultSet rs = cashflow.getLiteDB()
+						final ResultSet rs = cashflow.getDatabaseHandler()
 								.select(query);
 						if (rs.next())
 						{
@@ -486,9 +489,10 @@ public class PermissionsManager {
 						if (!has)
 						{
 							// Add to master list
-							query = "INSERT INTO 'cashflow' VALUES('" + name
+							query = "INSERT INTO " + cashflow.getPluginConfig().tablePrefix
+					+ "cashflow VALUES('" + name
 									+ "');";
-							cashflow.getLiteDB().standardQuery(query);
+							cashflow.getDatabaseHandler().standardQuery(query);
 						}
 					}
 					catch (SQLException e)

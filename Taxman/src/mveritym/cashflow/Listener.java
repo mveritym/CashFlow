@@ -21,7 +21,8 @@ public class Listener extends PlayerListener {
 	public void onPlayerQuit(final PlayerQuitEvent event)
     {
 		//Update last on time for player and to check it
-		cf.getLiteDB().standardQuery("UPDATE 'cashflow' SET laston='" + System.currentTimeMillis() + "', check='1' WHERE playername='" + event.getPlayer().getName() + "';");
+		cf.getDatabaseHandler().standardQuery("UPDATE " + config.tablePrefix
+					+ "cashflow SET laston='" + System.currentTimeMillis() + "', check='1' WHERE playername='" + event.getPlayer().getName() + "';");
     }
 
 	@Override
@@ -30,9 +31,10 @@ public class Listener extends PlayerListener {
 		{
 			cf.log.warning(cf.prefix + " PlayerJoin event");
 		}
-		String query = "SELECT COUNT(*) FROM 'cashflow' WHERE playername='"
+		String query = "SELECT COUNT(*) FROM " + config.tablePrefix
+					+ "cashflow WHERE playername='"
 				+ event.getPlayer().getName() + "';";
-		ResultSet rs = cf.getLiteDB().select(query);
+		ResultSet rs = cf.getDatabaseHandler().select(query);
 		try
 		{
 			boolean has = false;
@@ -52,9 +54,10 @@ public class Listener extends PlayerListener {
 					cf.log.warning(cf.prefix + " PlayerJoin - add new player");
 				}
 				// Add to master list
-				query = "INSERT INTO 'cashflow' (playername) VALUES('"
+				query = "INSERT INTO " + config.tablePrefix
+					+ "cashflow (playername) VALUES('"
 						+ event.getPlayer().getName() + "');";
-				cf.getLiteDB().standardQuery(query);
+				cf.getDatabaseHandler().standardQuery(query);
 			}
 		}
 		catch (SQLException e)
