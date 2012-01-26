@@ -38,15 +38,19 @@ public class DBHandler {
 			// Check if master table exists
 			if (!mysql.checkTable(config.tablePrefix + "cashflow"))
 			{
-				plugin.log.info(config.tablePrefix + " Created master list table");
+				plugin.log.info(plugin.prefix + " Created master list table");
 				// Master table
-				mysql.createTable("CREATE TABLE "+config.tablePrefix + "cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, `check` INTEGER, UNIQUE(`playername`));");
+				mysql.createTable("CREATE TABLE "
+						+ config.tablePrefix
+						+ "cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, `check` INTEGER, UNIQUE(`playername`));");
 			}
 			if (!mysql.checkTable(config.tablePrefix + "buffer"))
 			{
-				plugin.log.info(config.tablePrefix + " Created buffer table");
+				plugin.log.info(plugin.prefix + " Created buffer table");
 				// Table to save buffer items
-				mysql.createTable("CREATE TABLE "+config.tablePrefix + "buffer (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
+				mysql.createTable("CREATE TABLE "
+						+ config.tablePrefix
+						+ "buffer (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
 			}
 		}
 		else
@@ -57,15 +61,19 @@ public class DBHandler {
 			// Check if master table exists
 			if (!sqlite.checkTable(config.tablePrefix + "cashflow"))
 			{
-				plugin.log.info(config.tablePrefix + " Created master list table");
+				plugin.log.info(plugin.prefix + " Created master list table");
 				// Master table
-				sqlite.createTable("CREATE TABLE cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, `check` INTEGER, UNIQUE(`playername`));");
+				sqlite.createTable("CREATE TABLE "
+						+ config.tablePrefix
+						+ "cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, `check` INTEGER, UNIQUE(`playername`));");
 			}
 			if (!sqlite.checkTable(config.tablePrefix + "buffer"))
 			{
-				plugin.log.info(config.tablePrefix + " Created buffer table");
+				plugin.log.info(plugin.prefix + " Created buffer table");
 				// Table to save buffer items
-				sqlite.createTable("CREATE TABLE buffer (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
+				sqlite.createTable("CREATE TABLE "
+						+ config.tablePrefix
+						+ "buffer (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
 			}
 		}
 	}
@@ -97,9 +105,9 @@ public class DBHandler {
 							hasLast = true;
 						}
 					}
-					catch(SQLException noColumn)
+					catch (SQLException noColumn)
 					{
-						//Ignore
+						// Ignore
 					}
 					sb.append("INSERT INTO " + config.tablePrefix
 							+ "cashflow (playername");
@@ -110,7 +118,7 @@ public class DBHandler {
 					sb.append(") VALUES('" + name + "'");
 					if (hasLast)
 					{
-						sb.append(",'" +laston + "'");
+						sb.append(",'" + laston + "'");
 					}
 					sb.append(");");
 					final String query = sb.toString();
@@ -133,7 +141,8 @@ public class DBHandler {
 					final String contract = rs.getString("contract");
 					final int tax = rs.getInt("tax");
 					sb.append("INSERT INTO " + config.tablePrefix
-							+ "buffer (name,contract,tax) VALUES('" + name+ "','" + contract + "','" + tax + "');");
+							+ "buffer (name,contract,tax) VALUES('" + name
+							+ "','" + contract + "','" + tax + "');");
 					final String query = sb.toString();
 					mysql.standardQuery(query);
 					sb = new StringBuilder();
