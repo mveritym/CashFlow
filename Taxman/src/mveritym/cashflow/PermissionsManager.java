@@ -135,7 +135,7 @@ public class PermissionsManager {
 	 */
 	public boolean isGroup(String groupName) {
 		//bPermissions compatibility
-		if(perm.getName().equals("bPermissions"))
+		if(perm.getName().equals("bPermissions") || perm.getName().equals("bPermissions2"))
 		{
 			for(PermissionSet p : wpm.getPermissionSets())
 			{
