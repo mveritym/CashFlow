@@ -8,7 +8,7 @@
  * Date Created: 2011-08-26 19:08
  * @author PatPeter
  */
-package lib.PatPeter.SQLibrary;
+package lib.Mitsugaru.SQLibrary;
 
 /*
  * SQLite
@@ -28,7 +28,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Logger;
 
-public class SQLite extends DatabaseHandler {
+public class SQLite extends Database {
 	public String location;
 	public String name;
 	private File sqlFile;

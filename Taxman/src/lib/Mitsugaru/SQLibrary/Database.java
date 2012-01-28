@@ -1,11 +1,11 @@
 /**
  * Database Handler
  * Abstract superclass for all subclass database files.
- * 
+ *
  * Date Created: 2011-08-26 19:08
  * @author PatPeter
  */
-package lib.PatPeter.SQLibrary;
+package lib.Mitsugaru.SQLibrary;
 
 /*
  *  MySQL
@@ -29,7 +29,7 @@ import java.sql.ResultSet;
 //import java.sql.Statement;
 import java.util.logging.Logger;
 
-public abstract class DatabaseHandler {
+public abstract class Database {
 	protected Logger log;
 	protected final String PREFIX;
 	protected final String DATABASE_PREFIX;
@@ -39,19 +39,19 @@ public abstract class DatabaseHandler {
 		SELECT, INSERT, UPDATE, DELETE, DO, REPLACE, LOAD, HANDLER, CALL, // Data manipulation statements
 		CREATE, ALTER, DROP, TRUNCATE, RENAME  // Data definition statements
 	}
-	
+
 	/*
 	 *  MySQL, SQLLite
 	 */
-	
-	public DatabaseHandler(Logger log, String prefix, String dp) {
+
+	public Database(Logger log, String prefix, String dp) {
 		this.log = log;
 		this.PREFIX = prefix;
 		this.DATABASE_PREFIX = dp;
 		this.connected = false;
 		this.connection = null;
 	}
-	
+
 	/**
 	 * <b>writeInfo</b><br>
 	 * <br>
@@ -66,7 +66,7 @@ public abstract class DatabaseHandler {
 			this.log.info(this.PREFIX + this.DATABASE_PREFIX + toWrite);
 		}
 	}
-	
+
 	/**
 	 * <b>writeError</b><br>
 	 * <br>
@@ -86,7 +86,7 @@ public abstract class DatabaseHandler {
 			}
 		}
 	}
-	
+
 	/**
 	 * <b>initialize</b><br>
 	 * <br>
@@ -95,7 +95,7 @@ public abstract class DatabaseHandler {
 	 * <br>
 	 */
 	abstract boolean initialize();
-	
+
 	/**
 	 * <b>open</b><br>
 	 * <br>
@@ -105,7 +105,7 @@ public abstract class DatabaseHandler {
 	 * @return the success of the method.
 	 */
 	abstract Connection open();
-	
+
 	/**
 	 * <b>close</b><br>
 	 * <br>
@@ -114,17 +114,17 @@ public abstract class DatabaseHandler {
 	 * <br>
 	 */
 	abstract void close();
-	
+
 	/**
 	 * <b>getConnection</b><br>
 	 * <br>
-	 * &nbsp;&nbsp;Gets the connection variable 
+	 * &nbsp;&nbsp;Gets the connection variable
 	 * <br>
 	 * <br>
 	 * @return the <a href="http://download.oracle.com/javase/6/docs/api/java/sql/Connection.html">Connection</a> variable.
 	 */
 	abstract Connection getConnection();
-	
+
 	/**
 	 * <b>checkConnection</b><br>
 	 * <br>
@@ -134,7 +134,7 @@ public abstract class DatabaseHandler {
 	 * @return the status of the connection, true for up, false for down.
 	 */
 	abstract boolean checkConnection();
-	
+
 	/**
 	 * <b>query</b><br>
 	 * &nbsp;&nbsp;Sends a query to the SQL database.
@@ -144,7 +144,7 @@ public abstract class DatabaseHandler {
 	 * @return the table of results from the query.
 	 */
 	abstract ResultSet query(String query);
-	
+
 	/**
 	 * <b>prepare</b><br>
 	 * &nbsp;&nbsp;Prepares to send a query to the database.
@@ -154,7 +154,7 @@ public abstract class DatabaseHandler {
 	 * @return the prepared statement.
 	 */
 	abstract PreparedStatement prepare(String query);
-	
+
 	/**
 	 * <b>getStatement</b><br>
 	 * &nbsp;&nbsp;Determines the name of the statement and converts it into an enum.
@@ -194,7 +194,7 @@ public abstract class DatabaseHandler {
 		else
 			return Statements.SELECT;
 	}
-	
+
 	/**
 	 * <b>createTable</b><br>
 	 * <br>
@@ -205,7 +205,7 @@ public abstract class DatabaseHandler {
 	 * @return the success of the method.
 	 */
 	abstract boolean createTable(String query);
-	
+
 	/**
 	 * <b>checkTable</b><br>
 	 * <br>
@@ -216,7 +216,7 @@ public abstract class DatabaseHandler {
 	 * @return success of the method.
 	 */
 	abstract boolean checkTable(String table);
-	
+
 	/**
 	 * <b>wipeTable</b><br>
 	 * <br>

@@ -3,8 +3,8 @@ package mveritym.cashflow;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import lib.PatPeter.SQLibrary.MySQL;
-import lib.PatPeter.SQLibrary.SQLite;
+import lib.Mitsugaru.SQLibrary.MySQL;
+import lib.Mitsugaru.SQLibrary.SQLite;
 
 public class DBHandler {
 	// Class Variables
