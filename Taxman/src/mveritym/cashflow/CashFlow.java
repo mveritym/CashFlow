@@ -216,7 +216,7 @@ public class CashFlow extends JavaPlugin {
 						final double iterations = hoursDiff / interval;
 						for (int i = 0; i < iterations; i++)
 						{
-							taxManager.payTax(name);
+							salaryManager.paySalary(name);
 						}
 						delay = (long) (((hoursDiff % interval) * tickToHour) - (config.catchUpDelay * tickToHour));
 					}
