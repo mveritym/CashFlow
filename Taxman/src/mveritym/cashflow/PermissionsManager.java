@@ -74,7 +74,7 @@ public class PermissionsManager {
 				pm = PermissionsEx.getPermissionManager();
 				plugin = pluginManager.getPlugin("PermissionsEx");
 			}
-			else if (pluginName.equals("bPermissions"))
+			else if (pluginName.equals("bPermissions") || pluginName.equals("bPermissions2"))
 			{
 				wpm = Permissions.getWorldPermissionsManager();
 				permissionsSet = wpm.getPermissionSet(this.world);
@@ -337,7 +337,7 @@ public class PermissionsManager {
 			{
 				playerList = this.getPermissionsBukkitUsers(groups);
 			}
-			else if (pluginName.equals("bPermissions"))
+			else if (pluginName.equals("bPermissions") || pluginName.equals("bPermissions2"))
 			{
 				playerList = this.getbPermissionsUsers(groups);
 			}
