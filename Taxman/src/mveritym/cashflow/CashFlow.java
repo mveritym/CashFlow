@@ -4,7 +4,6 @@ import java.util.logging.Logger;
 
 import net.milkbowl.vault.economy.Economy;
 
-import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -44,9 +43,8 @@ public class CashFlow extends JavaPlugin {
 		pluginManager = getServer().getPluginManager();
 
 		// Register Listener
-		Listener listener = new Listener(this);
-		pluginManager.registerEvent(Event.Type.PLAYER_JOIN, listener,
-				Event.Priority.Monitor, this);
+		CashFlowListener listener = new CashFlowListener(this);
+		pluginManager.registerEvents(listener, this);
 		// Grab Permissions
 		permsManager = new PermissionsManager(this);
 		// Grab Economy
