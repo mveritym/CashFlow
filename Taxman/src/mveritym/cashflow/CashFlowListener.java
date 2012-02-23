@@ -7,7 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+//import org.bukkit.event.player.PlayerQuitEvent;
 
 public class CashFlowListener implements Listener {
 	// Class variables
@@ -20,7 +20,8 @@ public class CashFlowListener implements Listener {
 		config = cf.getPluginConfig();
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	//TODO implement at some future point
+	/*@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerQuit(final PlayerQuitEvent event) {
 		// Update last on time for player and to check it
 		cf.getDatabaseHandler().standardQuery(
@@ -28,7 +29,7 @@ public class CashFlowListener implements Listener {
 						+ System.currentTimeMillis()
 						+ "', check='1' WHERE playername='"
 						+ event.getPlayer().getName() + "';");
-	}
+	}*/
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(final PlayerJoinEvent event) {
