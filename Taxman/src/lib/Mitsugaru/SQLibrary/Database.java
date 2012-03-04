@@ -1,7 +1,7 @@
 /**
  * Database Handler
  * Abstract superclass for all subclass database files.
- *
+ * 
  * Date Created: 2011-08-26 19:08
  * @author PatPeter
  */
@@ -23,6 +23,8 @@ package lib.Mitsugaru.SQLibrary;
  */
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 //import java.sql.DriverManager;
 import java.sql.ResultSet;
 //import java.sql.SQLException;
@@ -35,13 +37,16 @@ public abstract class Database {
 	protected final String DATABASE_PREFIX;
 	protected boolean connected;
 	protected Connection connection;
+
 	protected enum Statements {
-		SELECT, INSERT, UPDATE, DELETE, DO, REPLACE, LOAD, HANDLER, CALL, // Data manipulation statements
-		CREATE, ALTER, DROP, TRUNCATE, RENAME  // Data definition statements
+		SELECT, INSERT, UPDATE, DELETE, DO, REPLACE, LOAD, HANDLER, CALL, // Data
+																			// manipulation
+																			// statements
+		CREATE, ALTER, DROP, TRUNCATE, RENAME // Data definition statements
 	}
 
 	/*
-	 *  MySQL, SQLLite
+	 * MySQL, SQLLite
 	 */
 
 	public Database(Logger log, String prefix, String dp) {
@@ -55,11 +60,13 @@ public abstract class Database {
 	/**
 	 * <b>writeInfo</b><br>
 	 * <br>
-	 * &nbsp;&nbsp;Writes information to the console.
+	 * &nbsp;&nbsp;Writes information to the console. <br>
 	 * <br>
-	 * <br>
-	 * @param toWrite - the <a href="http://download.oracle.com/javase/6/docs/api/java/lang/String.html">String</a>
-	 * of content to write to the console.
+	 * 
+	 * @param toWrite
+	 *            - the <a href=
+	 *            "http://download.oracle.com/javase/6/docs/api/java/lang/String.html"
+	 *            >String</a> of content to write to the console.
 	 */
 	protected void writeInfo(String toWrite) {
 		if (toWrite != null) {
@@ -70,12 +77,15 @@ public abstract class Database {
 	/**
 	 * <b>writeError</b><br>
 	 * <br>
-	 * &nbsp;&nbsp;Writes either errors or warnings to the console.
+	 * &nbsp;&nbsp;Writes either errors or warnings to the console. <br>
 	 * <br>
-	 * <br>
-	 * @param toWrite - the <a href="http://download.oracle.com/javase/6/docs/api/java/lang/String.html">String</a>
-	 * written to the console.
-	 * @param severe - whether console output should appear as an error or warning.
+	 * 
+	 * @param toWrite
+	 *            - the <a href=
+	 *            "http://download.oracle.com/javase/6/docs/api/java/lang/String.html"
+	 *            >String</a> written to the console.
+	 * @param severe
+	 *            - whether console output should appear as an error or warning.
 	 */
 	protected void writeError(String toWrite, boolean severe) {
 		if (toWrite != null) {
@@ -90,8 +100,8 @@ public abstract class Database {
 	/**
 	 * <b>initialize</b><br>
 	 * <br>
-	 * &nbsp;&nbsp;Used to check whether the class for the SQL engine is installed.
-	 * <br>
+	 * &nbsp;&nbsp;Used to check whether the class for the SQL engine is
+	 * installed. <br>
 	 * <br>
 	 */
 	abstract boolean initialize();
@@ -99,9 +109,9 @@ public abstract class Database {
 	/**
 	 * <b>open</b><br>
 	 * <br>
-	 * &nbsp;&nbsp;Opens a connection with the database.
+	 * &nbsp;&nbsp;Opens a connection with the database. <br>
 	 * <br>
-	 * <br>
+	 * 
 	 * @return the success of the method.
 	 */
 	abstract Connection open();
@@ -109,8 +119,7 @@ public abstract class Database {
 	/**
 	 * <b>close</b><br>
 	 * <br>
-	 * &nbsp;&nbsp;Closes a connection with the database.
-	 * <br>
+	 * &nbsp;&nbsp;Closes a connection with the database. <br>
 	 * <br>
 	 */
 	abstract void close();
@@ -118,78 +127,83 @@ public abstract class Database {
 	/**
 	 * <b>getConnection</b><br>
 	 * <br>
-	 * &nbsp;&nbsp;Gets the connection variable
+	 * &nbsp;&nbsp;Gets the connection variable <br>
 	 * <br>
-	 * <br>
-	 * @return the <a href="http://download.oracle.com/javase/6/docs/api/java/sql/Connection.html">Connection</a> variable.
+	 * 
+	 * @return the <a href=
+	 *         "http://download.oracle.com/javase/6/docs/api/java/sql/Connection.html"
+	 *         >Connection</a> variable.
 	 */
 	abstract Connection getConnection();
 
 	/**
 	 * <b>checkConnection</b><br>
 	 * <br>
-	 * Checks the connection between Java and the database engine.
+	 * Checks the connection between Java and the database engine. <br>
 	 * <br>
-	 * <br>
+	 * 
 	 * @return the status of the connection, true for up, false for down.
 	 */
 	abstract boolean checkConnection();
 
 	/**
 	 * <b>query</b><br>
-	 * &nbsp;&nbsp;Sends a query to the SQL database.
+	 * &nbsp;&nbsp;Sends a query to the SQL database. <br>
 	 * <br>
-	 * <br>
-	 * @param query - the SQL query to send to the database.
+	 * 
+	 * @param query
+	 *            - the SQL query to send to the database.
 	 * @return the table of results from the query.
+	 * 
+	 *         abstract ResultSet query(String query);
 	 */
-	abstract ResultSet query(String query);
 
 	/**
 	 * <b>prepare</b><br>
-	 * &nbsp;&nbsp;Prepares to send a query to the database.
+	 * &nbsp;&nbsp;Prepares to send a query to the database. <br>
 	 * <br>
-	 * <br>
-	 * @param query - the SQL query to prepare to send to the database.
+	 * 
+	 * @param query
+	 *            - the SQL query to prepare to send to the database.
 	 * @return the prepared statement.
 	 */
 	abstract PreparedStatement prepare(String query);
 
 	/**
 	 * <b>getStatement</b><br>
-	 * &nbsp;&nbsp;Determines the name of the statement and converts it into an enum.
-	 * <br>
+	 * &nbsp;&nbsp;Determines the name of the statement and converts it into an
+	 * enum. <br>
 	 * <br>
 	 */
 	protected Statements getStatement(String query) {
 		String trimmedQuery = query.trim();
-		if (trimmedQuery.substring(0,6).equalsIgnoreCase("SELECT"))
+		if (trimmedQuery.substring(0, 6).equalsIgnoreCase("SELECT"))
 			return Statements.SELECT;
-		else if (trimmedQuery.substring(0,6).equalsIgnoreCase("INSERT"))
+		else if (trimmedQuery.substring(0, 6).equalsIgnoreCase("INSERT"))
 			return Statements.INSERT;
-		else if (trimmedQuery.substring(0,6).equalsIgnoreCase("UPDATE"))
+		else if (trimmedQuery.substring(0, 6).equalsIgnoreCase("UPDATE"))
 			return Statements.UPDATE;
-		else if (trimmedQuery.substring(0,6).equalsIgnoreCase("DELETE"))
+		else if (trimmedQuery.substring(0, 6).equalsIgnoreCase("DELETE"))
 			return Statements.DELETE;
-		else if (trimmedQuery.substring(0,6).equalsIgnoreCase("CREATE"))
+		else if (trimmedQuery.substring(0, 6).equalsIgnoreCase("CREATE"))
 			return Statements.CREATE;
-		else if (trimmedQuery.substring(0,5).equalsIgnoreCase("ALTER"))
+		else if (trimmedQuery.substring(0, 5).equalsIgnoreCase("ALTER"))
 			return Statements.ALTER;
-		else if (trimmedQuery.substring(0,4).equalsIgnoreCase("DROP"))
+		else if (trimmedQuery.substring(0, 4).equalsIgnoreCase("DROP"))
 			return Statements.DROP;
-		else if (trimmedQuery.substring(0,8).equalsIgnoreCase("TRUNCATE"))
+		else if (trimmedQuery.substring(0, 8).equalsIgnoreCase("TRUNCATE"))
 			return Statements.TRUNCATE;
-		else if (trimmedQuery.substring(0,6).equalsIgnoreCase("RENAME"))
+		else if (trimmedQuery.substring(0, 6).equalsIgnoreCase("RENAME"))
 			return Statements.RENAME;
-		else if (trimmedQuery.substring(0,2).equalsIgnoreCase("DO"))
+		else if (trimmedQuery.substring(0, 2).equalsIgnoreCase("DO"))
 			return Statements.DO;
-		else if (trimmedQuery.substring(0,7).equalsIgnoreCase("REPLACE"))
+		else if (trimmedQuery.substring(0, 7).equalsIgnoreCase("REPLACE"))
 			return Statements.REPLACE;
-		else if (trimmedQuery.substring(0,4).equalsIgnoreCase("LOAD"))
+		else if (trimmedQuery.substring(0, 4).equalsIgnoreCase("LOAD"))
 			return Statements.LOAD;
-		else if (trimmedQuery.substring(0,7).equalsIgnoreCase("HANDLER"))
+		else if (trimmedQuery.substring(0, 7).equalsIgnoreCase("HANDLER"))
 			return Statements.HANDLER;
-		else if (trimmedQuery.substring(0,4).equalsIgnoreCase("CALL"))
+		else if (trimmedQuery.substring(0, 4).equalsIgnoreCase("CALL"))
 			return Statements.CALL;
 		else
 			return Statements.SELECT;
@@ -198,10 +212,11 @@ public abstract class Database {
 	/**
 	 * <b>createTable</b><br>
 	 * <br>
-	 * &nbsp;&nbsp;Creates a table in the database based on a specified query.
+	 * &nbsp;&nbsp;Creates a table in the database based on a specified query. <br>
 	 * <br>
-	 * <br>
-	 * @param query - the SQL query for creating a table.
+	 * 
+	 * @param query
+	 *            - the SQL query for creating a table.
 	 * @return the success of the method.
 	 */
 	abstract boolean createTable(String query);
@@ -209,10 +224,11 @@ public abstract class Database {
 	/**
 	 * <b>checkTable</b><br>
 	 * <br>
-	 * &nbsp;&nbsp;Checks a table in a database based on the table's name.
+	 * &nbsp;&nbsp;Checks a table in a database based on the table's name. <br>
 	 * <br>
-	 * <br>
-	 * @param table - name of the table to check.
+	 * 
+	 * @param table
+	 *            - name of the table to check.
 	 * @return success of the method.
 	 */
 	abstract boolean checkTable(String table);
@@ -220,11 +236,38 @@ public abstract class Database {
 	/**
 	 * <b>wipeTable</b><br>
 	 * <br>
-	 * &nbsp;&nbsp;Wipes a table given its name.
+	 * &nbsp;&nbsp;Wipes a table given its name. <br>
 	 * <br>
-	 * <br>
-	 * @param table - name of the table to wipe.
+	 * 
+	 * @param table
+	 *            - name of the table to wipe.
 	 * @return success of the method.
 	 */
 	abstract boolean wipeTable(String table);
+	
+	public class Query
+	{
+		private Connection connection;
+		private Statement statement;
+		private ResultSet resultSet;
+		
+		public Query(Connection connection, Statement statement, ResultSet resultSet)
+		{
+			this.connection = connection;
+			this.statement = statement;
+			this.resultSet = resultSet;
+		}
+		
+		public ResultSet getResult()
+		{
+			return resultSet;
+		}
+		
+		public void closeQuery() throws SQLException
+		{
+			resultSet.close();
+			statement.close();
+			connection.close();
+		}
+	}
 }

@@ -1,7 +1,8 @@
 package mveritym.cashflow;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import lib.Mitsugaru.SQLibrary.Database.Query;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -39,16 +40,16 @@ public class CashFlowListener implements Listener {
 		String query = "SELECT COUNT(*) FROM " + config.tablePrefix
 				+ "cashflow WHERE playername='" + event.getPlayer().getName()
 				+ "';";
-		ResultSet rs = cf.getDatabaseHandler().select(query);
+		Query rs = cf.getDatabaseHandler().select(query);
 		try {
 			boolean has = false;
-			if (rs.next()) {
-				if (rs.getInt(1) >= 1) {
+			if (rs.getResult().next()) {
+				if (rs.getResult().getInt(1) >= 1) {
 					// They're already in the database
 					has = true;
 				}
 			}
-			rs.close();
+			rs.closeQuery();
 			if (!has) {
 				if (config.debug) {
 					cf.log.warning(cf.prefix + " PlayerJoin - add new player");

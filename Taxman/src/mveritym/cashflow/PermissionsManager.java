@@ -1,11 +1,12 @@
 package mveritym.cashflow;
 
 import java.io.File;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+
+import lib.Mitsugaru.SQLibrary.Database.Query;
 
 /*import org.anjocaido.groupmanager.GroupManager;
 import org.anjocaido.groupmanager.dataholder.WorldDataHolder;
@@ -369,15 +370,16 @@ public class PermissionsManager {
 		{
 			final String query = "SELECT * FROM " + cashflow.getPluginConfig().tablePrefix
 					+ "cashflow;";
-			final ResultSet rs = this.cashflow.getDatabaseHandler().select(query);
-			if (rs.next())
+			final Query rs = this.cashflow.getDatabaseHandler().select(query);
+			if (rs.getResult().next())
 			{
 				do
 				{
-					players.add(rs.getString("playername"));
+					players.add(rs.getResult().getString("playername"));
 				}
-				while (rs.next());
+				while (rs.getResult().next());
 			}
+			rs.closeQuery();
 		}
 		catch (SQLException e)
 		{
@@ -406,8 +408,8 @@ public class PermissionsManager {
 				final String query = "SELECT * FROM " + cashflow.getPluginConfig().tablePrefix
 					+ "cashflow WHERE playername='"
 						+ playerName + "';";
-				final ResultSet rs = this.cashflow.getDatabaseHandler().select(query);
-				if (rs.next())
+				final Query rs = this.cashflow.getDatabaseHandler().select(query);
+				if (rs.getResult().next())
 				{
 					has = true;
 				}
@@ -415,7 +417,7 @@ public class PermissionsManager {
 				{
 					has = false;
 				}
-				rs.close();
+				rs.closeQuery();
 			}
 			catch (SQLException e)
 			{
@@ -475,17 +477,17 @@ public class PermissionsManager {
 						String query = "SELECT COUNT(*) FROM " + cashflow.getPluginConfig().tablePrefix
 					+ "cashflow WHERE playername='"
 								+ name + "';";
-						final ResultSet rs = cashflow.getDatabaseHandler()
+						final Query rs = cashflow.getDatabaseHandler()
 								.select(query);
-						if (rs.next())
+						if (rs.getResult().next())
 						{
-							if (rs.getInt(1) >= 1)
+							if (rs.getResult().getInt(1) >= 1)
 							{
 								// They're already in the database
 								has = true;
 							}
 						}
-						rs.close();
+						rs.closeQuery();
 						if (!has)
 						{
 							// Add to master list

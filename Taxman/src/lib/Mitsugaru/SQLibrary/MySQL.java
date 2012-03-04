@@ -28,11 +28,6 @@ import java.util.logging.Logger;
 //import com.sun.rowset.JdbcRowSetImpl;
 
 public class MySQL extends Database {
-	public MySQL(Logger log, String prefix, String dp) {
-		super(log, prefix, dp);
-		// TODO Auto-generated constructor stub
-	}
-
 	private String hostname = "localhost";
 	private String portnmbr = "3306";
 	private String username = "minecraft";
@@ -128,23 +123,13 @@ public class MySQL extends Database {
 		return false;
 	}
 
-	public ResultSet select(String query) {
+	public Query select(String query) {
 		Connection connection = null;
 		Statement statement = null;
 		ResultSet result = null/* new JdbcRowSetImpl() */;
 		try
 		{
 			connection = open();
-			// WARN ODR_OPEN_DATABASE_RESOURCE
-			/*
-			 * The method creates a database resource (such as a database
-			 * connection or row set), does not assign it to any fields, pass it
-			 * to other methods, or return it, and does not appear to close the
-			 * object on all paths out of the method. Failure to close database
-			 * resources on all paths out of a method may result in poor
-			 * performance, and could cause the application to have problems
-			 * communicating with the database.
-			 */
 			statement = connection.createStatement();
 			result = statement.executeQuery("SELECT CURTIME()");
 
@@ -152,18 +137,18 @@ public class MySQL extends Database {
 			{
 				case SELECT:
 					result = statement.executeQuery(query);
-					return result;
+					return new Query(connection, statement, result);
 
 				default:
 					statement.executeUpdate(query);
-					return result;
+					return new Query(connection, statement, result);
 			}
 		}
 		catch (SQLException e)
 		{
 			this.writeError("Error in SQL query: " + e.getMessage(), false);
 		}
-		return result;
+		return new Query(connection, statement, result);
 	}
 
 	public void standardQuery(String query) {
@@ -268,7 +253,8 @@ public class MySQL extends Database {
 			}
 		}
 
-		if (query("SELECT * FROM " + table) == null)
+		//TODO fix
+		if (select("SELECT * FROM " + table) == null)
 			return true;
 		return false;
 	}
@@ -302,11 +288,11 @@ public class MySQL extends Database {
 		return false;
 	}
 
-	@Override
+	/*@Override
 	public ResultSet query(String query) {
 		Connection connection = null;
 		Statement statement = null;
-		ResultSet result = null/* new JdbcRowSetImpl() */;
+		ResultSet result = null/* new JdbcRowSetImpl() ;
 		try
 		{
 			connection = open();
@@ -319,7 +305,7 @@ public class MySQL extends Database {
 			 * resources on all paths out of a method may result in poor
 			 * performance, and could cause the application to have problems
 			 * communicating with the database.
-			 */
+			 
 			statement = connection.createStatement();
 			result = statement.executeQuery("SELECT CURTIME()");
 
@@ -339,5 +325,5 @@ public class MySQL extends Database {
 			this.writeError("Error in SQL query: " + e.getMessage(), false);
 		}
 		return result;
-	}
+	}*/
 }

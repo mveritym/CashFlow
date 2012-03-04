@@ -1,8 +1,8 @@
 package mveritym.cashflow;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import lib.Mitsugaru.SQLibrary.Database.Query;
 import lib.Mitsugaru.SQLibrary.MySQL;
 import lib.Mitsugaru.SQLibrary.SQLite;
 
@@ -87,20 +87,20 @@ public class DBHandler {
 			sqlite = new SQLite(plugin.log, plugin.prefix, "database", plugin
 					.getDataFolder().getAbsolutePath());
 			// Copy items
-			ResultSet rs = sqlite.select("SELECT * FROM " + config.tablePrefix
+			Query rs = sqlite.select("SELECT * FROM " + config.tablePrefix
 					+ "cashflow;");
-			if (rs.next())
+			if (rs.getResult().next())
 			{
 				plugin.log.info(plugin.prefix + " Importing master table...");
 				do
 				{
 					boolean hasLast = false;
-					final String name = rs.getString("playername");
+					final String name = rs.getResult().getString("playername");
 					long laston = 0;
 					try
 					{
-						laston = rs.getLong("laston");
-						if (!rs.wasNull())
+						laston = rs.getResult().getLong("laston");
+						if (!rs.getResult().wasNull())
 						{
 							hasLast = true;
 						}
@@ -125,21 +125,21 @@ public class DBHandler {
 					mysql.standardQuery(query);
 					sb = new StringBuilder();
 				}
-				while (rs.next());
+				while (rs.getResult().next());
 			}
-			rs.close();
+			rs.closeQuery();
 			sb = new StringBuilder();
 			// Copy players
 			rs = sqlite.select("SELECT * FROM " + config.tablePrefix
 					+ "buffer;");
-			if (rs.next())
+			if (rs.getResult().next())
 			{
 				plugin.log.info(plugin.prefix + " Importing buffer...");
 				do
 				{
-					final String name = rs.getString("name");
-					final String contract = rs.getString("contract");
-					final int tax = rs.getInt("tax");
+					final String name = rs.getResult().getString("name");
+					final String contract = rs.getResult().getString("contract");
+					final int tax = rs.getResult().getInt("tax");
 					sb.append("INSERT INTO " + config.tablePrefix
 							+ "buffer (name,contract,tax) VALUES('" + name
 							+ "','" + contract + "','" + tax + "');");
@@ -147,9 +147,9 @@ public class DBHandler {
 					mysql.standardQuery(query);
 					sb = new StringBuilder();
 				}
-				while (rs.next());
+				while (rs.getResult().next());
 			}
-			rs.close();
+			rs.closeQuery();
 			plugin.log
 					.info(plugin.prefix + " Done importing SQLite into MySQL");
 		}
@@ -185,7 +185,7 @@ public class DBHandler {
 		}
 	}
 
-	public ResultSet select(String query) {
+	public Query select(String query) {
 		if (useMySQL)
 		{
 			return mysql.select(query);

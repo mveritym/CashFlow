@@ -1,9 +1,10 @@
 package mveritym.cashflow;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import lib.Mitsugaru.SQLibrary.Database.Query;
 
 public class Buffer implements Runnable {
 	private static Buffer _instance;
@@ -42,25 +43,25 @@ public class Buffer implements Runnable {
 			//Add old entries into buffer
 			try
 			{
-				final ResultSet rs = plugin.getDatabaseHandler().select("SELECT * FROM " + plugin.getPluginConfig().tablePrefix
+				final Query rs = plugin.getDatabaseHandler().select("SELECT * FROM " + plugin.getPluginConfig().tablePrefix
 					+ "buffer;");
-				if(rs.next())
+				if(rs.getResult().next())
 				{
 					do
 					{
-						final int isTax = rs.getInt("tax");
+						final int isTax = rs.getResult().getInt("tax");
 						if(isTax == 1)
 						{
-							addToBuffer(rs.getString("name"), rs.getString("contract"), true);
+							addToBuffer(rs.getResult().getString("name"), rs.getResult().getString("contract"), true);
 						}
 						else
 						{
-							addToBuffer(rs.getString("name"), rs.getString("contract"), false);
+							addToBuffer(rs.getResult().getString("name"), rs.getResult().getString("contract"), false);
 						}
-					}while(rs.next());
+					}while(rs.getResult().next());
 					plugin.log.info(plugin.prefix + " Added old entries into buffer");
 				}
-				rs.close();
+				rs.closeQuery();
 				//Clear buffer table of entries
 				plugin.getDatabaseHandler().standardQuery("DELETE FROM " + plugin.getPluginConfig().tablePrefix
 					+ "buffer");
