@@ -206,13 +206,22 @@ public class PermissionsManager {
 					}
 				}
 			} else {
-				final Group group = permsPlugin.getGroup(groupName);
-				final List<String> groupPlayers = group.getPlayers();
-				if (groupPlayers != null) {
-					for (String player : groupPlayers) {
-						if (!(playerList.contains(player)))
-							playerList.add(player);
+				try
+				{
+					final Group group = permsPlugin.getGroup(groupName);
+					final List<String> groupPlayers = group.getPlayers();
+					if (groupPlayers != null) {
+						for (String player : groupPlayers) {
+							if (!(playerList.contains(player)))
+								playerList.add(player);
+						}
 					}
+				}
+				catch (NullPointerException e)
+				{
+					cashflow.getLogger().severe("PermissionsBukkit gave a null error for group: " + groupName);
+					cashflow.getLogger().severe("Cashflow will ignore this error. Tax/Salary will not go to players of that group.");
+					cashflow.getLogger().severe("Resultant exception: " + e.getMessage());
 				}
 			}
 		}
