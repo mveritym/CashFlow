@@ -147,6 +147,23 @@ public class Config {
 			query = "ALTER TABLE buffer RENAME TO " + tablePrefix + "buffer;";
 			cf.getDatabaseHandler().standardQuery(query);
 		}
+		if(ver < 1.184)
+		{
+			//Add new node for cashes and taxes
+			final List<String> taxes = cf.getConfig().getStringList("taxes.list");
+			for (String taxName : taxes)
+			{
+				cf.getConfig().set("taxes." + taxName + ".autoEnable", true);
+				cf.saveConfig();
+			}
+			final List<String> salaries = cf.getConfig().getStringList("salaries.list");
+			for(String salaryName : salaries)
+			{
+				cf.getConfig().set("salaries." + salaryName
+						+ ".autoEnable", true);
+				cf.saveConfig();
+			}
+		}
 		// Update version number in config.yml
 		cf.getConfig().set("version", cf.getDescription().getVersion());
 		cf.saveConfig();

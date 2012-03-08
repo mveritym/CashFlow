@@ -88,6 +88,7 @@ public class TaxManager {
 		conf.setProperty("taxes." + taxName + ".payingPlayers", payingPlayers);
 		conf.setProperty("taxes." + taxName + ".lastPaid", null);
 		conf.setProperty("taxes." + taxName + ".exceptedPlayers", null);
+		conf.setProperty("taxes." + taxName + ".autoEnable", true);
 		conf.setProperty("taxes." + taxName + ".onlineOnly.isEnabled", false);
 		conf.setProperty("taxes." + taxName + ".onlineOnly.interval", 0.0);
 		conf.save();
@@ -359,9 +360,16 @@ public class TaxManager {
 		if(!has)
 		{
 			Double hours = conf.getDouble(("taxes." + tax + ".taxInterval"), 1);
-			this.cashFlow.log.info(cashFlow.prefix + " Enabling " + tax);
 			Taxer taxer = new Taxer(this, tax, hours);
 			taxTasks.add(taxer);
+			if(!conf.getBoolean("taxes." + tax + ".autoEnable", true))
+			{
+				taxer.cancel();
+			}
+			else
+			{
+				this.cashFlow.log.info(cashFlow.prefix + " Enabling " + tax);
+			}
 		}
 	}
 

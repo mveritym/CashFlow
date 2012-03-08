@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class CashFlow extends JavaPlugin {
 
+	//TODO move to Bukkit's JavaPlugin logger
 	public final Logger log = Logger.getLogger("Minecraft");
 	public PluginDescriptionFile info;
 	public PluginManager pluginManager;

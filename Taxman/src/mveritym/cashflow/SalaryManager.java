@@ -81,6 +81,7 @@ public class SalaryManager {
 		conf.setProperty("salaries." + salaryName + ".paidPlayers", paidPlayers);
 		conf.setProperty("salaries." + salaryName + ".lastPaid", null);
 		conf.setProperty("salaries." + salaryName + ".exceptedPlayers", null);
+		conf.setProperty("salaries." + salaryName + ".autoEnable", true);
 		conf.setProperty("salaries." + salaryName + ".onlineOnly.isEnabled",
 				false);
 		conf.setProperty("salaries." + salaryName + ".onlineOnly.interval", 0.0);
@@ -368,10 +369,17 @@ public class SalaryManager {
 		{
 			Double hours = conf.getDouble(
 					("salaries." + salary + ".salaryInterval"), 1);
-			this.cashFlow.log.info(cashFlow.prefix
-					+ " Enabling " + salary);
 			Taxer taxer = new Taxer(this, salary, hours);
 			salaryTasks.add(taxer);
+			if(!conf.getBoolean("salaries." + salary + ".autoEnable", true))
+			{
+				taxer.cancel();
+			}
+			else
+			{
+				this.cashFlow.log.info(cashFlow.prefix
+					+ " Enabling " + salary);
+			}
 		}
 	}
 
