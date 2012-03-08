@@ -234,15 +234,12 @@ public class PermissionsManager {
 			final List<String> groupPlayers = getAllPlayers();
 			for (String playerName : groupPlayers) {
 				if (!(playerList.contains(playerName))) {
-					final String[] groupNames = ApiLayer.getGroups(cashflow.getServer().getWorlds().get(0).getName(), CalculableType.GROUP, playerName);
+					final String[] groupNames = ApiLayer.getGroups(cashflow.getServer().getWorlds().get(0).getName(), CalculableType.USER, playerName);
 					for(int i = 0; i < groupNames.length; i++)
 					{
 						if(groupNames[i].equals(groupName))
 						{
-							if(!playerList.contains(playerName))
-							{
-								playerList.add(playerName);
-							}
+							playerList.add(playerName);
 							break;
 						}
 					}
