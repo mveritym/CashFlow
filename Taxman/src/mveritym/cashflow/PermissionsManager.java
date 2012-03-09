@@ -399,7 +399,7 @@ public class PermissionsManager {
 							// Add to master list
 							query = "INSERT INTO "
 									+ cashflow.getPluginConfig().tablePrefix
-									+ "cashflow VALUES('" + name + "');";
+									+ "cashflow (playername) VALUES('" + name + "');";
 							cashflow.getDatabaseHandler().standardQuery(query);
 						}
 					} catch (SQLException e) {
