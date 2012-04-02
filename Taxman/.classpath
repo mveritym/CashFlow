@@ -6,7 +6,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/PermissionsEX"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/bPermissions"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/PermissionsBukkit"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Essentials"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Vault"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Essentials"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
