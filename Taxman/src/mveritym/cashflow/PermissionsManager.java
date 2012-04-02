@@ -11,7 +11,6 @@ import lib.Mitsugaru.SQLibrary.Database.Query;
 import net.milkbowl.vault.permission.Permission;
 
 import org.anjocaido.groupmanager.GroupManager;
-import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -307,25 +306,25 @@ public class PermissionsManager
 		return playerList;
 	}
 
-	/*
-	 * TODO IDEK know how to handle GroupManager. Everything appears depreciated
-	 * and there's no real indicator in their source code as to what to use. <.<
-	 */
-	@SuppressWarnings("deprecation")
 	public List<String> getGroupManagerUsers(List<String> groups)
 	{
 		final List<String> playerList = new ArrayList<String>();
 		final List<String> groupPlayers = getAllPlayers();
 		for (final String groupName : groups)
 		{
-			final AnjoPermissionsHandler aph = ((GroupManager) plugin)
-					.getPermissionHandler();
 			for (final String playerName : groupPlayers)
 			{
 				if (!(playerList.contains(playerName))
-						&& aph.inGroup(playerName, groupName))
+						&& ((GroupManager) plugin).getWorldsHolder().getWorldPermissionsByPlayerName(playerName).inGroup(playerName, groupName))
 				{
 					playerList.add(playerName);
+				}
+			}
+			for(String name : playerList)
+			{
+				if(groupPlayers.contains(name))
+				{
+					groupPlayers.remove(name);
 				}
 			}
 		}
