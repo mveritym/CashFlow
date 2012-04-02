@@ -352,10 +352,12 @@ public class PermissionsManager
 			{
 				playerList = this.getbPermissionsUsers(groups);
 			}
-			/*
-			 * else if (pluginName.equals("GroupManager")) { playerList =
-			 * this.getGroupManagerUsers(groups); }
-			 */
+
+			else if (pluginName.equals("GroupManager"))
+			{
+				playerList = this.getGroupManagerUsers(groups);
+			}
+
 		}
 
 		for (final String player : players)
