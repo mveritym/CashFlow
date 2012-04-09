@@ -4,13 +4,11 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import lib.Mitsugaru.SQLibrary.Database.Query;
 
 import net.milkbowl.vault.permission.Permission;
 
-import org.anjocaido.groupmanager.GroupManager;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -21,11 +19,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 import com.platymuus.bukkit.permissions.Group;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
-
-import de.bananaco.bpermissions.api.ApiLayer;
-import de.bananaco.bpermissions.api.util.CalculableType;
-
-import ru.tehkode.permissions.PermissionGroup;
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -39,9 +32,9 @@ public class PermissionsManager
 	private PermissionManager pm;
 	protected CashFlow cashflow;
 	protected Config conf;
-	protected File confFile;
 	private Plugin plugin;
 	private PermissionsPlugin permsPlugin;
+	final private String empty = null;
 
 	public PermissionsManager(CashFlow cashflow)
 	{
@@ -79,6 +72,10 @@ public class PermissionsManager
 			else if (pluginName.equals("GroupManager"))
 			{
 				plugin = pluginManager.getPlugin("GroupManager");
+				if(plugin == null)
+				{
+					cashflow.getLogger().severe("Could not hook into GroupManager... D:");
+				}
 			}
 
 		}
@@ -158,27 +155,10 @@ public class PermissionsManager
 					if (!(playerList.contains(name)))
 					{
 						// Player not in list
-						final PermissionUser user = pm.getUser(name);
-						for (final Entry<String, PermissionGroup[]> e : user
-								.getAllGroups().entrySet())
-						{
-							final PermissionGroup[] g = e.getValue();
-							if (g.length == 0)
+							if(perm.playerInGroup(empty, name, groupName))
 							{
-								// No groups, therefore they are in
-								// default
-								playerList.add(user.getName());
+								playerList.add(name);
 							}
-							else if (g.length >= 1)
-							{
-								// They have multiple groups, check to
-								// see if its their primary group
-								if (g[0].getName().equals(groupName))
-								{
-									playerList.add(user.getName());
-								}
-							}
-						}
 					}
 				}
 			}
@@ -289,16 +269,9 @@ public class PermissionsManager
 			{
 				if (!(playerList.contains(playerName)))
 				{
-					final String[] groupNames = ApiLayer.getGroups(cashflow
-							.getServer().getWorlds().get(0).getName(),
-							CalculableType.USER, playerName);
-					for (int i = 0; i < groupNames.length; i++)
+					if(perm.playerInGroup(empty, playerName, groupName))
 					{
-						if (groupNames[i].equals(groupName))
-						{
-							playerList.add(playerName);
-							break;
-						}
+						playerList.add(playerName);
 					}
 				}
 			}
@@ -314,17 +287,12 @@ public class PermissionsManager
 		{
 			for (final String playerName : groupPlayers)
 			{
-				if (!(playerList.contains(playerName))
-						&& ((GroupManager) plugin).getWorldsHolder().getWorldPermissionsByPlayerName(playerName).inGroup(playerName, groupName))
+				if (!(playerList.contains(playerName)))
 				{
-					playerList.add(playerName);
-				}
-			}
-			for(String name : playerList)
-			{
-				if(groupPlayers.contains(name))
-				{
-					groupPlayers.remove(name);
+					if(perm.playerInGroup(empty, playerName, groupName))
+					{
+						playerList.add(playerName);
+					}
 				}
 			}
 		}
