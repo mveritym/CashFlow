@@ -571,7 +571,7 @@ public class SalaryManager {
 							//TODO colorize
 							//TODO configurable prefix / suffix from config.
 							r.sendMessage(ChatColor.GREEN + cashFlow.prefix + ChatColor.BLUE + " You have paid "
-									+ conf.prefix + tempSalary + conf.suffix + " in salary to " + user
+									+ conf.prefix + String.format("%.2f", tempSalary) + conf.suffix + " in salary to " + user
 									+ ".");
 						}
 						if(ico5)
@@ -589,7 +589,7 @@ public class SalaryManager {
 								//TODO colorize
 								//TODO configurable prefix / suffix from config.
 								p.sendMessage(ChatColor.GREEN + cashFlow.prefix + ChatColor.BLUE
-										+ " You have received " + conf.prefix + tempSalary + conf.suffix
+										+ " You have received " + conf.prefix + String.format("%.2f", tempSalary) + conf.suffix
 										+ " for your salary from " + employer
 										+ ".");
 							}

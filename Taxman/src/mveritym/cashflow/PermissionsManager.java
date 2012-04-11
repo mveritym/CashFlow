@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import lib.Mitsugaru.SQLibrary.Database.Query;
 
@@ -19,6 +20,8 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 import com.platymuus.bukkit.permissions.Group;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
+
+import ru.tehkode.permissions.PermissionGroup;
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -155,10 +158,27 @@ public class PermissionsManager
 					if (!(playerList.contains(name)))
 					{
 						// Player not in list
-							if(perm.playerInGroup(empty, name, groupName))
+						final PermissionUser user = pm.getUser(name);
+						for (final Entry<String, PermissionGroup[]> e : user
+								.getAllGroups().entrySet())
+						{
+							final PermissionGroup[] g = e.getValue();
+							if (g.length == 0)
 							{
-								playerList.add(name);
+								// No groups, therefore they are in
+								// default
+								playerList.add(user.getName());
 							}
+							else if (g.length >= 1)
+							{
+								// They have multiple groups, check to
+								// see if its their primary group
+								if (g[0].getName().equals(groupName))
+								{
+									playerList.add(user.getName());
+								}
+							}
+						}
 					}
 				}
 			}

@@ -498,7 +498,7 @@ public class TaxManager {
 					if (player != null)
 					{
 						//TODO colorize
-						String message = " You have paid "+ conf.prefix + taxRate + conf.suffix
+						String message = " You have paid "+ conf.prefix + String.format("%.2f", taxRate) + conf.suffix
 								+ " in tax";
 						if (receiver.equals("null"))
 						{
@@ -536,7 +536,7 @@ public class TaxManager {
 									.getPlayer(receiver);
 							//TODO colorize
 							receiverPlayer.sendMessage(ChatColor.GREEN + cashFlow.prefix + ChatColor.BLUE
-									+ " You have received " + conf.prefix + taxRate + conf.suffix
+									+ " You have received " + conf.prefix + String.format("%.2f", taxRate) + conf.suffix
 									+ " in tax from " + user + ".");
 						}
 					}
