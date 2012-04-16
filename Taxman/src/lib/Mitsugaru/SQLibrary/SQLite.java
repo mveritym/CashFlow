@@ -135,18 +135,6 @@ public class SQLite extends Database {
 
 		try {
 			connection = this.open();
-			//WARN ODR_OPEN_DATABASE_RESOURCE
-			/*
-			 * The method creates a database resource
-			 * (such as a database connection or row set),
-			 * does not assign it to any fields, pass it to other
-			 * methods, or return it, and does not appear to close
-			 * the object on all paths out of the method.
-			 * Failure to close database resources on all paths out
-			 * of a method may result in poor performance, and could
-			 *  cause the application to have problems communicating
-			 *   with the database.
-			 */
 			statement = connection.createStatement();
 
 			switch (this.getStatement(query)) {
@@ -223,18 +211,19 @@ public class SQLite extends Database {
 	}
 
 	@Override
-	PreparedStatement prepare(String query) {
+	public PreparedStatement prepare(String query) {
 		Connection connection = null;
+		 PreparedStatement ps = null;
 		try
 	    {
 	        connection = open();
-	        PreparedStatement ps = connection.prepareStatement(query);
+	        ps = connection.prepareStatement(query);
 	        return ps;
 	    } catch(SQLException e) {
 	        if(!e.toString().contains("not return ResultSet"))
 	        	this.writeError("Error in SQL prepare() query: " + e.getMessage(), false);
 	    }
-	    return null;
+	    return ps;
 	}
 
 	@Override
