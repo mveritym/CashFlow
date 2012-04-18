@@ -476,7 +476,7 @@ public class TaxManager {
 			{
 				taxRate = Double.parseDouble(tax);
 			}
-			if (balance != 0)
+			if (balance > 0)
 			{
 				if (balance < taxRate)
 				{

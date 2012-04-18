@@ -549,7 +549,7 @@ public class SalaryManager {
 				{
 					tempSalary = this.cashFlow.eco.bankBalance(employer).balance;
 				}
-				if (tempSalary != 0)
+				if (tempSalary > 0)
 				{
 					if (tempSalary > salary)
 					{
