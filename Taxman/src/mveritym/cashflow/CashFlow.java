@@ -75,7 +75,7 @@ public class CashFlow extends JavaPlugin {
 		taxManager.enable();
 		salaryManager.enable();
 		// Check the last paid and see how many times to iterate the tax/salary
-		final int tickToHour = 72000;
+		/*final int tickToHour = 72000;
 		int id = this
 				.getServer()
 				.getScheduler()
@@ -87,7 +87,7 @@ public class CashFlow extends JavaPlugin {
 		if (id == -1)
 		{
 			this.log.severe("Could not schedule the CatchUp thread...");
-		}
+		}*/
 	}
 
 	@Override
