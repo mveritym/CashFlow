@@ -1,4 +1,4 @@
-package mveritym.cashflow;
+package mveritym.cashflow.commands;
 
 public enum CashFlowCommands {
 	tax,

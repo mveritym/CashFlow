@@ -1,4 +1,8 @@
-package mveritym.cashflow;
+package mveritym.cashflow.commands;
+
+import mveritym.cashflow.CashFlow;
+import mveritym.cashflow.PermissionsManager;
+import mveritym.cashflow.taxer.SalaryManager;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

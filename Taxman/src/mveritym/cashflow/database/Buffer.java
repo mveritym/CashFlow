@@ -1,10 +1,13 @@
-package mveritym.cashflow;
+package mveritym.cashflow.database;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import lib.Mitsugaru.SQLibrary.Database.Query;
+import mveritym.cashflow.CashFlow;
+import mveritym.cashflow.taxer.SalaryManager;
+import mveritym.cashflow.taxer.TaxManager;
 
 public class Buffer implements Runnable {
 	private static Buffer _instance;

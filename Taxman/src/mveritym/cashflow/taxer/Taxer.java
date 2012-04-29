@@ -1,4 +1,6 @@
-package mveritym.cashflow;
+package mveritym.cashflow.taxer;
+
+import mveritym.cashflow.database.Buffer;
 
 public class Taxer {
 	private TaxManager taxManager;

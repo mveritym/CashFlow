@@ -1,4 +1,4 @@
-package mveritym.cashflow;
+package mveritym.cashflow.taxer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -6,6 +6,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
+import mveritym.cashflow.CashFlow;
+import mveritym.cashflow.Config;
+import mveritym.cashflow.database.Buffer;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.bukkit.ChatColor;
@@ -21,7 +24,7 @@ public class SalaryManager {
 	List<String> paidGroups;
 	List<String> paidPlayers;
 	ListIterator<String> iterator;
-	final Collection<Taxer> salaryTasks = new ArrayList<Taxer>();
+	public final Collection<Taxer> salaryTasks = new ArrayList<Taxer>();
 
 	public SalaryManager(CashFlow cashFlow) {
 		this.cashFlow = cashFlow;
@@ -36,9 +39,15 @@ public class SalaryManager {
 		double salary = Double.parseDouble(paycheck);
 		double salaryInterval = Double.parseDouble(interval);
 		List<String> paidGroups = null;
+		boolean bose = false;
 
 		salaries = conf.getStringList("salaries.list");
 		iterator = salaries.listIterator();
+		
+		if(this.cashFlow.eco.getName().equals("BOSEconomy"))
+		{
+			bose = true;
+		}
 
 		if (salary <= 0)
 		{
@@ -52,7 +61,7 @@ public class SalaryManager {
 					+ " Please choose a salary interval greater than 0.");
 			return;
 		}
-		else if ((this.cashFlow.eco.bankBalance(employer).type) == EconomyResponse.ResponseType.FAILURE
+		else if (!bose && (this.cashFlow.eco.bankBalance(employer).type) == EconomyResponse.ResponseType.FAILURE
 				&& !(employer.equals("null")))
 		{
 			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " '" + ChatColor.GOLD + employer + ChatColor.RED + "' not found.");

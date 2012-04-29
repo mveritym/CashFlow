@@ -1,10 +1,12 @@
-package mveritym.cashflow;
+package mveritym.cashflow.database;
 
 import java.sql.SQLException;
 
 import lib.Mitsugaru.SQLibrary.Database.Query;
 import lib.Mitsugaru.SQLibrary.MySQL;
 import lib.Mitsugaru.SQLibrary.SQLite;
+import mveritym.cashflow.CashFlow;
+import mveritym.cashflow.Config;
 
 public class DBHandler {
 	// Class Variables
