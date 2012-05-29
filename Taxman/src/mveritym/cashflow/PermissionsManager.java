@@ -26,7 +26,7 @@ import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 
-// TODO Fix GroupManager
+// TODO Fix GroupManager inheritance?
 public class PermissionsManager
 {
 
@@ -105,22 +105,7 @@ public class PermissionsManager
 
 	public boolean hasPermission(Player player, String node)
 	{
-		// Pex specific supercedes vault
-		if (pluginName.equals("PermissionsEx"))
-		{
-			final PermissionManager permissions = PermissionsEx
-					.getPermissionManager();
-			// Handle pex check
-			if (permissions.has(player, node))
-			{
-				return true;
-			}
-		}
-		if (perm.has(player, node))
-		{
-			return true;
-		}
-		return false;
+		return perm.has(player, node);
 	}
 
 	/**
