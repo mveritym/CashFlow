@@ -54,17 +54,19 @@ public class CashFlowCommand implements CommandExecutor
 		try
 		{
 			final CFCommand com = CFCommand.valueOf(args[0].toLowerCase());
-			parseCommand(com, sender, args);
+			parseCommand(com, sender, args, info);
 		}
 		catch (IllegalArgumentException e)
 		{
-			sender.sendMessage(ChatColor.RED + CashFlow.TAG
-					+ " Syntax error. For help, use /cashflow");
+			info.put(Flag.EXTRA, args[0]);
+			sender.sendMessage(LocalString.UNKNOWN_COMMAND
+					.parseString(info));
 		}
 		return true;
 	}
 
-	private void parseCommand(CFCommand com, CommandSender sender, String[] args)
+	private void parseCommand(CFCommand com, CommandSender sender,
+			String[] args, EnumMap<LocalString.Flag, String> info)
 	{
 		switch (com)
 		{
@@ -72,15 +74,15 @@ public class CashFlowCommand implements CommandExecutor
 				this.taxManager.enable();
 				this.salaryManager.enable();
 				Buffer.getInstance().start();
-				sender.sendMessage(ChatColor.YELLOW + CashFlow.TAG
-						+ " Taxes and salaries " + ChatColor.GREEN + "enabled.");
+				sender.sendMessage(LocalString.COMMAND_CASHFLOW_ENABLE
+						.parseString(info));
 				break;
 			case disable:
 				this.taxManager.disable();
 				this.salaryManager.disable();
 				Buffer.getInstance().cancelBuffer();
-				sender.sendMessage(ChatColor.YELLOW + CashFlow.TAG
-						+ " Taxes and salaries " + ChatColor.RED + "disabled.");
+				sender.sendMessage(LocalString.COMMAND_CASHFLOW_DISABLE
+						.parseString(info));
 				break;
 			case restart:
 				this.taxManager.disable();
@@ -89,8 +91,7 @@ public class CashFlowCommand implements CommandExecutor
 				this.taxManager.enable();
 				this.salaryManager.enable();
 				Buffer.getInstance().start();
-				sender.sendMessage(ChatColor.YELLOW + CashFlow.TAG
-						+ " Taxes and salaries restarted.");
+				sender.sendMessage(LocalString.COMMAND_CASHFLOW_RESTART.parseString(info));
 				break;
 			case setworld:
 				if (args.length == 2)

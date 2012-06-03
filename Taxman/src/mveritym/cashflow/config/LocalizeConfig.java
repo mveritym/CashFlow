@@ -18,9 +18,9 @@ public class LocalizeConfig
 	private static CashFlow plugin;
 	private static File file;
 	private static YamlConfiguration config;
-	public static String permissionDeny, lackMessage, reasonMoney, reasonLimit,
-			reasonUnknown, econFailure, unknownCommand, noPermission, helpHelp,
-			helpAdminReload, helpVersion, reloadConfig, localMessage;
+	public static String permissionDeny, lackMessage, econFailure,
+			unknownCommand, noPermission, helpHelp, helpAdminReload,
+			helpVersion, restart, cashflowEnable, cashflowDisable, invalidName;
 
 	public static void init(CashFlow cf)
 	{
@@ -75,15 +75,19 @@ public class LocalizeConfig
 		// LinkedHashmap of defaults
 		final Map<String, String> defaults = new LinkedHashMap<String, String>();
 		// defaults for all strings
-		//TODO defaults appropriate for CashFlow
-		defaults.put("message.localMessage",
-				"&a%tag Paid &6$%amount&a for &b%event &c%extra");
+		// TODO defaults appropriate for CashFlow
 		defaults.put("message.econFailure",
 				"&c%tag Could not pay &6%amount &cfor &b%event");
 		defaults.put("message.lackEvent",
 				"&c%tag %reason for action: &b%event &c%extra");
+		defaults.put("message.invalidName", "&c%tag Invalid name: &6%extra");
 		defaults.put("message.noPermission", "&c%tag Lack permission: %extra");
-		defaults.put("message.reloadConfig", "&a%tag &fConfig reloaded.");
+		defaults.put("command.cashflow.enable",
+				"&a%tag &fTaxes and salaries &aenabled");
+		defaults.put("command.cashflow.disable",
+				"&a%tag &fTaxes and salaries &cdisabled");
+		defaults.put("command.cashflow.restart",
+				"&a%tag &fTaxes and salaries restarted.");
 		defaults.put("message.unknownCommand",
 				"&c%tag Unknown command '&6%extra&c'. Bad syntax.");
 		defaults.put("help.help", "&a/kcon help&e : Show help menu");
@@ -109,7 +113,7 @@ public class LocalizeConfig
 	private static void loadVariables()
 	{
 		// load variables
-		//TODO reflect messages appropriate for CashFlow
+		// TODO reflect messages appropriate for CashFlow
 		/**
 		 * Messages
 		 */
@@ -119,10 +123,16 @@ public class LocalizeConfig
 				"&c%tag Could not pay &6%amount &cfor &b%event");
 		noPermission = config.getString("message.noPermission",
 				"&c%tag Lack permission: %extra");
-		reloadConfig = config.getString("message.reloadConfig",
-				"&a%tag &fConfig reloaded.");
-		localMessage = config.getString("message.localMessage",
-				"&a%tag Paid &6$%amount&a for &b%event &c%extra");
+		cashflowEnable = config.getString("command.cashflow.enable",
+				"&a%tag &fTaxes and salaries &aenabled");
+		cashflowDisable = config.getString("command.cashflow.disable",
+				"&a%tag &fTaxes and salaries &cdisabled");
+		restart = config.getString("command.cashflow.restart",
+				"&a%tag &fTaxes and salaries restarted.");
+		unknownCommand = config.getString("message.unknownCommand",
+				"&c%tag Unknown command '&6%extra&c'. Bad syntax.");
+		invalidName = config.getString("message.invalidName",
+				"&c%tag Invalid name: &6%extra");
 		/**
 		 * help
 		 */
@@ -132,11 +142,5 @@ public class LocalizeConfig
 				"&a/kcon reload&e : Reload all config files");
 		helpVersion = config.getString("help.version",
 				"&a/kcon version&e : Show version and config");
-		/**
-		 * Reasons
-		 */
-		reasonLimit = config.getString("reason.money", "Hit limit");
-		reasonMoney = config.getString("reason.money", "Lack money");
-		reasonUnknown = config.getString("reason.unknown", " Unknown DenyType");
 	}
 }

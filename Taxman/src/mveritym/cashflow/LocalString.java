@@ -9,11 +9,14 @@ public enum LocalString
 {
 	PERMISSION_DENY(LocalizeConfig.permissionDeny), LACK_MESSAGE(
 			LocalizeConfig.lackMessage), ECONOMY_FAILURE(
-			LocalizeConfig.econFailure), UNKNOWN_COMMAND(
-			LocalizeConfig.unknownCommand), RELOAD_CONFIG(
-			LocalizeConfig.reloadConfig), HELP_HELP(LocalizeConfig.helpHelp), HELP_VERSION(
+			LocalizeConfig.econFailure), INVALID_NAME(
+			LocalizeConfig.invalidName), UNKNOWN_COMMAND(
+			LocalizeConfig.unknownCommand), COMMAND_CASHFLOW_RESTART(
+			LocalizeConfig.restart), COMMAND_CASHFLOW_ENABLE(
+			LocalizeConfig.cashflowEnable), COMMAND_CASHFLOW_DISABLE(
+			LocalizeConfig.cashflowDisable), HELP_HELP(LocalizeConfig.helpHelp), HELP_VERSION(
 			LocalizeConfig.helpVersion), HELP_ADMIN_RELOAD(
-			LocalizeConfig.helpAdminReload), LOCAL_MESSAGE(LocalizeConfig.localMessage);
+			LocalizeConfig.helpAdminReload);
 
 	private String string;
 
@@ -29,7 +32,8 @@ public enum LocalString
 		{
 			for (Entry<Flag, String> entry : replace.entrySet())
 			{
-				out = out.replaceAll(entry.getKey().getFlag(), entry.getValue());
+				out = out
+						.replaceAll(entry.getKey().getFlag(), entry.getValue());
 			}
 		}
 		return out;
