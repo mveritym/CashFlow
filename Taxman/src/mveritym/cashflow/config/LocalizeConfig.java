@@ -22,9 +22,9 @@ public class LocalizeConfig
 			reasonUnknown, econFailure, unknownCommand, noPermission, helpHelp,
 			helpAdminReload, helpVersion, reloadConfig, localMessage;
 
-	public static void init(CashFlow ks)
+	public static void init(CashFlow cf)
 	{
-		plugin = ks;
+		plugin = cf;
 		file = new File(plugin.getDataFolder().getAbsolutePath()
 				+ "/localization.yml");
 		config = YamlConfiguration.loadConfiguration(file);

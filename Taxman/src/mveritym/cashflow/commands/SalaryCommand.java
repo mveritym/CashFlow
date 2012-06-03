@@ -1,6 +1,10 @@
 package mveritym.cashflow.commands;
 
+import java.util.EnumMap;
+
 import mveritym.cashflow.CashFlow;
+import mveritym.cashflow.LocalString;
+import mveritym.cashflow.LocalString.Flag;
 import mveritym.cashflow.managers.SalaryManager;
 import mveritym.cashflow.permissions.PermissionNode;
 import mveritym.cashflow.permissions.PermissionsManager;
@@ -9,8 +13,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
 
 public class SalaryCommand implements CommandExecutor {
 	private CashFlow plugin;
@@ -25,24 +27,13 @@ public class SalaryCommand implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command,
 			String label, String[] args) {
-		boolean playerCanDo = false;
-		boolean isConsole = false;
-		if (sender instanceof Player)
+		final EnumMap<LocalString.Flag, String> info = new EnumMap<LocalString.Flag, String>(
+				LocalString.Flag.class);
+		info.put(Flag.TAG, CashFlow.TAG);
+		if (!PermissionsManager.hasPermission(sender, PermissionNode.SALARY))
 		{
-			Player player = (Player) sender;
-			if (player.isOp() || PermissionsManager.hasPermission(player, PermissionNode.SALARY))
-			{
-				playerCanDo = true;
-			}
-		}
-		else if (sender instanceof ConsoleCommandSender)
-		{
-			isConsole = true;
-		}
-		if (!playerCanDo && !isConsole)
-		{
-			sender.sendMessage(ChatColor.RED + CashFlow.TAG
-					+ " Lack permission: cashflow." + command.getName());
+			info.put(Flag.EXTRA, PermissionNode.SALARY.getNode());
+			sender.sendMessage(LocalString.PERMISSION_DENY.parseString(info));
 			return true;
 		}
 		if (args.length == 0)

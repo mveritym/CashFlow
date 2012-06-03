@@ -4,6 +4,7 @@ import mveritym.cashflow.commands.CashFlowCommand;
 import mveritym.cashflow.commands.SalaryCommand;
 import mveritym.cashflow.commands.TaxCommand;
 import mveritym.cashflow.config.Config;
+import mveritym.cashflow.config.LocalizeConfig;
 import mveritym.cashflow.config.Update;
 import mveritym.cashflow.database.Buffer;
 import mveritym.cashflow.database.DBHandler;
@@ -30,6 +31,8 @@ public class CashFlow extends JavaPlugin
 	public void onEnable()
 	{
 		TAG = "[" + getDescription().getName() + "]";
+		//Localization
+		LocalizeConfig.init(this);
 		// Grab config
 		config = new Config(this);
 		// Check if master player table exists

@@ -13,7 +13,8 @@ import mveritym.cashflow.database.SQLibrary.Database.Query;
 import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.World;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -102,14 +103,27 @@ public class PermissionsManager
 		}
 	}
 
-	public static boolean hasPermission(Player player, PermissionNode node)
+	public static boolean hasPermission(CommandSender sender, PermissionNode node)
 	{
-		return hasPermission(player, node.getNode());
+		return hasPermission(sender, node.getNode());
 	}
 
-	public static boolean hasPermission(Player player, String node)
+	public static boolean hasPermission(CommandSender sender, String node)
 	{
-		return perm.has(player, node);
+		boolean has = false;
+		if(sender.isOp())
+		{
+			has = true;
+		}
+		else if(sender instanceof ConsoleCommandSender)
+		{
+			has = true;
+		}
+		else if(perm.has(sender, node))
+		{
+			has = true;
+		}
+		return has;
 	}
 
 	/**
