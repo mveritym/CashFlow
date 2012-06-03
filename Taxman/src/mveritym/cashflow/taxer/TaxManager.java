@@ -9,6 +9,7 @@ import java.util.ListIterator;
 import mveritym.cashflow.CashFlow;
 import mveritym.cashflow.Config;
 import mveritym.cashflow.database.Buffer;
+import mveritym.cashflow.permissions.PermissionsManager;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.bukkit.ChatColor;
@@ -235,7 +236,7 @@ public class TaxManager
 			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Tax '"
 					+ ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 		}
-		else if (!(this.cashFlow.permsManager.isGroup(groupName)))
+		else if (!(PermissionsManager.isGroup(groupName)))
 		{
 			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Group '"
 					+ ChatColor.GOLD + groupName + ChatColor.RED
@@ -277,7 +278,7 @@ public class TaxManager
 			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Tax '"
 					+ ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 		}
-		else if (!(this.cashFlow.permsManager
+		else if (!(PermissionsManager
 				.isPlayer(playerName.toLowerCase())))
 		{
 			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Player '"
@@ -421,7 +422,7 @@ public class TaxManager
 			}
 			else
 			{
-				this.cashFlow.log.info(cashFlow.prefix + " Enabling " + tax);
+				this.cashFlow.getLogger().info(cashFlow.prefix + " Enabling " + tax);
 			}
 		}
 	}
@@ -461,7 +462,7 @@ public class TaxManager
 		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName
 				+ ".exceptedPlayers");
 
-		return this.cashFlow.permsManager.getUsers(groups, players,
+		return PermissionsManager.getUsers(groups, players,
 				exceptedPlayers);
 	}
 
@@ -576,7 +577,7 @@ public class TaxManager
 				else
 				{
 					withdraw = false;
-					this.cashFlow.log.warning(this.cashFlow.prefix + " "
+					this.cashFlow.getLogger().warning(this.cashFlow.prefix + " "
 							+ er.errorMessage + ": " + user);
 				}
 
@@ -607,7 +608,7 @@ public class TaxManager
 					}
 					else
 					{
-						this.cashFlow.log
+						this.cashFlow.getLogger()
 								.warning(this.cashFlow.prefix
 										+ " "
 										+ this.cashFlow.eco.bankBalance(user).errorMessage

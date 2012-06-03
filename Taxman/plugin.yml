@@ -63,9 +63,10 @@ permissions:
         default: false
     cashflow.tax:
         description: Allows control of tax commands.
-        default: false
+        default: op
     cashflow.salary:
         description: Allows control of salary commands.
-        default: false
+        default: op
     cashflow.basic:
         description: Allows access to the enable, disable, restart and setworld commands.
+        default: op

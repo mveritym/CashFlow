@@ -5,7 +5,7 @@
  * Date Created: 2011-08-26 19:08
  * @author PatPeter
  */
-package lib.Mitsugaru.SQLibrary;
+package mveritym.cashflow.database.SQLibrary;
 
 /*
  * MySQL

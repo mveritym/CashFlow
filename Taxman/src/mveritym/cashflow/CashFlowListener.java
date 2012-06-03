@@ -2,7 +2,7 @@ package mveritym.cashflow;
 
 import java.sql.SQLException;
 
-import lib.Mitsugaru.SQLibrary.Database.Query;
+import mveritym.cashflow.database.SQLibrary.Database.Query;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -12,13 +12,13 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class CashFlowListener implements Listener {
 	// Class variables
-	private final CashFlow cf;
+	private final CashFlow plugin;
 	private final Config config;
 
 	public CashFlowListener(CashFlow plugin) {
 		// Instantiate variables
-		cf = plugin;
-		config = cf.getPluginConfig();
+		this.plugin = plugin;
+		config = plugin.getPluginConfig();
 	}
 
 	//TODO implement at some future point
@@ -35,12 +35,12 @@ public class CashFlowListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(final PlayerJoinEvent event) {
 		if (config.debug) {
-			cf.log.warning(cf.prefix + " PlayerJoin event");
+			plugin.getLogger().warning(plugin.prefix + " PlayerJoin event");
 		}
 		String query = "SELECT COUNT(*) FROM " + config.tablePrefix
 				+ "cashflow WHERE playername='" + event.getPlayer().getName()
 				+ "';";
-		Query rs = cf.getDatabaseHandler().select(query);
+		Query rs = plugin.getDatabaseHandler().select(query);
 		try {
 			boolean has = false;
 			if (rs.getResult().next()) {
@@ -52,16 +52,16 @@ public class CashFlowListener implements Listener {
 			rs.closeQuery();
 			if (!has) {
 				if (config.debug) {
-					cf.log.warning(cf.prefix + " PlayerJoin - add new player");
+					plugin.getLogger().warning(plugin.prefix + " PlayerJoin - add new player");
 				}
 				// Add to master list
 				query = "INSERT INTO " + config.tablePrefix
 						+ "cashflow (playername) VALUES('"
 						+ event.getPlayer().getName() + "');";
-				cf.getDatabaseHandler().standardQuery(query);
+				plugin.getDatabaseHandler().standardQuery(query);
 			}
 		} catch (SQLException e) {
-			cf.log.warning(cf.prefix + " SQL Exception");
+			plugin.getLogger().warning(plugin.prefix + " SQL Exception");
 			e.printStackTrace();
 		}
 	}

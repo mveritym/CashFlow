@@ -66,7 +66,7 @@ public class Taxer {
 			}
 			else if(salaryManager != null)
 			{
-				if(salaryManager.cashFlow.getServer().getScheduler().isCurrentlyRunning(id))
+				if(salaryManager.plugin.getServer().getScheduler().isCurrentlyRunning(id))
 				{
 					return "running";
 				}
@@ -74,7 +74,7 @@ public class Taxer {
 				{
 					return "buffered";
 				}
-				else if(salaryManager.cashFlow.getServer().getScheduler().isQueued(id))
+				else if(salaryManager.plugin.getServer().getScheduler().isQueued(id))
 				{
 					return "queued";
 				}
@@ -92,7 +92,7 @@ public class Taxer {
 			}
 			else if(salaryManager != null)
 			{
-				salaryManager.cashFlow.getServer().getScheduler().cancelTask(id);
+				salaryManager.plugin.getServer().getScheduler().cancelTask(id);
 			}
 			id = -1;
 		}
@@ -113,15 +113,15 @@ public class Taxer {
 			id = taxManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(taxManager.cashFlow, run, period, period);
 			if(id == -1)
 			{
-				taxManager.cashFlow.log.severe("Could not schedule " + this.getName());
+				taxManager.cashFlow.getLogger().severe("Could not schedule " + this.getName());
 			}
 		}
 		else if(salaryManager != null)
 		{
-			id = salaryManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(salaryManager.cashFlow, run, period, period);
+			id = salaryManager.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(salaryManager.plugin, run, period, period);
 			if(id == -1)
 			{
-				salaryManager.cashFlow.log.severe("Could not schedule " + this.getName());
+				salaryManager.plugin.getLogger().severe("Could not schedule " + this.getName());
 			}
 		}
 	}
@@ -135,15 +135,15 @@ public class Taxer {
 			id = taxManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(taxManager.cashFlow, new Task(), delay, period);
 			if(id == -1)
 			{
-				taxManager.cashFlow.log.severe("Could not schedule " + this.getName());
+				taxManager.cashFlow.getLogger().severe("Could not schedule " + this.getName());
 			}
 		}
 		else if(salaryManager != null)
 		{
-			id = salaryManager.cashFlow.getServer().getScheduler().scheduleSyncRepeatingTask(salaryManager.cashFlow, new Task(), delay, period);
+			id = salaryManager.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(salaryManager.plugin, new Task(), delay, period);
 			if(id == -1)
 			{
-				salaryManager.cashFlow.log.severe("Could not schedule " + this.getName());
+				salaryManager.plugin.getLogger().severe("Could not schedule " + this.getName());
 			}
 		}
 	}
@@ -152,13 +152,13 @@ public class Taxer {
         public void run() {
         	if(taxManager != null)
         	{
-        	taxManager.cashFlow.log.info(taxManager.cashFlow.prefix
+        	taxManager.cashFlow.getLogger().info(taxManager.cashFlow.prefix
     				+ " Paying tax " + getName());
         	taxManager.payTax(name);
         	}
         	else if(salaryManager != null)
         	{
-        		salaryManager.cashFlow.log.info(salaryManager.cashFlow.prefix
+        		salaryManager.plugin.getLogger().info(salaryManager.plugin.prefix
     				+ " Paying salary " + getName());
         	salaryManager.paySalary(name);
         	}

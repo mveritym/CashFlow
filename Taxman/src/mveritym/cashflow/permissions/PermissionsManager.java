@@ -1,18 +1,17 @@
-package mveritym.cashflow;
+package mveritym.cashflow.permissions;
 
-import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import lib.Mitsugaru.SQLibrary.Database.Query;
+import mveritym.cashflow.CashFlow;
+import mveritym.cashflow.Config;
+import mveritym.cashflow.database.SQLibrary.Database.Query;
 
 import net.milkbowl.vault.permission.Permission;
 
-import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -30,21 +29,21 @@ import ru.tehkode.permissions.bukkit.PermissionsEx;
 public class PermissionsManager
 {
 
-	private String pluginName = "null";
-	private Permission perm;
-	private PermissionManager pm;
-	protected CashFlow cashflow;
-	protected Config conf;
-	private Plugin plugin;
-	private PermissionsPlugin permsPlugin;
-	final private String empty = null;
+	private static String pluginName = "null";
+	private static Permission perm;
+	private static PermissionManager pm;
+	private static CashFlow cashflow;
+	private static Config conf;
+	private static Plugin plugin;
+	private static PermissionsPlugin permsPlugin;
+	private static final String empty = null;
 
-	public PermissionsManager(CashFlow cashflow)
+	public static void init(CashFlow cf)
 	{
-		this.cashflow = cashflow;
+		cashflow = cf;
 		conf = cashflow.getPluginConfig();
 		// Setup Vault for permissions
-		RegisteredServiceProvider<Permission> permissionProvider = this.cashflow
+		RegisteredServiceProvider<Permission> permissionProvider = cashflow
 				.getServer()
 				.getServicesManager()
 				.getRegistration(net.milkbowl.vault.permission.Permission.class);
@@ -53,7 +52,7 @@ public class PermissionsManager
 			perm = permissionProvider.getProvider();
 			pluginName = perm.getName();
 
-			final PluginManager pluginManager = this.cashflow.getServer()
+			final PluginManager pluginManager = cashflow.getServer()
 					.getPluginManager();
 
 			if (pluginName.equals("PermissionsBukkit"))
@@ -75,23 +74,22 @@ public class PermissionsManager
 			else if (pluginName.equals("GroupManager"))
 			{
 				plugin = pluginManager.getPlugin("GroupManager");
-				if(plugin == null)
+				if (plugin == null)
 				{
-					cashflow.getLogger().severe("Could not hook into GroupManager... D:");
+					cashflow.getLogger().severe(
+							"Could not hook into GroupManager... D:");
 				}
 			}
 
 		}
 		else
 		{
-			System.out.println(this.cashflow.prefix
-					+ " No permissions plugin detected.");
-			this.cashflow.getServer().getPluginManager()
-					.disablePlugin(cashflow);
+			cashflow.getLogger().warning("No permissions plugin detected.");
+			cashflow.getServer().getPluginManager().disablePlugin(cashflow);
 		}
 	}
 
-	public boolean pluginDetected()
+	public static boolean pluginDetected()
 	{
 		if (pluginName != null)
 		{
@@ -103,7 +101,12 @@ public class PermissionsManager
 		}
 	}
 
-	public boolean hasPermission(Player player, String node)
+	public static boolean hasPermission(Player player, PermissionNode node)
+	{
+		return hasPermission(player, node.getNode());
+	}
+
+	public static boolean hasPermission(Player player, String node)
 	{
 		return perm.has(player, node);
 	}
@@ -115,7 +118,7 @@ public class PermissionsManager
 	 *            of group
 	 * @return true if permissions has the group, else false
 	 */
-	public boolean isGroup(String groupName)
+	public static boolean isGroup(String groupName)
 	{
 		String[] groups = perm.getGroups();
 		for (int i = 0; i < groups.length; i++)
@@ -128,7 +131,7 @@ public class PermissionsManager
 		return false;
 	}
 
-	public List<String> getPermissionsEXUsers(List<String> groups)
+	public static List<String> getPermissionsEXUsers(List<String> groups)
 	{
 		final List<String> playerList = new ArrayList<String>();
 		for (String groupName : groups)
@@ -137,7 +140,7 @@ public class PermissionsManager
 			if (groupName.equals(pm.getDefaultGroup().getName()))
 			{
 				// Grab all players
-				final List<String> allList = this.getAllPlayers();
+				final List<String> allList = getAllPlayers();
 				for (String name : allList)
 				{
 					if (!(playerList.contains(name)))
@@ -193,7 +196,7 @@ public class PermissionsManager
 	 *            of groups to include
 	 * @return List of users
 	 */
-	public List<String> getPermissionsBukkitUsers(List<String> groups)
+	public static List<String> getPermissionsBukkitUsers(List<String> groups)
 	{
 		final List<String> playerList = new ArrayList<String>();
 		for (String groupName : groups)
@@ -202,7 +205,7 @@ public class PermissionsManager
 			if (groupName.equals("default"))
 			{
 				// Grab all players
-				final List<String> allList = this.getAllPlayers();
+				final List<String> allList = getAllPlayers();
 				for (String name : allList)
 				{
 					if (!(playerList.contains(name)))
@@ -264,7 +267,7 @@ public class PermissionsManager
 		return playerList;
 	}
 
-	public List<String> getbPermissionsUsers(List<String> groups)
+	public static List<String> getbPermissionsUsers(List<String> groups)
 	{
 		final List<String> playerList = new ArrayList<String>();
 		for (String groupName : groups)
@@ -274,7 +277,7 @@ public class PermissionsManager
 			{
 				if (!(playerList.contains(playerName)))
 				{
-					if(perm.playerInGroup(empty, playerName, groupName))
+					if (perm.playerInGroup(empty, playerName, groupName))
 					{
 						playerList.add(playerName);
 					}
@@ -284,7 +287,7 @@ public class PermissionsManager
 		return playerList;
 	}
 
-	public List<String> getGroupManagerUsers(List<String> groups)
+	public static List<String> getGroupManagerUsers(List<String> groups)
 	{
 		final List<String> playerList = new ArrayList<String>();
 		final List<String> groupPlayers = getAllPlayers();
@@ -294,7 +297,7 @@ public class PermissionsManager
 			{
 				if (!(playerList.contains(playerName)))
 				{
-					if(perm.playerInGroup(empty, playerName, groupName))
+					if (perm.playerInGroup(empty, playerName, groupName))
 					{
 						playerList.add(playerName);
 					}
@@ -304,7 +307,7 @@ public class PermissionsManager
 		return playerList;
 	}
 
-	public List<String> getUsers(List<String> groups, List<String> players,
+	public static List<String> getUsers(List<String> groups, List<String> players,
 			List<String> exceptedPlayers)
 	{
 		List<String> playerList = new ArrayList<String>();
@@ -313,21 +316,21 @@ public class PermissionsManager
 		{
 			if (pluginName.equals("PermissionsEx"))
 			{
-				playerList = this.getPermissionsEXUsers(groups);
+				playerList = getPermissionsEXUsers(groups);
 			}
 			else if (pluginName.equals("PermissionsBukkit"))
 			{
-				playerList = this.getPermissionsBukkitUsers(groups);
+				playerList = getPermissionsBukkitUsers(groups);
 			}
 			else if (pluginName.equals("bPermissions")
 					|| pluginName.equals("bPermissions2"))
 			{
-				playerList = this.getbPermissionsUsers(groups);
+				playerList = getbPermissionsUsers(groups);
 			}
 
 			else if (pluginName.equals("GroupManager"))
 			{
-				playerList = this.getGroupManagerUsers(groups);
+				playerList = getGroupManagerUsers(groups);
 			}
 
 		}
@@ -348,14 +351,14 @@ public class PermissionsManager
 		return playerList;
 	}
 
-	public List<String> getAllPlayers()
+	public static List<String> getAllPlayers()
 	{
 		final List<String> players = new ArrayList<String>();
 		try
 		{
 			final String query = "SELECT * FROM "
 					+ cashflow.getPluginConfig().tablePrefix + "cashflow;";
-			final Query rs = this.cashflow.getDatabaseHandler().select(query);
+			final Query rs = cashflow.getDatabaseHandler().select(query);
 			if (rs.getResult().next())
 			{
 				do
@@ -367,13 +370,13 @@ public class PermissionsManager
 		}
 		catch (SQLException e)
 		{
-			this.cashflow.log.warning(this.cashflow.prefix + " SQL Exception");
+			cashflow.getLogger().warning(cashflow.prefix + " SQL Exception");
 			e.printStackTrace();
 		}
 		return players;
 	}
 
-	public boolean isPlayer(String playerName)
+	public static boolean isPlayer(String playerName)
 	{
 		String worldName = conf.getString("world");
 		boolean has = false;
@@ -382,7 +385,7 @@ public class PermissionsManager
 			worldName = "world";
 		}
 
-		if (this.cashflow.getServer().getPlayer(playerName) != null)
+		if (cashflow.getServer().getPlayer(playerName) != null)
 		{
 			has = true;
 		}
@@ -393,8 +396,7 @@ public class PermissionsManager
 				final String query = "SELECT * FROM "
 						+ cashflow.getPluginConfig().tablePrefix
 						+ "cashflow WHERE playername='" + playerName + "';";
-				final Query rs = this.cashflow.getDatabaseHandler().select(
-						query);
+				final Query rs = cashflow.getDatabaseHandler().select(query);
 				if (rs.getResult().next())
 				{
 					has = true;
@@ -407,24 +409,24 @@ public class PermissionsManager
 			}
 			catch (SQLException e)
 			{
-				this.cashflow.log.warning(this.cashflow.prefix
-						+ " SQL Exception");
+				cashflow.getLogger()
+						.warning(cashflow.prefix + " SQL Exception");
 				e.printStackTrace();
 			}
 		}
 		return has;
 	}
 
-	public boolean setWorld(String worldName)
+	public static boolean setWorld(String worldName)
 	{
 
-		final List<World> worlds = this.cashflow.getServer().getWorlds();
+		final List<World> worlds = cashflow.getServer().getWorlds();
 		for (World world : worlds)
 		{
 			if (world.getName().equals(worldName))
 			{
 				conf.setProperty("world", worldName);
-				this.cashflow.saveConfig();
+				cashflow.saveConfig();
 				return true;
 			}
 		}
@@ -432,78 +434,5 @@ public class PermissionsManager
 		return false;
 	}
 
-	public void importPlayers(CommandSender sender, String worldName)
-	{
-		this.cashflow
-				.getServer()
-				.getScheduler()
-				.scheduleAsyncDelayedTask(cashflow,
-						new ImportPlayersTask(sender, worldName));
-	}
-
-	class ImportPlayersTask implements Runnable
-	{
-		private String worldName;
-		private CommandSender sender;
-
-		public ImportPlayersTask(CommandSender sender, String world)
-		{
-			worldName = world;
-			this.sender = sender;
-		}
-
-		@Override
-		public void run()
-		{
-			final File folder = new File(worldName + File.separator + "players"
-					+ File.separator);
-			for (final File playerFile : folder.listFiles())
-			{
-				if (playerFile != null)
-				{
-					final String name = playerFile.getName().substring(0,
-							playerFile.getName().length() - 4);
-					try
-					{
-						boolean has = false;
-						// Check if player already exists
-						String query = "SELECT COUNT(*) FROM "
-								+ cashflow.getPluginConfig().tablePrefix
-								+ "cashflow WHERE playername='" + name + "';";
-						final Query rs = cashflow.getDatabaseHandler().select(
-								query);
-						if (rs.getResult().next())
-						{
-							if (rs.getResult().getInt(1) >= 1)
-							{
-								// They're already in the database
-								has = true;
-							}
-						}
-						rs.closeQuery();
-						if (!has)
-						{
-							// Add to master list
-							query = "INSERT INTO "
-									+ cashflow.getPluginConfig().tablePrefix
-									+ "cashflow (playername) VALUES('" + name
-									+ "');";
-							cashflow.getDatabaseHandler().standardQuery(query);
-						}
-					}
-					catch (SQLException e)
-					{
-						cashflow.log
-								.warning(cashflow.prefix + " SQL Exception");
-						e.printStackTrace();
-					}
-				}
-			}
-			sender.sendMessage(ChatColor.GREEN + cashflow.prefix
-					+ " Done importing players from '" + ChatColor.GRAY
-					+ worldName + ChatColor.GREEN + "' into database");
-			cashflow.log.info(cashflow.prefix + " Done importing players from "
-					+ worldName + " into database");
-		}
-	}
+	
 }

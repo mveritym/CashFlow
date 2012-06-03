@@ -10,14 +10,14 @@ import org.bukkit.configuration.ConfigurationSection;
 
 public class Config {
 	// Class variables
-	private CashFlow cf;
+	private CashFlow plugin;
 	public boolean debug, useMySQL, importSQL;
 	public String prefix, suffix, host, port, database, user, password, tablePrefix;
 	public double catchUpDelay;
 
 	public Config(CashFlow plugin) {
-		cf = plugin;
-		final ConfigurationSection config = cf.getConfig();
+		this.plugin = plugin;
+		final ConfigurationSection config = plugin.getConfig();
 		// Hashmap of defaults
 		final Map<String, Object> defaults = new HashMap<String, Object>();
 		defaults.put("world", "world");
@@ -34,7 +34,7 @@ public class Config {
 		defaults.put("mysql.password", "pass");
 		defaults.put("mysql.tablePrefix", "cf_");
 		defaults.put("mysql.import", false);
-		defaults.put("version", cf.getDescription().getVersion());
+		defaults.put("version", plugin.getDescription().getVersion());
 		boolean gen = false;
 		for (final Entry<String, Object> e : defaults.entrySet())
 		{
@@ -46,7 +46,7 @@ public class Config {
 		}
 		if (gen)
 		{
-			cf.log.info(cf.prefix
+			plugin.getLogger().info(plugin.prefix
 					+ " No CashFlow config file found. Creating config file.");
 		}
 		// Initialize variables
@@ -64,13 +64,13 @@ public class Config {
 		importSQL = config.getBoolean("mysql.import", false);
 		checkBounds();
 		// Save config
-		cf.saveConfig();
+		plugin.saveConfig();
 	}
 
 	public void set(String path, Object o) {
-		final ConfigurationSection config = cf.getConfig();
+		final ConfigurationSection config = plugin.getConfig();
 		config.set(path, o);
-		cf.saveConfig();
+		plugin.saveConfig();
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class Config {
 		if(catchUpDelay > 0.25 || catchUpDelay < 0)
 		{
 			catchUpDelay = 0.08;
-			cf.log.warning(cf.prefix + " catchUpDelay is wrong. Setting to default.");
+			plugin.getLogger().warning(plugin.prefix + " catchUpDelay is wrong. Setting to default.");
 		}
 	}
 
@@ -89,13 +89,13 @@ public class Config {
 	 */
 	public void checkUpdate() {
 		// Check if need to update
-		ConfigurationSection config = cf.getConfig();
-		if (Double.parseDouble(cf.getDescription().getVersion()) > Double
+		ConfigurationSection config = plugin.getConfig();
+		if (Double.parseDouble(plugin.getDescription().getVersion()) > Double
 				.parseDouble(config.getString("version")))
 		{
 			// Update to latest version
-			cf.log.info(cf.prefix + " Updating to v"
-					+ cf.getDescription().getVersion());
+			plugin.getLogger().info(plugin.prefix + " Updating to v"
+					+ plugin.getDescription().getVersion());
 			this.update();
 		}
 	}
@@ -106,77 +106,77 @@ public class Config {
 	 */
 	private void update() {
 		// Grab current version
-		final double ver = Double.parseDouble(cf.getConfig().getString(
+		final double ver = Double.parseDouble(plugin.getConfig().getString(
 				"version"));
 		String query = "";
 		if (ver < 1.1)
 		{
 			// Update table to add laston column
-			cf.log.info(cf.prefix
+			plugin.getLogger().info(plugin.prefix
 					+ " Altering cashflow table to add laston column");
 			query = "ALTER TABLE cashflow ADD laston REAL;";
-			cf.getDatabaseHandler().standardQuery(query);
+			plugin.getDatabaseHandler().standardQuery(query);
 			// Update table to add check column
-			cf.log.info(cf.prefix
+			plugin.getLogger().info(plugin.prefix
 					+ " Altering cashflow table to add check column");
 			query = "ALTER TABLE cashflow ADD check INTEGER;";
-			cf.getDatabaseHandler().standardQuery(query);
+			plugin.getDatabaseHandler().standardQuery(query);
 			//Drop unneeded lastpaid table
-			cf.log.info(cf.prefix
+			plugin.getLogger().info(plugin.prefix
 					+ " Dropping lastpaid table");
 			query = "DROP TABLE lastpaid;";
-			cf.getDatabaseHandler().standardQuery(query);
+			plugin.getDatabaseHandler().standardQuery(query);
 		}
 		if(ver < 1.12)
 		{
 			//Drop newly created tables
-			cf.log.info(
-					cf.prefix
+			plugin.getLogger().info(
+					plugin.prefix
 							+ " Dropping empty tables.");
-			cf.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "cashflow;");
-			cf.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "buffer;");
+			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "cashflow;");
+			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "buffer;");
 			// Update tables to have prefix
-			cf.log.info(
-					cf.prefix
+			plugin.getLogger().info(
+					plugin.prefix
 							+ " Renaming cashflow table to '" + tablePrefix +"cashflow'.");
 			query = "ALTER TABLE cashflow RENAME TO " + tablePrefix + "cashflow;";
-			cf.getDatabaseHandler().standardQuery(query);
-			cf.log.info(
-					cf.prefix
+			plugin.getDatabaseHandler().standardQuery(query);
+			plugin.getLogger().info(
+					plugin.prefix
 							+ " Renaming buffer table to '" + tablePrefix +"buffer'.");
 			query = "ALTER TABLE buffer RENAME TO " + tablePrefix + "buffer;";
-			cf.getDatabaseHandler().standardQuery(query);
+			plugin.getDatabaseHandler().standardQuery(query);
 		}
 		if(ver < 1.184)
 		{
 			//Add new node for cashes and taxes
-			final List<String> taxes = cf.getConfig().getStringList("taxes.list");
+			final List<String> taxes = plugin.getConfig().getStringList("taxes.list");
 			for (String taxName : taxes)
 			{
-				cf.getConfig().set("taxes." + taxName + ".autoEnable", true);
-				cf.saveConfig();
+				plugin.getConfig().set("taxes." + taxName + ".autoEnable", true);
+				plugin.saveConfig();
 			}
-			final List<String> salaries = cf.getConfig().getStringList("salaries.list");
+			final List<String> salaries = plugin.getConfig().getStringList("salaries.list");
 			for(String salaryName : salaries)
 			{
-				cf.getConfig().set("salaries." + salaryName
+				plugin.getConfig().set("salaries." + salaryName
 						+ ".autoEnable", true);
-				cf.saveConfig();
+				plugin.saveConfig();
 			}
 		}
 		// Update version number in config.yml
-		cf.getConfig().set("version", cf.getDescription().getVersion());
-		cf.saveConfig();
-		cf.log.info(cf.prefix + " Upgrade complete");
+		plugin.getConfig().set("version", plugin.getDescription().getVersion());
+		plugin.saveConfig();
+		plugin.getLogger().info(plugin.prefix + " Upgrade complete");
 	}
 
 	public void save() {
-		cf.saveConfig();
+		plugin.saveConfig();
 	}
 
 	public void reload() {
-		cf.reloadConfig();
-		final ConfigurationSection config = cf.getConfig();
+		plugin.reloadConfig();
+		final ConfigurationSection config = plugin.getConfig();
 		debug = config.getBoolean("debug", false);
 		// Reinitialize variables
 		debug = config.getBoolean("debug", false);
@@ -187,15 +187,15 @@ public class Config {
 	}
 
 	public void setProperty(String path, Object o) {
-		cf.getConfig().set(path, o);
+		plugin.getConfig().set(path, o);
 	}
 
 	public Object getProperty(String path) {
-		return cf.getConfig().get(path);
+		return plugin.getConfig().get(path);
 	}
 
 	public List<String> getStringList(String path) {
-		List<String> list = cf.getConfig().getStringList(path);
+		List<String> list = plugin.getConfig().getStringList(path);
 		if (list != null)
 		{
 			return list;
@@ -204,7 +204,7 @@ public class Config {
 	}
 
 	public void removeProperty(String path) {
-		cf.getConfig().set(path, null);
+		plugin.getConfig().set(path, null);
 	}
 
 	public boolean getBoolean(String path, boolean b) {

@@ -4,8 +4,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import lib.Mitsugaru.SQLibrary.Database.Query;
 import mveritym.cashflow.CashFlow;
+import mveritym.cashflow.database.SQLibrary.Database.Query;
 import mveritym.cashflow.taxer.SalaryManager;
 import mveritym.cashflow.taxer.TaxManager;
 
@@ -39,7 +39,7 @@ public class Buffer implements Runnable {
 		}
 		if(id == -1)
 		{
-			plugin.log.severe("Could not schedule buffer task!");
+			plugin.getLogger().severe("Could not schedule buffer task!");
 		}
 		else
 		{
@@ -62,7 +62,7 @@ public class Buffer implements Runnable {
 							addToBuffer(rs.getResult().getString("name"), rs.getResult().getString("contract"), false);
 						}
 					}while(rs.getResult().next());
-					plugin.log.info(plugin.prefix + " Added old entries into buffer");
+					plugin.getLogger().info(plugin.prefix + " Added old entries into buffer");
 				}
 				rs.closeQuery();
 				//Clear buffer table of entries
@@ -71,7 +71,7 @@ public class Buffer implements Runnable {
 			}
 			catch (SQLException e)
 			{
-				plugin.log.warning(plugin.prefix + " SQL Exception");
+				plugin.getLogger().warning(plugin.prefix + " SQL Exception");
 				e.printStackTrace();
 			}
 		}
@@ -103,7 +103,7 @@ public class Buffer implements Runnable {
 		queue.add(new Tax(name, contract, tax));
 	}
 
-	//TODO maybe have the payTaxToUser give a boolean on wether or not it
+	//TODO maybe have the payTaxToUser give a boolean on whether or not it
 	//actually edited the account. And possibly, if it fails, then keep
 	//it in the buffer until it resolves?
 	@Override

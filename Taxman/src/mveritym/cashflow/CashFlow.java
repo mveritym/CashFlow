@@ -7,6 +7,7 @@ import mveritym.cashflow.commands.SalaryCommand;
 import mveritym.cashflow.commands.TaxCommand;
 import mveritym.cashflow.database.Buffer;
 import mveritym.cashflow.database.DBHandler;
+import mveritym.cashflow.permissions.PermissionsManager;
 import mveritym.cashflow.taxer.SalaryManager;
 import mveritym.cashflow.taxer.TaxManager;
 import mveritym.cashflow.taxer.Taxer;
@@ -20,12 +21,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class CashFlow extends JavaPlugin {
 
-	public final Logger log = Logger.getLogger("Minecraft");
 	public PluginDescriptionFile info;
 	public PluginManager pluginManager;
 	public TaxManager taxManager;
 	public SalaryManager salaryManager;
-	public PermissionsManager permsManager;
 	public Economy eco;
 	public Plugin plugin;
 	public Config config;
@@ -54,7 +53,7 @@ public class CashFlow extends JavaPlugin {
 		CashFlowListener listener = new CashFlowListener(this);
 		pluginManager.registerEvents(listener, this);
 		// Grab Permissions
-		permsManager = new PermissionsManager(this);
+		PermissionsManager.init(this);
 		// Grab Economy
 		this.setupEconomy();
 
@@ -68,16 +67,14 @@ public class CashFlow extends JavaPlugin {
 		buffer.start();
 
 		// Set up command executors
-		CashFlowCommand cashFlowCom = new CashFlowCommand(this, permsManager,
+		CashFlowCommand cashFlowCom = new CashFlowCommand(this,
 				taxManager, salaryManager);
-		TaxCommand taxCom = new TaxCommand(this, permsManager, taxManager);
-		SalaryCommand salaryCom = new SalaryCommand(this, permsManager,
+		TaxCommand taxCom = new TaxCommand(this, taxManager);
+		SalaryCommand salaryCom = new SalaryCommand(this,
 				salaryManager);
 		getCommand("cashflow").setExecutor(cashFlowCom);
 		getCommand("tax").setExecutor(taxCom);
 		getCommand("salary").setExecutor(salaryCom);
-
-		log.info(prefix + " v" + info.getVersion() + " has been enabled.");
 
 		// Enable taxes/salaries
 		taxManager.enable();
@@ -109,7 +106,7 @@ public class CashFlow extends JavaPlugin {
 		{
 			taxManager.disable();
 			salaryManager.disable();
-			log.info(prefix + " Saving buffer...");
+			getLogger().info(prefix + " Saving buffer...");
 			Buffer.getInstance().cancelBuffer();
 		}
 		// Disconnect from sql database? Dunno if necessary
@@ -117,9 +114,9 @@ public class CashFlow extends JavaPlugin {
 		{
 			// Close connection
 			database.close();
-			log.info(prefix + " Closed database connection.");
+			getLogger().info(prefix + " Closed database connection.");
 		}
-		log.info(prefix + " v" + info.getVersion() + " has been disabled.");
+		getLogger().info(prefix + " v" + info.getVersion() + " has been disabled.");
 	}
 
 	private void setupEconomy() {
@@ -134,7 +131,7 @@ public class CashFlow extends JavaPlugin {
 		else
 		{
 			// No economy system found, disable
-			log.warning(prefix + " No economy found!");
+			getLogger().warning(prefix + " No economy found!");
 			this.getServer().getPluginManager().disablePlugin(this);
 			economyFound = false;
 		}

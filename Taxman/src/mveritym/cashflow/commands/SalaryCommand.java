@@ -1,7 +1,8 @@
 package mveritym.cashflow.commands;
 
 import mveritym.cashflow.CashFlow;
-import mveritym.cashflow.PermissionsManager;
+import mveritym.cashflow.permissions.PermissionNode;
+import mveritym.cashflow.permissions.PermissionsManager;
 import mveritym.cashflow.taxer.SalaryManager;
 
 import org.bukkit.ChatColor;
@@ -12,15 +13,13 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 public class SalaryCommand implements CommandExecutor {
-	private CashFlow cashFlow;
+	private CashFlow plugin;
 	private SalaryManager salaryManager;
-	private PermissionsManager permsManager;
 
-	public SalaryCommand(CashFlow plugin, PermissionsManager perm,
+	public SalaryCommand(CashFlow plugin,
 			SalaryManager salary) {
-		cashFlow = plugin;
+		this.plugin = plugin;
 		salaryManager = salary;
-		permsManager = perm;
 	}
 
 	@Override
@@ -31,8 +30,7 @@ public class SalaryCommand implements CommandExecutor {
 		if (sender instanceof Player)
 		{
 			Player player = (Player) sender;
-			String node = "cashflow." + command.getName();
-			if (player.isOp() || permsManager.hasPermission(player, node))
+			if (player.isOp() || PermissionsManager.hasPermission(player, PermissionNode.SALARY))
 			{
 				playerCanDo = true;
 			}
@@ -43,7 +41,7 @@ public class SalaryCommand implements CommandExecutor {
 		}
 		if (!playerCanDo && !isConsole)
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix
+			sender.sendMessage(ChatColor.RED + plugin.prefix
 					+ " Lack permission: cashflow." + command.getName());
 			return true;
 		}
@@ -93,13 +91,13 @@ public class SalaryCommand implements CommandExecutor {
 							catch (Exception e)
 							{
 								sender.sendMessage(ChatColor.RED
-										+ cashFlow.prefix
+										+ plugin.prefix
 										+ " Incorrect number of arguments.");
 							}
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ " Incorrect number of arguments.");
 						}
 						break;
@@ -110,12 +108,12 @@ public class SalaryCommand implements CommandExecutor {
 						}
 						else if (args.length > 2)
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ " Too many arguments.");
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ " Not enough arguments.");
 						}
 						break;
@@ -124,7 +122,7 @@ public class SalaryCommand implements CommandExecutor {
 						{
 							if (args[1].equals("group"))
 							{
-								if (this.cashFlow.permsManager.pluginDetected())
+								if (PermissionsManager.pluginDetected())
 								{
 									this.salaryManager.addGroups(sender,
 											args[2], args[3]);
@@ -152,7 +150,7 @@ public class SalaryCommand implements CommandExecutor {
 						{
 							if (args[1].equals("group"))
 							{
-								if (this.cashFlow.permsManager.pluginDetected())
+								if (PermissionsManager.pluginDetected())
 								{
 									this.salaryManager.removeGroups(sender,
 											args[2], args[3]);
@@ -160,7 +158,7 @@ public class SalaryCommand implements CommandExecutor {
 								else
 								{
 									sender.sendMessage(ChatColor.RED
-											+ cashFlow.prefix
+											+ plugin.prefix
 											+ " You must install a permissions plugin to use this command.");
 								}
 							}
@@ -169,12 +167,12 @@ public class SalaryCommand implements CommandExecutor {
 								this.salaryManager.removePlayers(sender,
 										args[2], args[3]);
 							}
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ "Incorrect argument.");
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ " Incorrect number of arguments.");
 						}
 						break;
@@ -186,7 +184,7 @@ public class SalaryCommand implements CommandExecutor {
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ " Incorrect number of arguments.");
 						}
 						break;
@@ -198,7 +196,7 @@ public class SalaryCommand implements CommandExecutor {
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ " Incorrect number of arguments.");
 						}
 						break;
@@ -212,7 +210,7 @@ public class SalaryCommand implements CommandExecutor {
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ " Incorrect number of arguments.");
 						}
 						break;
@@ -233,19 +231,19 @@ public class SalaryCommand implements CommandExecutor {
 										Boolean.parseBoolean(booleanString),
 										onlineInterval);
 								sender.sendMessage(ChatColor.GREEN
-										+ cashFlow.prefix
+										+ plugin.prefix
 										+ "Online only set to " + ChatColor.GRAY+ args[1]);
 							}
 							else
 							{
 								sender.sendMessage(ChatColor.RED
-										+ cashFlow.prefix
+										+ plugin.prefix
 										+ "Online only can only be set to true or false.");
 							}
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ " Incorrect number of arguments.");
 						}
 						break;
@@ -259,7 +257,7 @@ public class SalaryCommand implements CommandExecutor {
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ " Incorrect number of arguments.");
 						}
 						break;
@@ -267,24 +265,24 @@ public class SalaryCommand implements CommandExecutor {
 						if (args.length == 2)
 						{
 							String salaryName = args[1];
-							if (cashFlow.getPluginConfig()
+							if (plugin.getPluginConfig()
 									.getStringList("salaries.list")
 									.contains(salaryName))
 							{
-								this.cashFlow.log.info(this.cashFlow.prefix
+								this.plugin.getLogger().info(this.plugin.prefix
 										+ " Paying salary " + salaryName);
 								this.salaryManager.paySalary(salaryName);
 							}
 							else
 							{
 								sender.sendMessage(ChatColor.RED
-										+ cashFlow.prefix
+										+ plugin.prefix
 										+ " Invalid salary name: " + salaryName);
 							}
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ " No salary name given");
 						}
 						break;
@@ -292,12 +290,12 @@ public class SalaryCommand implements CommandExecutor {
 						if (args.length == 2)
 						{
 							String salaryName = args[1];
-							if (cashFlow.getPluginConfig()
+							if (plugin.getPluginConfig()
 									.getStringList("salaries.list")
 									.contains(salaryName))
 							{
 								sender.sendMessage(ChatColor.GREEN
-										+ cashFlow.prefix
+										+ plugin.prefix
 										+ " Enabling salary - " + ChatColor.GOLD
 										+ salaryName);
 								this.salaryManager.enableSalary(salaryName);
@@ -305,13 +303,13 @@ public class SalaryCommand implements CommandExecutor {
 							else
 							{
 								sender.sendMessage(ChatColor.RED
-										+ cashFlow.prefix
+										+ plugin.prefix
 										+ " Invalid salary name: " + salaryName);
 							}
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ " No tax name given");
 						}
 						break;
@@ -319,13 +317,13 @@ public class SalaryCommand implements CommandExecutor {
 						if (args.length == 2)
 						{
 							String salaryName = args[1];
-							if (cashFlow.getPluginConfig()
+							if (plugin.getPluginConfig()
 									.getStringList("salaries.list")
 									.contains(salaryName))
 							{
 
 								sender.sendMessage(ChatColor.YELLOW
-										+ cashFlow.prefix
+										+ plugin.prefix
 										+ " Disabling salary - "
 										+ ChatColor.AQUA + salaryName);
 								this.salaryManager.disableSalary(salaryName);
@@ -333,13 +331,13 @@ public class SalaryCommand implements CommandExecutor {
 							else
 							{
 								sender.sendMessage(ChatColor.RED
-										+ cashFlow.prefix
+										+ plugin.prefix
 										+ " Invalid salary name: " + salaryName);
 							}
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + plugin.prefix
 									+ " No salary name given");
 						}
 						break;
@@ -350,7 +348,7 @@ public class SalaryCommand implements CommandExecutor {
 			}
 			catch (IllegalArgumentException e)
 			{
-				sender.sendMessage(ChatColor.RED + cashFlow.prefix
+				sender.sendMessage(ChatColor.RED + plugin.prefix
 						+ " Syntax error. For help, use /salary");
 			}
 		}

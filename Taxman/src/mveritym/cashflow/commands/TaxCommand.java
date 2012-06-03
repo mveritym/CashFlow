@@ -1,7 +1,8 @@
 package mveritym.cashflow.commands;
 
 import mveritym.cashflow.CashFlow;
-import mveritym.cashflow.PermissionsManager;
+import mveritym.cashflow.permissions.PermissionNode;
+import mveritym.cashflow.permissions.PermissionsManager;
 import mveritym.cashflow.taxer.TaxManager;
 
 import org.bukkit.ChatColor;
@@ -14,13 +15,11 @@ import org.bukkit.entity.Player;
 public class TaxCommand implements CommandExecutor {
 	private CashFlow cashFlow;
 	private TaxManager taxManager;
-	private PermissionsManager permsManager;
 
-	public TaxCommand (CashFlow plugin, PermissionsManager perm, TaxManager tax)
+	public TaxCommand (CashFlow plugin, TaxManager tax)
 	{
 		cashFlow = plugin;
 		taxManager = tax;
-		permsManager = perm;
 	}
 
 	@Override
@@ -31,9 +30,8 @@ public class TaxCommand implements CommandExecutor {
 		if (sender instanceof Player)
 		{
 			Player player = (Player) sender;
-			String node = "cashflow." + command.getName();
 			if (player.isOp()
-					|| permsManager.hasPermission(player, node))
+					|| PermissionsManager.hasPermission(player, PermissionNode.TAX))
 			{
 				playerCanDo = true;
 			}
@@ -121,7 +119,7 @@ public class TaxCommand implements CommandExecutor {
 						final String com2 = args[1].toLowerCase();
 						if (com2.equals("group"))
 						{
-							if (this.cashFlow.permsManager.pluginDetected())
+							if (PermissionsManager.pluginDetected())
 							{
 								this.taxManager.addGroups(sender, args[2], args[3]);
 							}
@@ -152,7 +150,7 @@ public class TaxCommand implements CommandExecutor {
 						final String com2 = args[1].toLowerCase();
 						if (com2.equals("group"))
 						{
-							if (this.cashFlow.permsManager.pluginDetected())
+							if (PermissionsManager.pluginDetected())
 							{
 								this.taxManager.removeGroups(sender, args[2],
 										args[3]);
@@ -263,7 +261,7 @@ public class TaxCommand implements CommandExecutor {
 						if (cashFlow.getPluginConfig().getStringList("taxes.list")
 								.contains(taxName))
 						{
-							this.cashFlow.log.info(cashFlow.prefix
+							this.cashFlow.getLogger().info(cashFlow.prefix
 									+ " Paying tax " + taxName);
 							sender.sendMessage(cashFlow.prefix
 									+ " Paying tax " + taxName);

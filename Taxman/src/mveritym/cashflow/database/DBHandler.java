@@ -2,11 +2,11 @@ package mveritym.cashflow.database;
 
 import java.sql.SQLException;
 
-import lib.Mitsugaru.SQLibrary.Database.Query;
-import lib.Mitsugaru.SQLibrary.MySQL;
-import lib.Mitsugaru.SQLibrary.SQLite;
 import mveritym.cashflow.CashFlow;
 import mveritym.cashflow.Config;
+import mveritym.cashflow.database.SQLibrary.MySQL;
+import mveritym.cashflow.database.SQLibrary.SQLite;
+import mveritym.cashflow.database.SQLibrary.Database.Query;
 
 public class DBHandler {
 	// Class Variables
@@ -35,12 +35,12 @@ public class DBHandler {
 		if (useMySQL)
 		{
 			// Connect to mysql database
-			mysql = new MySQL(plugin.log, plugin.prefix, config.host,
+			mysql = new MySQL(plugin.getLogger(), plugin.prefix, config.host,
 					config.port, config.database, config.user, config.password);
 			// Check if master table exists
 			if (!mysql.checkTable(config.tablePrefix + "cashflow"))
 			{
-				plugin.log.info(plugin.prefix + " Created master list table");
+				plugin.getLogger().info(plugin.prefix + " Created master list table");
 				// Master table
 				mysql.createTable("CREATE TABLE "
 						+ config.tablePrefix
@@ -48,7 +48,7 @@ public class DBHandler {
 			}
 			if (!mysql.checkTable(config.tablePrefix + "buffer"))
 			{
-				plugin.log.info(plugin.prefix + " Created buffer table");
+				plugin.getLogger().info(plugin.prefix + " Created buffer table");
 				// Table to save buffer items
 				mysql.createTable("CREATE TABLE "
 						+ config.tablePrefix
@@ -58,12 +58,12 @@ public class DBHandler {
 		else
 		{
 			// Connect to sql database
-			sqlite = new SQLite(plugin.log, plugin.prefix, "database", plugin
+			sqlite = new SQLite(plugin.getLogger(), plugin.prefix, "database", plugin
 					.getDataFolder().getAbsolutePath());
 			// Check if master table exists
 			if (!sqlite.checkTable(config.tablePrefix + "cashflow"))
 			{
-				plugin.log.info(plugin.prefix + " Created master list table");
+				plugin.getLogger().info(plugin.prefix + " Created master list table");
 				// Master table
 				sqlite.createTable("CREATE TABLE "
 						+ config.tablePrefix
@@ -71,7 +71,7 @@ public class DBHandler {
 			}
 			if (!sqlite.checkTable(config.tablePrefix + "buffer"))
 			{
-				plugin.log.info(plugin.prefix + " Created buffer table");
+				plugin.getLogger().info(plugin.prefix + " Created buffer table");
 				// Table to save buffer items
 				sqlite.createTable("CREATE TABLE "
 						+ config.tablePrefix
@@ -86,14 +86,14 @@ public class DBHandler {
 		{
 			StringBuilder sb = new StringBuilder();
 			// Grab local SQLite database
-			sqlite = new SQLite(plugin.log, plugin.prefix, "database", plugin
+			sqlite = new SQLite(plugin.getLogger(), plugin.prefix, "database", plugin
 					.getDataFolder().getAbsolutePath());
 			// Copy items
 			Query rs = sqlite.select("SELECT * FROM " + config.tablePrefix
 					+ "cashflow;");
 			if (rs.getResult().next())
 			{
-				plugin.log.info(plugin.prefix + " Importing master table...");
+				plugin.getLogger().info(plugin.prefix + " Importing master table...");
 				do
 				{
 					boolean hasLast = false;
@@ -136,7 +136,7 @@ public class DBHandler {
 					+ "buffer;");
 			if (rs.getResult().next())
 			{
-				plugin.log.info(plugin.prefix + " Importing buffer...");
+				plugin.getLogger().info(plugin.prefix + " Importing buffer...");
 				do
 				{
 					final String name = rs.getResult().getString("name");
@@ -152,12 +152,12 @@ public class DBHandler {
 				while (rs.getResult().next());
 			}
 			rs.closeQuery();
-			plugin.log
+			plugin.getLogger()
 					.info(plugin.prefix + " Done importing SQLite into MySQL");
 		}
 		catch (SQLException e)
 		{
-			plugin.log.warning(plugin.prefix + " SQL Exception on Import");
+			plugin.getLogger().warning(plugin.prefix + " SQL Exception on Import");
 			e.printStackTrace();
 		}
 
