@@ -55,7 +55,7 @@ public class TaxCommand implements CommandExecutor {
 		{
 			try
 			{
-			final CashFlowCommands com = CashFlowCommands.valueOf(args[0].toLowerCase());
+			final CFCommand com = CFCommand.valueOf(args[0].toLowerCase());
 			switch(com)
 			{
 				case create:

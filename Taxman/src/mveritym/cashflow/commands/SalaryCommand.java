@@ -54,7 +54,7 @@ public class SalaryCommand implements CommandExecutor {
 		{
 			try
 			{
-				final CashFlowCommands com = CashFlowCommands.valueOf(args[0]
+				final CFCommand com = CFCommand.valueOf(args[0]
 						.toLowerCase());
 				switch (com)
 				{

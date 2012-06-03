@@ -60,7 +60,7 @@ public class CashFlowCommand implements CommandExecutor {
 		}
 			try
 			{
-				final CashFlowCommands com = CashFlowCommands.valueOf(args[0]
+				final CFCommand com = CFCommand.valueOf(args[0]
 						.toLowerCase());
 				parseCommand(com, sender, args);
 			}
@@ -72,7 +72,7 @@ public class CashFlowCommand implements CommandExecutor {
 		return true;
 	}
 	
-	private void parseCommand(CashFlowCommands com, CommandSender sender, String[] args)
+	private void parseCommand(CFCommand com, CommandSender sender, String[] args)
 	{
 		switch (com)
 		{

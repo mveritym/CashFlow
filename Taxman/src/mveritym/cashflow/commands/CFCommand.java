@@ -1,6 +1,6 @@
 package mveritym.cashflow.commands;
 
-public enum CashFlowCommands {
+public enum CFCommand {
 	tax,
 	salary,
 	cashflow,
