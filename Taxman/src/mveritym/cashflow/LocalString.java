@@ -14,9 +14,7 @@ public enum LocalString
 			LocalizeConfig.unknownCommand), COMMAND_CASHFLOW_RESTART(
 			LocalizeConfig.restart), COMMAND_CASHFLOW_ENABLE(
 			LocalizeConfig.cashflowEnable), COMMAND_CASHFLOW_DISABLE(
-			LocalizeConfig.cashflowDisable), HELP_HELP(LocalizeConfig.helpHelp), HELP_VERSION(
-			LocalizeConfig.helpVersion), HELP_ADMIN_RELOAD(
-			LocalizeConfig.helpAdminReload);
+			LocalizeConfig.cashflowDisable);
 
 	private String string;
 

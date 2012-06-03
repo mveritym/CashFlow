@@ -19,8 +19,8 @@ public class LocalizeConfig
 	private static File file;
 	private static YamlConfiguration config;
 	public static String permissionDeny, lackMessage, econFailure,
-			unknownCommand, noPermission, helpHelp, helpAdminReload,
-			helpVersion, restart, cashflowEnable, cashflowDisable, invalidName;
+			unknownCommand, noPermission, restart, cashflowEnable,
+			cashflowDisable, invalidName;
 
 	public static void init(CashFlow cf)
 	{
@@ -90,11 +90,11 @@ public class LocalizeConfig
 				"&a%tag &fTaxes and salaries restarted.");
 		defaults.put("message.unknownCommand",
 				"&c%tag Unknown command '&6%extra&c'. Bad syntax.");
-		defaults.put("help.help", "&a/kcon help&e : Show help menu");
-		defaults.put("help.admin.reload",
-				"&a/kcon reload&e : Reload all config files");
-		defaults.put("help.version",
-				"&a/kcon version&e : Show version and config");
+		// defaults.put("help.help", "&a/kcon help&e : Show help menu");
+		// defaults.put("help.admin.reload",
+		// "&a/kcon reload&e : Reload all config files");
+		// defaults.put("help.version",
+		// "&a/kcon version&e : Show version and config");
 		defaults.put("reason.limit", "Hit limit");
 		defaults.put("reason.money", "Lack money");
 		defaults.put("reason.unknown", " Unknown DenyType");
@@ -136,11 +136,11 @@ public class LocalizeConfig
 		/**
 		 * help
 		 */
-		helpHelp = config.getString("help.help",
-				"&a/kcon help&e : Show help menu");
-		helpAdminReload = config.getString("help.admin.reload",
-				"&a/kcon reload&e : Reload all config files");
-		helpVersion = config.getString("help.version",
-				"&a/kcon version&e : Show version and config");
+		// helpHelp = config.getString("help.help",
+		// "&a/kcon help&e : Show help menu");
+		// helpAdminReload = config.getString("help.admin.reload",
+		// "&a/kcon reload&e : Reload all config files");
+		// helpVersion = config.getString("help.version",
+		// "&a/kcon version&e : Show version and config");
 	}
 }
