@@ -1,4 +1,4 @@
-package mveritym.cashflow;
+package mveritym.cashflow.config;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,13 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import mveritym.cashflow.CashFlow;
+
 import org.bukkit.configuration.ConfigurationSection;
 
 public class Config {
 	// Class variables
 	private CashFlow plugin;
 	public boolean debug, useMySQL, importSQL;
-	public String prefix, suffix, host, port, database, user, password, tablePrefix;
+	public String prefix, suffix, host, port, database, user, password;
+	public static String tablePrefix;
 	public double catchUpDelay;
 
 	public Config(CashFlow plugin) {
@@ -46,7 +49,7 @@ public class Config {
 		}
 		if (gen)
 		{
-			plugin.getLogger().info(plugin.prefix
+			plugin.getLogger().info(CashFlow.TAG
 					+ " No CashFlow config file found. Creating config file.");
 		}
 		// Initialize variables
@@ -80,94 +83,8 @@ public class Config {
 		if(catchUpDelay > 0.25 || catchUpDelay < 0)
 		{
 			catchUpDelay = 0.08;
-			plugin.getLogger().warning(plugin.prefix + " catchUpDelay is wrong. Setting to default.");
+			plugin.getLogger().warning(CashFlow.TAG + " catchUpDelay is wrong. Setting to default.");
 		}
-	}
-
-	/**
-	 * Check if updates are necessary
-	 */
-	public void checkUpdate() {
-		// Check if need to update
-		ConfigurationSection config = plugin.getConfig();
-		if (Double.parseDouble(plugin.getDescription().getVersion()) > Double
-				.parseDouble(config.getString("version")))
-		{
-			// Update to latest version
-			plugin.getLogger().info(plugin.prefix + " Updating to v"
-					+ plugin.getDescription().getVersion());
-			this.update();
-		}
-	}
-
-	/**
-	 * This method is called to make the appropriate changes, most likely only
-	 * necessary for database schema modification, for a proper update.
-	 */
-	private void update() {
-		// Grab current version
-		final double ver = Double.parseDouble(plugin.getConfig().getString(
-				"version"));
-		String query = "";
-		if (ver < 1.1)
-		{
-			// Update table to add laston column
-			plugin.getLogger().info(plugin.prefix
-					+ " Altering cashflow table to add laston column");
-			query = "ALTER TABLE cashflow ADD laston REAL;";
-			plugin.getDatabaseHandler().standardQuery(query);
-			// Update table to add check column
-			plugin.getLogger().info(plugin.prefix
-					+ " Altering cashflow table to add check column");
-			query = "ALTER TABLE cashflow ADD check INTEGER;";
-			plugin.getDatabaseHandler().standardQuery(query);
-			//Drop unneeded lastpaid table
-			plugin.getLogger().info(plugin.prefix
-					+ " Dropping lastpaid table");
-			query = "DROP TABLE lastpaid;";
-			plugin.getDatabaseHandler().standardQuery(query);
-		}
-		if(ver < 1.12)
-		{
-			//Drop newly created tables
-			plugin.getLogger().info(
-					plugin.prefix
-							+ " Dropping empty tables.");
-			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "cashflow;");
-			plugin.getDatabaseHandler().standardQuery("DROP TABLE " + tablePrefix + "buffer;");
-			// Update tables to have prefix
-			plugin.getLogger().info(
-					plugin.prefix
-							+ " Renaming cashflow table to '" + tablePrefix +"cashflow'.");
-			query = "ALTER TABLE cashflow RENAME TO " + tablePrefix + "cashflow;";
-			plugin.getDatabaseHandler().standardQuery(query);
-			plugin.getLogger().info(
-					plugin.prefix
-							+ " Renaming buffer table to '" + tablePrefix +"buffer'.");
-			query = "ALTER TABLE buffer RENAME TO " + tablePrefix + "buffer;";
-			plugin.getDatabaseHandler().standardQuery(query);
-		}
-		if(ver < 1.184)
-		{
-			//Add new node for cashes and taxes
-			final List<String> taxes = plugin.getConfig().getStringList("taxes.list");
-			for (String taxName : taxes)
-			{
-				plugin.getConfig().set("taxes." + taxName + ".autoEnable", true);
-				plugin.saveConfig();
-			}
-			final List<String> salaries = plugin.getConfig().getStringList("salaries.list");
-			for(String salaryName : salaries)
-			{
-				plugin.getConfig().set("salaries." + salaryName
-						+ ".autoEnable", true);
-				plugin.saveConfig();
-			}
-		}
-		// Update version number in config.yml
-		plugin.getConfig().set("version", plugin.getDescription().getVersion());
-		plugin.saveConfig();
-		plugin.getLogger().info(plugin.prefix + " Upgrade complete");
 	}
 
 	public void save() {

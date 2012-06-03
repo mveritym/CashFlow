@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.SQLException;
 
 import mveritym.cashflow.CashFlow;
+import mveritym.cashflow.database.Table;
 import mveritym.cashflow.database.SQLibrary.Database.Query;
 
 import org.bukkit.ChatColor;
@@ -11,13 +12,13 @@ import org.bukkit.command.CommandSender;
 
 public class ImportPlayersTask implements Runnable
 {
-	private CashFlow cashflow;
+	private CashFlow plugin;
 	private String worldName;
 	private CommandSender sender;
 
 	public ImportPlayersTask(CashFlow cashflow, CommandSender sender, String world)
 	{
-		this.cashflow = cashflow;
+		this.plugin = cashflow;
 		this.worldName = world;
 		this.sender = sender;
 	}
@@ -38,9 +39,9 @@ public class ImportPlayersTask implements Runnable
 					boolean has = false;
 					// Check if player already exists
 					String query = "SELECT COUNT(*) FROM "
-							+ cashflow.getPluginConfig().tablePrefix
-							+ "cashflow WHERE playername='" + name + "';";
-					final Query rs = cashflow.getDatabaseHandler().select(
+							+ Table.CASHFLOW.getName()
+							+ " WHERE playername='" + name + "';";
+					final Query rs = plugin.getDatabaseHandler().select(
 							query);
 					if (rs.getResult().next())
 					{
@@ -55,25 +56,25 @@ public class ImportPlayersTask implements Runnable
 					{
 						// Add to master list
 						query = "INSERT INTO "
-								+ cashflow.getPluginConfig().tablePrefix
-								+ "cashflow (playername) VALUES('" + name
+								+ Table.CASHFLOW.getName()
+								+ " (playername) VALUES('" + name
 								+ "');";
-						cashflow.getDatabaseHandler().standardQuery(query);
+						plugin.getDatabaseHandler().standardQuery(query);
 					}
 				}
 				catch (SQLException e)
 				{
-					cashflow.getLogger().warning(
-							cashflow.prefix + " SQL Exception");
+					plugin.getLogger().warning(
+							CashFlow.TAG + " SQL Exception");
 					e.printStackTrace();
 				}
 			}
 		}
-		sender.sendMessage(ChatColor.GREEN + cashflow.prefix
+		sender.sendMessage(ChatColor.GREEN + CashFlow.TAG
 				+ " Done importing players from '" + ChatColor.GRAY
 				+ worldName + ChatColor.GREEN + "' into database");
-		cashflow.getLogger().info(
-				cashflow.prefix + " Done importing players from "
+		plugin.getLogger().info(
+				CashFlow.TAG + " Done importing players from "
 						+ worldName + " into database");
 	}
 }

@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import mveritym.cashflow.CashFlow;
-import mveritym.cashflow.Config;
+import mveritym.cashflow.config.Config;
+import mveritym.cashflow.database.Table;
 import mveritym.cashflow.database.SQLibrary.Database.Query;
 
 import net.milkbowl.vault.permission.Permission;
@@ -307,8 +308,8 @@ public class PermissionsManager
 		return playerList;
 	}
 
-	public static List<String> getUsers(List<String> groups, List<String> players,
-			List<String> exceptedPlayers)
+	public static List<String> getUsers(List<String> groups,
+			List<String> players, List<String> exceptedPlayers)
 	{
 		List<String> playerList = new ArrayList<String>();
 
@@ -357,7 +358,7 @@ public class PermissionsManager
 		try
 		{
 			final String query = "SELECT * FROM "
-					+ cashflow.getPluginConfig().tablePrefix + "cashflow;";
+					+ Table.CASHFLOW.getName() + ";";
 			final Query rs = cashflow.getDatabaseHandler().select(query);
 			if (rs.getResult().next())
 			{
@@ -370,7 +371,7 @@ public class PermissionsManager
 		}
 		catch (SQLException e)
 		{
-			cashflow.getLogger().warning(cashflow.prefix + " SQL Exception");
+			cashflow.getLogger().warning(CashFlow.TAG + " SQL Exception");
 			e.printStackTrace();
 		}
 		return players;
@@ -394,8 +395,8 @@ public class PermissionsManager
 			try
 			{
 				final String query = "SELECT * FROM "
-						+ cashflow.getPluginConfig().tablePrefix
-						+ "cashflow WHERE playername='" + playerName + "';";
+						+ Table.CASHFLOW.getName()
+						+ " WHERE playername='" + playerName + "';";
 				final Query rs = cashflow.getDatabaseHandler().select(query);
 				if (rs.getResult().next())
 				{
@@ -409,8 +410,7 @@ public class PermissionsManager
 			}
 			catch (SQLException e)
 			{
-				cashflow.getLogger()
-						.warning(cashflow.prefix + " SQL Exception");
+				cashflow.getLogger().warning(CashFlow.TAG + " SQL Exception");
 				e.printStackTrace();
 			}
 		}
@@ -434,5 +434,4 @@ public class PermissionsManager
 		return false;
 	}
 
-	
 }

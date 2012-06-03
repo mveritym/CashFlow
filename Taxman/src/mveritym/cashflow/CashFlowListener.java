@@ -2,6 +2,8 @@ package mveritym.cashflow;
 
 import java.sql.SQLException;
 
+import mveritym.cashflow.config.Config;
+import mveritym.cashflow.database.Table;
 import mveritym.cashflow.database.SQLibrary.Database.Query;
 
 import org.bukkit.event.EventHandler;
@@ -35,10 +37,10 @@ public class CashFlowListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(final PlayerJoinEvent event) {
 		if (config.debug) {
-			plugin.getLogger().warning(plugin.prefix + " PlayerJoin event");
+			plugin.getLogger().warning(CashFlow.TAG + " PlayerJoin event");
 		}
-		String query = "SELECT COUNT(*) FROM " + config.tablePrefix
-				+ "cashflow WHERE playername='" + event.getPlayer().getName()
+		String query = "SELECT COUNT(*) FROM " + Table.CASHFLOW.getName()
+				+ " WHERE playername='" + event.getPlayer().getName()
 				+ "';";
 		Query rs = plugin.getDatabaseHandler().select(query);
 		try {
@@ -52,16 +54,16 @@ public class CashFlowListener implements Listener {
 			rs.closeQuery();
 			if (!has) {
 				if (config.debug) {
-					plugin.getLogger().warning(plugin.prefix + " PlayerJoin - add new player");
+					plugin.getLogger().warning(CashFlow.TAG + " PlayerJoin - add new player");
 				}
 				// Add to master list
-				query = "INSERT INTO " + config.tablePrefix
-						+ "cashflow (playername) VALUES('"
+				query = "INSERT INTO " + Table.CASHFLOW.getName()
+						+ " (playername) VALUES('"
 						+ event.getPlayer().getName() + "');";
 				plugin.getDatabaseHandler().standardQuery(query);
 			}
 		} catch (SQLException e) {
-			plugin.getLogger().warning(plugin.prefix + " SQL Exception");
+			plugin.getLogger().warning(CashFlow.TAG + " SQL Exception");
 			e.printStackTrace();
 		}
 	}

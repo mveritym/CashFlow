@@ -1,57 +1,45 @@
 package mveritym.cashflow;
 
-import java.util.logging.Logger;
-
 import mveritym.cashflow.commands.CashFlowCommand;
 import mveritym.cashflow.commands.SalaryCommand;
 import mveritym.cashflow.commands.TaxCommand;
+import mveritym.cashflow.config.Config;
+import mveritym.cashflow.config.Update;
 import mveritym.cashflow.database.Buffer;
 import mveritym.cashflow.database.DBHandler;
+import mveritym.cashflow.managers.SalaryManager;
+import mveritym.cashflow.managers.TaxManager;
 import mveritym.cashflow.permissions.PermissionsManager;
-import mveritym.cashflow.taxer.SalaryManager;
-import mveritym.cashflow.taxer.TaxManager;
-import mveritym.cashflow.taxer.Taxer;
 import net.milkbowl.vault.economy.Economy;
 
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class CashFlow extends JavaPlugin {
-
-	public PluginDescriptionFile info;
-	public PluginManager pluginManager;
-	public TaxManager taxManager;
-	public SalaryManager salaryManager;
-	public Economy eco;
-	public Plugin plugin;
+public class CashFlow extends JavaPlugin
+{
+	private TaxManager taxManager;
+	private SalaryManager salaryManager;
+	private Economy eco;
 	public Config config;
-	public String prefix;
+	public static String TAG;
 	private DBHandler database;
 	private boolean economyFound;
 
 	@Override
-	public void onLoad() {
-		// Grab info
-		info = getDescription();
-		prefix = "[" + info.getName() + "]";
+	public void onEnable()
+	{
+		TAG = "[" + getDescription().getName() + "]";
 		// Grab config
 		config = new Config(this);
 		// Check if master player table exists
 		database = new DBHandler(this, config);
-	}
-
-	@Override
-	public void onEnable() {
-		// Check for updates to database:
-		config.checkUpdate();
-		pluginManager = getServer().getPluginManager();
+		// Updater
+		Update.init(this);
+		Update.checkUpdate();
 
 		// Register Listener
-		CashFlowListener listener = new CashFlowListener(this);
-		pluginManager.registerEvents(listener, this);
+		getServer().getPluginManager().registerEvents(
+				new CashFlowListener(this), this);
 		// Grab Permissions
 		PermissionsManager.init(this);
 		// Grab Economy
@@ -63,40 +51,32 @@ public class CashFlow extends JavaPlugin {
 
 		// Instantiate Buffer
 		Buffer buffer = Buffer.getInstance();
-		buffer.setup(this, taxManager, salaryManager);
+		buffer.init(this, taxManager, salaryManager);
 		buffer.start();
 
 		// Set up command executors
-		CashFlowCommand cashFlowCom = new CashFlowCommand(this,
-				taxManager, salaryManager);
-		TaxCommand taxCom = new TaxCommand(this, taxManager);
-		SalaryCommand salaryCom = new SalaryCommand(this,
-				salaryManager);
-		getCommand("cashflow").setExecutor(cashFlowCom);
-		getCommand("tax").setExecutor(taxCom);
-		getCommand("salary").setExecutor(salaryCom);
+		getCommand("cashflow").setExecutor(
+				new CashFlowCommand(this, taxManager, salaryManager));
+		getCommand("tax").setExecutor(new TaxCommand(this, taxManager));
+		getCommand("salary")
+				.setExecutor(new SalaryCommand(this, salaryManager));
 
 		// Enable taxes/salaries
 		taxManager.enable();
 		salaryManager.enable();
 		// Check the last paid and see how many times to iterate the tax/salary
-		/*final int tickToHour = 72000;
-		int id = this
-				.getServer()
-				.getScheduler()
-				.scheduleSyncDelayedTask(
-						this,
-						new CatchUp(log, config, taxManager, salaryManager,
-								prefix),
-						(long) (config.catchUpDelay * tickToHour));
-		if (id == -1)
-		{
-			this.log.severe("Could not schedule the CatchUp thread...");
-		}*/
+		/*
+		 * final int tickToHour = 72000; int id = this .getServer()
+		 * .getScheduler() .scheduleSyncDelayedTask( this, new CatchUp(log,
+		 * config, taxManager, salaryManager, prefix), (long)
+		 * (config.catchUpDelay * tickToHour)); if (id == -1) {
+		 * this.log.severe("Could not schedule the CatchUp thread..."); }
+		 */
 	}
 
 	@Override
-	public void onDisable() {
+	public void onDisable()
+	{
 		// Save config
 		this.reloadConfig();
 		this.saveConfig();
@@ -106,7 +86,7 @@ public class CashFlow extends JavaPlugin {
 		{
 			taxManager.disable();
 			salaryManager.disable();
-			getLogger().info(prefix + " Saving buffer...");
+			getLogger().info(TAG + " Saving buffer...");
 			Buffer.getInstance().cancelBuffer();
 		}
 		// Disconnect from sql database? Dunno if necessary
@@ -114,12 +94,12 @@ public class CashFlow extends JavaPlugin {
 		{
 			// Close connection
 			database.close();
-			getLogger().info(prefix + " Closed database connection.");
+			getLogger().info(TAG + " Closed database connection.");
 		}
-		getLogger().info(prefix + " v" + info.getVersion() + " has been disabled.");
 	}
 
-	private void setupEconomy() {
+	private void setupEconomy()
+	{
 		RegisteredServiceProvider<Economy> economyProvider = this.getServer()
 				.getServicesManager()
 				.getRegistration(net.milkbowl.vault.economy.Economy.class);
@@ -131,106 +111,24 @@ public class CashFlow extends JavaPlugin {
 		else
 		{
 			// No economy system found, disable
-			getLogger().warning(prefix + " No economy found!");
+			getLogger().warning(TAG + " No economy found!");
 			this.getServer().getPluginManager().disablePlugin(this);
 			economyFound = false;
 		}
 	}
 
-	public Config getPluginConfig() {
+	public Config getPluginConfig()
+	{
 		return config;
 	}
 
-	public DBHandler getDatabaseHandler() {
+	public DBHandler getDatabaseHandler()
+	{
 		return database;
 	}
 
-	static class CatchUp implements Runnable {
-		private Logger log;
-		private Config config;
-		private TaxManager taxManager;
-		private SalaryManager salaryManager;
-		private String prefix;
-
-		public CatchUp(Logger l, Config conf, TaxManager tax,
-				SalaryManager sal, String p) {
-			log = l;
-			config = conf;
-			taxManager = tax;
-			salaryManager = sal;
-			prefix = p;
-		}
-
-		@Override
-		public void run() {
-			// Grab current time
-			log.info(prefix + " Running CatchUp");
-			final long currentTime = System.currentTimeMillis();
-			// Unit conversion
-			final double millisecondToSecond = 0.001;
-			final long hoursToSeconds = 3600;
-			final int tickToHour = 72000;
-			// Grab all enabled taxes and check their time
-			for (Taxer tax : taxManager.taxTasks)
-			{
-				final String name = tax.getName();
-				final long past = config.getLong("taxes." + name + ".lastPaid");
-				if (past > 0)
-				{
-					double hoursDiff = (((currentTime - past) * millisecondToSecond) / hoursToSeconds);
-					final double interval = config.getDouble(
-							("taxes." + name + ".taxInterval"), 1);
-					final long period = Math.round(interval * tickToHour) + 1;
-					long delay = (long) ((interval * tickToHour) - (config.catchUpDelay * tickToHour));
-					if (hoursDiff > interval)
-					{
-						// The difference in hours is greater than the interval
-						// Do the number of iterations of the specified tax
-						final double iterations = hoursDiff / interval;
-						for (int i = 0; i < iterations; i++)
-						{
-							taxManager.payTax(name);
-						}
-						delay = (long) (((hoursDiff % interval) * tickToHour) - (config.catchUpDelay * tickToHour));
-					}
-					if (delay < 0)
-					{
-						delay = 0;
-					}
-					tax.reschedule(delay, period);
-				}
-			}
-			// Grab all enabled salaries and check their time
-			for (Taxer salary : salaryManager.salaryTasks)
-			{
-				final String name = salary.getName();
-				final long past = config.getLong("salaries." + name + ".lastPaid");
-				if (past > 0)
-				{
-					double hoursDiff = (((currentTime - past) * millisecondToSecond) / hoursToSeconds);
-					final double interval = config.getDouble(
-							("salaries." + name + ".salaryInterval"), 1);
-					final long period = Math.round(interval * tickToHour) + 1;
-					long delay = (long) ((interval * tickToHour) - (config.catchUpDelay * tickToHour));
-					if (hoursDiff > interval)
-					{
-						// The difference in hours is greater than the interval
-						// Do the number of iterations of the specified tax
-						final double iterations = hoursDiff / interval;
-						for (int i = 0; i < iterations; i++)
-						{
-							salaryManager.paySalary(name);
-						}
-						delay = (long) (((hoursDiff % interval) * tickToHour) - (config.catchUpDelay * tickToHour));
-					}
-					if (delay < 0)
-					{
-						delay = 0;
-					}
-					salary.reschedule(delay, period);
-				}
-			}
-			log.info(prefix + " Buffered iterations + Rescheduled threads");
-		}
+	public Economy getEconomy()
+	{
+		return eco;
 	}
 }

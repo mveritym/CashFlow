@@ -1,40 +1,42 @@
-package mveritym.cashflow.taxer;
+package mveritym.cashflow.managers;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
 import mveritym.cashflow.CashFlow;
-import mveritym.cashflow.Config;
+import mveritym.cashflow.config.Config;
 import mveritym.cashflow.database.Buffer;
 import mveritym.cashflow.permissions.PermissionsManager;
+import mveritym.cashflow.tasks.SalaryTask;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class SalaryManager {
+public class SalaryManager
+{
 
-	protected CashFlow plugin;
-	protected Config conf;
-	protected File confFile;
+	private CashFlow plugin;
+	private Config conf;
 	List<String> salaries;
 	List<String> paidGroups;
 	List<String> paidPlayers;
 	ListIterator<String> iterator;
-	public final Collection<Taxer> salaryTasks = new ArrayList<Taxer>();
+	public final Collection<SalaryTask> salaryTasks = new ArrayList<SalaryTask>();
 
-	public SalaryManager(CashFlow cashFlow) {
+	public SalaryManager(CashFlow cashFlow)
+	{
 		this.plugin = cashFlow;
 		conf = cashFlow.getPluginConfig();
 		salaries = conf.getStringList("salaries.list");
 	}
 
 	public void createSalary(CommandSender sender, String name,
-			String paycheck, String interval, String employer) {
+			String paycheck, String interval, String employer)
+	{
 		conf.reload();
 		String salaryName = name;
 		double salary = Double.parseDouble(paycheck);
@@ -44,28 +46,31 @@ public class SalaryManager {
 
 		salaries = conf.getStringList("salaries.list");
 		iterator = salaries.listIterator();
-		
-		if(this.plugin.eco.getName().equals("BOSEconomy"))
+
+		if (this.plugin.getEconomy().getName().equals("BOSEconomy"))
 		{
 			bose = true;
 		}
 
 		if (salary <= 0)
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG
 					+ " Please choose a salary greater than 0.");
 			return;
 		}
 		else if (salaryInterval <= 0)
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG
 					+ " Please choose a salary interval greater than 0.");
 			return;
 		}
-		else if (!bose && (this.plugin.eco.bankBalance(employer).type) == EconomyResponse.ResponseType.FAILURE
+		else if (!bose
+				&& (this.plugin.getEconomy().bankBalance(employer).type) == EconomyResponse.ResponseType.FAILURE
 				&& !(employer.equals("null")))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " '" + ChatColor.GOLD + employer + ChatColor.RED + "' not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " '"
+					+ ChatColor.GOLD + employer + ChatColor.RED
+					+ "' not found.");
 			return;
 		}
 		else
@@ -74,7 +79,8 @@ public class SalaryManager {
 			{
 				if (iterator.next().equals(salaryName))
 				{
-					sender.sendMessage(ChatColor.RED + plugin.prefix
+					sender.sendMessage(ChatColor.RED
+							+ CashFlow.TAG
 							+ " A salary with that name has already been created.");
 					return;
 				}
@@ -97,11 +103,13 @@ public class SalaryManager {
 		conf.setProperty("salaries." + salaryName + ".onlineOnly.interval", 0.0);
 		conf.save();
 
-		sender.sendMessage(ChatColor.GREEN + plugin.prefix + " New salary '" + ChatColor.GRAY + salaryName
-				+ ChatColor.GREEN + "' created successfully.");
+		sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " New salary '"
+				+ ChatColor.GRAY + salaryName + ChatColor.GREEN
+				+ "' created successfully.");
 	}
 
-	public void deleteSalary(CommandSender sender, String name) {
+	public void deleteSalary(CommandSender sender, String name)
+	{
 		conf.reload();
 		String salaryName = name;
 
@@ -111,7 +119,7 @@ public class SalaryManager {
 		{
 			salaries.remove(salaryName);
 
-			for (Taxer task : salaryTasks)
+			for (SalaryTask task : salaryTasks)
 			{
 				if (task.getName().equals(name))
 				{
@@ -134,11 +142,12 @@ public class SalaryManager {
 		return;
 	}
 
-	public void salaryInfo(CommandSender sender, String salaryName) {
+	public void salaryInfo(CommandSender sender, String salaryName)
+	{
 		conf.reload();
 		salaries = conf.getStringList("salaries.list");
 
-		//TODO refomat
+		// TODO refomat
 		if (salaries.contains(salaryName))
 		{
 			sender.sendMessage(ChatColor.BLUE + "Salary: "
@@ -171,21 +180,22 @@ public class SalaryManager {
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " No salary '" +ChatColor.GRAY + salaryName
-					+ ChatColor.RED + "' found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " No salary '"
+					+ ChatColor.GRAY + salaryName + ChatColor.RED + "' found.");
 		}
 
 		return;
 	}
 
-	public void listSalaries(CommandSender sender) {
+	public void listSalaries(CommandSender sender)
+	{
 		conf.reload();
 		salaries = conf.getStringList("salaries.list");
 		iterator = salaries.listIterator();
 
 		if (salaries.size() != 0)
 		{
-			//Header
+			// Header
 			sender.sendMessage(ChatColor.GREEN + "=====" + ChatColor.WHITE
 					+ "Salary List" + ChatColor.GREEN + "=====");
 			while (iterator.hasNext())
@@ -195,11 +205,13 @@ public class SalaryManager {
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " No salaries to list.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG
+					+ " No salaries to list.");
 		}
 	}
 
-	public void addGroups(CommandSender sender, String taxName, String groups) {
+	public void addGroups(CommandSender sender, String taxName, String groups)
+	{
 		conf.reload();
 		String[] groupNames = groups.split(",");
 		for (String name : groupNames)
@@ -209,7 +221,8 @@ public class SalaryManager {
 	}
 
 	public void addGroup(CommandSender sender, String salaryName,
-			String groupName) {
+			String groupName)
+	{
 		conf.reload();
 		salaries = conf.getStringList("salaries.list");
 		paidGroups = conf.getStringList("salaries." + salaryName
@@ -217,16 +230,21 @@ public class SalaryManager {
 
 		if (!(salaries.contains(salaryName)))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + "Salary '" + ChatColor.GRAY + salaryName + ChatColor.RED + "' not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + "Salary '"
+					+ ChatColor.GRAY + salaryName + ChatColor.RED
+					+ "' not found.");
 		}
 		else if (!(PermissionsManager.isGroup(groupName)))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " '" + ChatColor.GOLD + groupName + ChatColor.RED + " not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " '"
+					+ ChatColor.GOLD + groupName + ChatColor.RED
+					+ " not found.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + plugin.prefix + " " + ChatColor.GRAY + salaryName + ChatColor.GREEN
-					+ " applied successfully to " + ChatColor.GOLD  + groupName);
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " "
+					+ ChatColor.GRAY + salaryName + ChatColor.GREEN
+					+ " applied successfully to " + ChatColor.GOLD + groupName);
 			paidGroups.add(groupName);
 			conf.setProperty("salaries." + salaryName + ".paidGroups",
 					paidGroups);
@@ -236,7 +254,8 @@ public class SalaryManager {
 		return;
 	}
 
-	public void addPlayers(CommandSender sender, String taxName, String players) {
+	public void addPlayers(CommandSender sender, String taxName, String players)
+	{
 		conf.reload();
 		String[] playerNames = players.split(",");
 		for (String name : playerNames)
@@ -246,7 +265,8 @@ public class SalaryManager {
 	}
 
 	public void addPlayer(CommandSender sender, String salaryName,
-			String playerName) {
+			String playerName)
+	{
 		conf.reload();
 		salaries = conf.getStringList("salaries.list");
 		paidPlayers = conf.getStringList("salaries." + salaryName
@@ -254,21 +274,26 @@ public class SalaryManager {
 
 		if (!(salaries.contains(salaryName)))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " Salary '" + ChatColor.GRAY + salaryName + ChatColor.RED + "' not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " Salary '"
+					+ ChatColor.GRAY + salaryName + ChatColor.RED
+					+ "' not found.");
 		}
-		else if (!(PermissionsManager
-				.isPlayer(playerName.toLowerCase())))
+		else if (!(PermissionsManager.isPlayer(playerName.toLowerCase())))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " '" + ChatColor.GOLD + playerName + ChatColor.RED + "' not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " '"
+					+ ChatColor.GOLD + playerName + ChatColor.RED
+					+ "' not found.");
 		}
 		else if (paidPlayers.contains(playerName.toLowerCase()))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " '" + ChatColor.GOLD + playerName
-					+ ChatColor.RED + "' is already paying this tax.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " '"
+					+ ChatColor.GOLD + playerName + ChatColor.RED
+					+ "' is already paying this tax.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + plugin.prefix + " " +ChatColor.GRAY + salaryName + ChatColor.GREEN
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " "
+					+ ChatColor.GRAY + salaryName + ChatColor.GREEN
 					+ " applied successfully to " + ChatColor.GOLD + playerName);
 			paidPlayers.add(playerName);
 			conf.setProperty("salaries." + salaryName + ".paidPlayers",
@@ -279,7 +304,8 @@ public class SalaryManager {
 		return;
 	}
 
-	public void removeGroups(CommandSender sender, String taxName, String groups) {
+	public void removeGroups(CommandSender sender, String taxName, String groups)
+	{
 		conf.reload();
 		String[] groupNames = groups.split(",");
 		for (String name : groupNames)
@@ -289,7 +315,8 @@ public class SalaryManager {
 	}
 
 	public void removeGroup(CommandSender sender, String salaryName,
-			String groupName) {
+			String groupName)
+	{
 		conf.reload();
 		salaries = conf.getStringList("salaries.list");
 		paidGroups = conf.getStringList("salaries." + salaryName
@@ -297,16 +324,22 @@ public class SalaryManager {
 
 		if (!(salaries.contains(salaryName)))
 		{
-			sender.sendMessage(ChatColor.RED +plugin.prefix + " Salary '" + ChatColor.GRAY + salaryName + ChatColor.RED + "' not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " Salary '"
+					+ ChatColor.GRAY + salaryName + ChatColor.RED
+					+ "' not found.");
 		}
 		else if (!(paidGroups.contains(groupName)))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " '" + ChatColor.GOLD + groupName + ChatColor.RED +  "' not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " '"
+					+ ChatColor.GOLD + groupName + ChatColor.RED
+					+ "' not found.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + plugin.prefix + " " + ChatColor.GRAY + salaryName + ChatColor.GREEN
-					+ " removed successfully from " + ChatColor.GOLD + groupName);
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " "
+					+ ChatColor.GRAY + salaryName + ChatColor.GREEN
+					+ " removed successfully from " + ChatColor.GOLD
+					+ groupName);
 			paidGroups.remove(groupName);
 			conf.setProperty("salaries." + salaryName + ".paidGroups",
 					paidGroups);
@@ -317,7 +350,8 @@ public class SalaryManager {
 	}
 
 	public void removePlayers(CommandSender sender, String salaryName,
-			String players) {
+			String players)
+	{
 		conf.reload();
 		String[] playerNames = players.split(",");
 		for (String name : playerNames)
@@ -327,7 +361,8 @@ public class SalaryManager {
 	}
 
 	public void removePlayer(CommandSender sender, String salaryName,
-			String playerName) {
+			String playerName)
+	{
 		conf.reload();
 		salaries = conf.getStringList("salaries.list");
 		paidPlayers = conf.getStringList("salaries." + salaryName
@@ -335,16 +370,22 @@ public class SalaryManager {
 
 		if (!(salaries.contains(salaryName)))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " Salary '" + ChatColor.GRAY + salaryName + ChatColor.RED + "' not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " Salary '"
+					+ ChatColor.GRAY + salaryName + ChatColor.RED
+					+ "' not found.");
 		}
 		else if (!(paidPlayers.contains(playerName)))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " '" + ChatColor.GOLD + playerName + ChatColor.RED + "' not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " '"
+					+ ChatColor.GOLD + playerName + ChatColor.RED
+					+ "' not found.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + plugin.prefix + " " + ChatColor.GRAY + salaryName + ChatColor.GREEN
-					+ " removed successfully from " + ChatColor.GOLD + playerName);
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " "
+					+ ChatColor.GRAY + salaryName + ChatColor.GREEN
+					+ " removed successfully from " + ChatColor.GOLD
+					+ playerName);
 			paidPlayers.remove(playerName);
 			conf.setProperty("salaries." + salaryName + ".paidPlayers",
 					paidPlayers);
@@ -352,7 +393,8 @@ public class SalaryManager {
 		}
 	}
 
-	public void enable() {
+	public void enable()
+	{
 		conf.reload();
 		salaries = conf.getStringList("salaries.list");
 
@@ -367,51 +409,53 @@ public class SalaryManager {
 	{
 		conf.reload();
 		boolean has = false;
-		for(Taxer t : salaryTasks.toArray(new Taxer[0]))
+		for (SalaryTask t : salaryTasks.toArray(new SalaryTask[0]))
 		{
-			if(t.getName().equals(salary))
+			if (t.getName().equals(salary))
 			{
 				t.start();
 				has = true;
 			}
 		}
-		if(!has)
+		if (!has)
 		{
 			Double hours = conf.getDouble(
 					("salaries." + salary + ".salaryInterval"), 1);
-			Taxer taxer = new Taxer(this, salary, hours);
+			SalaryTask taxer = new SalaryTask(plugin, this, salary, hours);
 			salaryTasks.add(taxer);
-			if(!conf.getBoolean("salaries." + salary + ".autoEnable", true))
+			if (!conf.getBoolean("salaries." + salary + ".autoEnable", true))
 			{
 				taxer.cancel();
 			}
 			else
 			{
-				this.plugin.getLogger().info(plugin.prefix
-					+ " Enabling " + salary);
+				this.plugin.getLogger().info(
+						CashFlow.TAG + " Enabling " + salary);
 			}
 		}
 	}
 
 	public void disableSalary(String salary)
 	{
-		for(Taxer t : this.salaryTasks)
+		for (SalaryTask t : this.salaryTasks)
 		{
-			if(t.getName().equals(salary))
+			if (t.getName().equals(salary))
 			{
 				t.cancel();
 			}
 		}
 	}
 
-	public void disable() {
-		for (Taxer salaryTask : salaryTasks)
+	public void disable()
+	{
+		for (SalaryTask salaryTask : salaryTasks)
 		{
 			salaryTask.cancel();
 		}
 	}
 
-	public void setOnlineOnly(String salaryName, Boolean online, Double interval) {
+	public void setOnlineOnly(String salaryName, Boolean online, Double interval)
+	{
 		conf.reload();
 		conf.setProperty("salaries." + salaryName + ".onlineOnly.isEnabled",
 				online);
@@ -422,7 +466,8 @@ public class SalaryManager {
 	}
 
 	public void addException(CommandSender sender, String salaryName,
-			String userName) {
+			String userName)
+	{
 		conf.reload();
 		salaries = conf.getStringList("salaries.list");
 		List<String> exceptedPlayers = conf.getStringList("salaries."
@@ -430,17 +475,21 @@ public class SalaryManager {
 
 		if (!(salaries.contains(salaryName)))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " Salary '" + ChatColor.GRAY + salaryName + ChatColor.RED + "' not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " Salary '"
+					+ ChatColor.GRAY + salaryName + ChatColor.RED
+					+ "' not found.");
 		}
 		else if (salaries.contains(userName))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " '" + ChatColor.GOLD + userName
-					+ ChatColor.RED + " is already listed as excepted.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " '"
+					+ ChatColor.GOLD + userName + ChatColor.RED
+					+ " is already listed as excepted.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + plugin.prefix + " " + ChatColor.GOLD + userName
-					+ ChatColor.GREEN + " added as an exception.");
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " "
+					+ ChatColor.GOLD + userName + ChatColor.GREEN
+					+ " added as an exception.");
 			exceptedPlayers.add(userName);
 			conf.setProperty("salaries." + salaryName + ".exceptedPlayers",
 					exceptedPlayers);
@@ -451,7 +500,8 @@ public class SalaryManager {
 	}
 
 	public void removeException(CommandSender sender, String salaryName,
-			String userName) {
+			String userName)
+	{
 		conf.reload();
 		salaries = conf.getStringList("salaries.list");
 		List<String> exceptedPlayers = conf.getStringList("salaries."
@@ -459,16 +509,20 @@ public class SalaryManager {
 
 		if (!(salaries.contains(salaryName)))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " Salary '" + ChatColor.GRAY + salaryName + ChatColor.RED + "' not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " Salary '"
+					+ ChatColor.GRAY + salaryName + ChatColor.RED
+					+ "' not found.");
 		}
 		else if (!(exceptedPlayers.contains(userName)))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix + " '"+userName + ChatColor.RED + "' not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " '" + userName
+					+ ChatColor.RED + "' not found.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN +  plugin.prefix + " '" + ChatColor.GOLD + userName
-					+ ChatColor.GREEN + "' removed as an exception.");
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " '"
+					+ ChatColor.GOLD + userName + ChatColor.GREEN
+					+ "' removed as an exception.");
 			exceptedPlayers.remove(userName);
 			conf.setProperty("salaries." + salaryName + ".exceptedPlayers",
 					exceptedPlayers);
@@ -476,7 +530,8 @@ public class SalaryManager {
 		}
 	}
 
-	public List<String> checkOnline(List<String> users, Double interval) {
+	public List<String> checkOnline(List<String> users, Double interval)
+	{
 		List<String> tempPlayerList = new ArrayList<String>();
 		for (String player : users)
 		{
@@ -488,7 +543,8 @@ public class SalaryManager {
 		return tempPlayerList;
 	}
 
-	public List<String> getUsers(String salaryName) {
+	public List<String> getUsers(String salaryName)
+	{
 		List<String> groups = conf.getStringList("salaries." + salaryName
 				+ ".paidGroups");
 		List<String> players = conf.getStringList("salaries." + salaryName
@@ -496,11 +552,11 @@ public class SalaryManager {
 		List<String> exceptedPlayers = conf.getStringList("salaries."
 				+ salaryName + ".exceptedPlayers");
 
-		return PermissionsManager.getUsers(groups, players,
-				exceptedPlayers);
+		return PermissionsManager.getUsers(groups, players, exceptedPlayers);
 	}
 
-	public void paySalary(String salaryName) {
+	public void paySalary(String salaryName)
+	{
 		conf.reload();
 
 		List<String> users = this.getUsers(salaryName);
@@ -517,31 +573,36 @@ public class SalaryManager {
 		{
 			Buffer.getInstance().addToBuffer(user, salaryName, false);
 		}
-		//Set last paid
+		// Set last paid
 		final String time = "" + System.currentTimeMillis();
 		plugin.getConfig().set("salaries." + salaryName + ".lastPaid", time);
 		plugin.saveConfig();
 	}
 
-	public void paySalaryToUser(String user, String salaryName) {
+	public void paySalaryToUser(String user, String salaryName)
+	{
 		conf.reload();
 		Double salary = Double.parseDouble(conf.getString("salaries."
 				+ salaryName + ".salary"));
 		String employer = conf
 				.getString("salaries." + salaryName + ".employer");
 		boolean ico5 = false;
-		if(this.plugin.eco.getName().equals("iConomy 5") || this.plugin.eco.getName().equals("Essentials Economy") || this.plugin.eco.getName().equals("BOSEconomy"))
+		if (this.plugin.getEconomy().getName().equals("iConomy 5")
+				|| this.plugin.getEconomy().getName()
+						.equals("Essentials Economy")
+				|| this.plugin.getEconomy().getName().equals("BOSEconomy"))
 		{
 			ico5 = true;
 		}
-		EconomyResponse er = new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Not initialized.");
-		if(ico5)
+		EconomyResponse er = new EconomyResponse(0, 0,
+				EconomyResponse.ResponseType.FAILURE, "Not initialized.");
+		if (ico5)
 		{
-			er = this.plugin.eco.depositPlayer(user, 0);
+			er = this.plugin.getEconomy().depositPlayer(user, 0);
 		}
 		else
 		{
-			er = this.plugin.eco.bankBalance(user);
+			er = this.plugin.getEconomy().bankBalance(user);
 		}
 		if (er.type == EconomyResponse.ResponseType.SUCCESS)
 		{
@@ -551,13 +612,13 @@ public class SalaryManager {
 			if (!employer.equals("null"))
 			{
 				double tempSalary = 0;
-				if(ico5)
+				if (ico5)
 				{
-					tempSalary = this.plugin.eco.getBalance(employer);
+					tempSalary = this.plugin.getEconomy().getBalance(employer);
 				}
 				else
 				{
-					tempSalary = this.plugin.eco.bankBalance(employer).balance;
+					tempSalary = this.plugin.getEconomy().bankBalance(employer).balance;
 				}
 				if (tempSalary > 0)
 				{
@@ -565,41 +626,52 @@ public class SalaryManager {
 					{
 						tempSalary = salary;
 					}
-					if(ico5)
+					if (ico5)
 					{
-						er = this.plugin.eco.withdrawPlayer(employer, tempSalary);
+						er = this.plugin.getEconomy().withdrawPlayer(employer,
+								tempSalary);
 					}
 					else
 					{
-						er = this.plugin.eco.bankWithdraw(employer, tempSalary);
+						er = this.plugin.getEconomy().bankWithdraw(employer,
+								tempSalary);
 					}
 
 					if (er.type == EconomyResponse.ResponseType.SUCCESS)
 					{
 						if (r != null)
 						{
-							//TODO colorize
-							//TODO configurable prefix / suffix from config.
-							r.sendMessage(ChatColor.GREEN + plugin.prefix + ChatColor.BLUE + " You have paid "
-									+ conf.prefix + String.format("%.2f", tempSalary) + conf.suffix + " in salary to " + user
+							// TODO colorize
+							// TODO configurable prefix / suffix from config.
+							r.sendMessage(ChatColor.GREEN + CashFlow.TAG
+									+ ChatColor.BLUE + " You have paid "
+									+ conf.prefix
+									+ String.format("%.2f", tempSalary)
+									+ conf.suffix + " in salary to " + user
 									+ ".");
 						}
-						if(ico5)
+						if (ico5)
 						{
-							er = this.plugin.eco.depositPlayer(user, tempSalary);
+							er = this.plugin.getEconomy().depositPlayer(user,
+									tempSalary);
 						}
 						else
 						{
-							er = this.plugin.eco.bankDeposit(user, tempSalary);
+							er = this.plugin.getEconomy().bankDeposit(user,
+									tempSalary);
 						}
 						if (er.type == EconomyResponse.ResponseType.SUCCESS)
 						{
 							if (p != null)
 							{
-								//TODO colorize
-								//TODO configurable prefix / suffix from config.
-								p.sendMessage(ChatColor.GREEN + plugin.prefix + ChatColor.BLUE
-										+ " You have received " + conf.prefix + String.format("%.2f", tempSalary) + conf.suffix
+								// TODO colorize
+								// TODO configurable prefix / suffix from
+								// config.
+								p.sendMessage(ChatColor.GREEN + CashFlow.TAG
+										+ ChatColor.BLUE
+										+ " You have received " + conf.prefix
+										+ String.format("%.2f", tempSalary)
+										+ conf.suffix
 										+ " for your salary from " + employer
 										+ ".");
 							}
@@ -608,34 +680,39 @@ public class SalaryManager {
 						{
 							if (p != null)
 							{
-								p.sendMessage(ChatColor.RED + plugin.prefix
+								p.sendMessage(ChatColor.RED + CashFlow.TAG
 										+ " Could not give salary.");
 							}
-							this.plugin.getLogger().warning(this.plugin.prefix
-									+ " " + er.errorMessage + ": " + user);
+							this.plugin.getLogger().warning(
+									CashFlow.TAG + " " + er.errorMessage + ": "
+											+ user);
 						}
 					}
 					else
 					{
 						if (p != null)
 						{
-							p.sendMessage(ChatColor.RED + plugin.prefix
+							p.sendMessage(ChatColor.RED + CashFlow.TAG
 									+ " Could not get salary.");
 						}
 						if (r != null)
 						{
-							r.sendMessage(ChatColor.RED + plugin.prefix
+							r.sendMessage(ChatColor.RED + CashFlow.TAG
 									+ "Could not get salary.");
 						}
-						this.plugin.getLogger().warning(this.plugin.prefix + " "
-								+ er.errorMessage + ": " + employer);
+						this.plugin.getLogger().warning(
+								CashFlow.TAG + " " + er.errorMessage + ": "
+										+ employer);
 					}
 				}
 				else
 				{
 					if (p != null)
 					{
-						p.sendMessage(ChatColor.YELLOW + plugin.prefix + " " +ChatColor.BLUE
+						p.sendMessage(ChatColor.YELLOW
+								+ CashFlow.TAG
+								+ " "
+								+ ChatColor.BLUE
 								+ employer
 								+ " does not have enough money to pay your salary.");
 					}
@@ -643,30 +720,33 @@ public class SalaryManager {
 			}
 			else
 			{
-				if(ico5)
+				if (ico5)
 				{
-					er = this.plugin.eco.depositPlayer(user, salary);
+					er = this.plugin.getEconomy().depositPlayer(user, salary);
 				}
 				else
 				{
-					er = this.plugin.eco.bankDeposit(user, salary);
+					er = this.plugin.getEconomy().bankDeposit(user, salary);
 				}
 				if (er.type == EconomyResponse.ResponseType.SUCCESS)
 				{
 					if (p != null)
 					{
-						p.sendMessage(ChatColor.GREEN + plugin.prefix + ChatColor.BLUE + " You have received "
-								+ conf.prefix + salary + conf.suffix + " for your salary.");
+						p.sendMessage(ChatColor.GREEN + CashFlow.TAG
+								+ ChatColor.BLUE + " You have received "
+								+ conf.prefix + salary + conf.suffix
+								+ " for your salary.");
 					}
 				}
 				else
 				{
 					if (p != null)
 					{
-						p.sendMessage(ChatColor.RED + plugin.prefix + " Could not give salary.");
+						p.sendMessage(ChatColor.RED + CashFlow.TAG
+								+ " Could not give salary.");
 					}
-					this.plugin.getLogger().warning(this.plugin.prefix + " "
-							+ er.errorMessage + ": " + user);
+					this.plugin.getLogger().warning(
+							CashFlow.TAG + " " + er.errorMessage + ": " + user);
 				}
 			}
 		}
@@ -682,26 +762,31 @@ public class SalaryManager {
 		}
 	}
 
-	public void setRate(CommandSender sender, String salaryName, String salary) {
+	public void setRate(CommandSender sender, String salaryName, String salary)
+	{
 		conf.reload();
 		salaries = conf.getStringList("salaries.list");
 		Double rate = Double.parseDouble(salary);
 
 		if (!(salaries.contains(salaryName)))
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix+ " Salary '" + ChatColor.GRAY + salaryName + ChatColor.RED + "' not found.");
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " Salary '"
+					+ ChatColor.GRAY + salaryName + ChatColor.RED
+					+ "' not found.");
 		}
 		else if (rate <= 0)
 		{
-			sender.sendMessage(ChatColor.RED + plugin.prefix
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG
 					+ " Please choose a salary greater than 0.");
 		}
 		else
 		{
 			conf.setProperty("salaries." + salaryName + ".salary", salary);
 			conf.save();
-			sender.sendMessage(ChatColor.GREEN + plugin.prefix + " Rate of salary '" + ChatColor.GRAY + salaryName
-					+ ChatColor.GREEN + "' is set to '" + ChatColor.LIGHT_PURPLE + salary + ChatColor.GREEN + "'.");
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG
+					+ " Rate of salary '" + ChatColor.GRAY + salaryName
+					+ ChatColor.GREEN + "' is set to '"
+					+ ChatColor.LIGHT_PURPLE + salary + ChatColor.GREEN + "'.");
 		}
 	}
 }

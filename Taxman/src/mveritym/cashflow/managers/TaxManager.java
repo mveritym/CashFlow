@@ -1,15 +1,15 @@
-package mveritym.cashflow.taxer;
+package mveritym.cashflow.managers;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
 import mveritym.cashflow.CashFlow;
-import mveritym.cashflow.Config;
+import mveritym.cashflow.config.Config;
 import mveritym.cashflow.database.Buffer;
 import mveritym.cashflow.permissions.PermissionsManager;
+import mveritym.cashflow.tasks.TaxTask;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.bukkit.ChatColor;
@@ -18,18 +18,17 @@ import org.bukkit.entity.Player;
 
 public class TaxManager
 {
-	protected CashFlow cashFlow;
-	protected Config conf;
-	protected File confFile;
+	private CashFlow plugin;
+	private Config conf;
 	List<String> taxes;
 	List<String> payingGroups;
 	List<String> payingPlayers;
 	ListIterator<String> iterator;
-	public Collection<Taxer> taxTasks = new ArrayList<Taxer>();
+	public Collection<TaxTask> taxTasks = new ArrayList<TaxTask>();
 
 	public TaxManager(CashFlow cashFlow)
 	{
-		this.cashFlow = cashFlow;
+		this.plugin = cashFlow;
 		conf = cashFlow.getPluginConfig();
 
 		taxes = conf.getStringList("taxes.list");
@@ -54,13 +53,13 @@ public class TaxManager
 			double percentIncome = Double.parseDouble(tax.split("%")[0]);
 			if (percentIncome > 100 || percentIncome <= 0)
 			{
-				sender.sendMessage(ChatColor.RED + cashFlow.prefix
+				sender.sendMessage(ChatColor.RED + CashFlow.TAG
 						+ " Please choose a % of income between 0 and 100.");
 				return;
 			}
 		}
 
-		if (this.cashFlow.eco.getName().equals("BOSEconomy"))
+		if (this.plugin.getEconomy().getName().equals("BOSEconomy"))
 		{
 			bose = true;
 		}
@@ -68,16 +67,16 @@ public class TaxManager
 		// Checks arguments in general.
 		else if (taxInterval <= 0)
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG
 					+ " Please choose a tax interval greater than 0.");
 			return;
 		}
 		// No real check for BOSEconomy if the receiver actually exists....
 		else if (!bose
-				&& (this.cashFlow.eco.bankBalance(taxReceiver).type) == EconomyResponse.ResponseType.FAILURE
+				&& (this.plugin.getEconomy().bankBalance(taxReceiver).type) == EconomyResponse.ResponseType.FAILURE
 				&& !(taxReceiver.equals("null")))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " '"
 					+ ChatColor.GOLD + taxReceiver + ChatColor.RED
 					+ "' not found.");
 			return;
@@ -88,7 +87,7 @@ public class TaxManager
 			{
 				if (iterator.next().equals(taxName))
 				{
-					sender.sendMessage(ChatColor.RED + cashFlow.prefix
+					sender.sendMessage(ChatColor.RED + CashFlow.TAG
 							+ " A tax with that name has already been created.");
 					return;
 				}
@@ -110,7 +109,7 @@ public class TaxManager
 		conf.setProperty("taxes." + taxName + ".onlineOnly.interval", 0.0);
 		conf.save();
 
-		sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + "New tax '"
+		sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + "New tax '"
 				+ ChatColor.GRAY + taxName + ChatColor.GREEN
 				+ "' created successfully.");
 	}
@@ -126,7 +125,7 @@ public class TaxManager
 		{
 			taxes.remove(taxName);
 
-			for (Taxer task : taxTasks)
+			for (TaxTask task : taxTasks)
 			{
 				if (task.getName().equals(name))
 				{
@@ -138,13 +137,13 @@ public class TaxManager
 			conf.removeProperty("taxes." + taxName);
 			conf.save();
 
-			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + "Tax '"
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + "Tax '"
 					+ ChatColor.GRAY + taxName + ChatColor.GREEN
 					+ "' deleted successfully.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Tax '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + "Tax '"
 					+ ChatColor.GRAY + taxName + ChatColor.RED
 					+ "' does not exist.");
 		}
@@ -185,7 +184,7 @@ public class TaxManager
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Tax '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " Tax '"
 					+ ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 		}
 
@@ -210,7 +209,7 @@ public class TaxManager
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG
 					+ " No taxes to list.");
 		}
 	}
@@ -233,18 +232,18 @@ public class TaxManager
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Tax '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " Tax '"
 					+ ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 		}
 		else if (!(PermissionsManager.isGroup(groupName)))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Group '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + "Group '"
 					+ ChatColor.GOLD + groupName + ChatColor.RED
 					+ "' not found.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " "
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " "
 					+ ChatColor.GRAY + taxName + ChatColor.GREEN
 					+ " applied successfully to " + ChatColor.GOLD + groupName);
 			payingGroups.add(groupName);
@@ -275,25 +274,24 @@ public class TaxManager
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Tax '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " Tax '"
 					+ ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 		}
-		else if (!(PermissionsManager
-				.isPlayer(playerName.toLowerCase())))
+		else if (!(PermissionsManager.isPlayer(playerName.toLowerCase())))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Player '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + "Player '"
 					+ ChatColor.GOLD + playerName + ChatColor.RED
 					+ "' not found.");
 		}
 		else if (payingPlayers.contains(playerName.toLowerCase()))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " "
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " "
 					+ ChatColor.GOLD + playerName + ChatColor.RED
 					+ " is already paying this tax.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " "
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " "
 					+ ChatColor.GRAY + taxName + ChatColor.GREEN
 					+ " applied successfully to " + ChatColor.GOLD + playerName);
 			payingPlayers.add(playerName);
@@ -324,18 +322,18 @@ public class TaxManager
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Tax '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + "Tax '"
 					+ ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 		}
 		else if (!(payingGroups.contains(groupName)))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Group '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + "Group '"
 					+ ChatColor.GOLD + groupName + ChatColor.RED
 					+ "' not found.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " "
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " "
 					+ ChatColor.GRAY + taxName + ChatColor.GREEN
 					+ " removed successfully from " + ChatColor.GOLD
 					+ groupName);
@@ -366,18 +364,18 @@ public class TaxManager
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Tax '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + "Tax '"
 					+ ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 		}
 		else if (!(payingPlayers.contains(playerName)))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Player '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + "Player '"
 					+ ChatColor.GOLD + playerName + ChatColor.RED
 					+ "' not found.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " "
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " "
 					+ ChatColor.GRAY + taxName + ChatColor.GREEN
 					+ " removed successfully from " + ChatColor.GOLD
 					+ playerName);
@@ -403,7 +401,7 @@ public class TaxManager
 	{
 		conf.reload();
 		boolean has = false;
-		for (Taxer t : taxTasks.toArray(new Taxer[0]))
+		for (TaxTask t : taxTasks.toArray(new TaxTask[0]))
 		{
 			if (t.getName().equals(tax))
 			{
@@ -414,7 +412,7 @@ public class TaxManager
 		if (!has)
 		{
 			Double hours = conf.getDouble(("taxes." + tax + ".taxInterval"), 1);
-			Taxer taxer = new Taxer(this, tax, hours);
+			TaxTask taxer = new TaxTask(plugin, this, tax, hours);
 			taxTasks.add(taxer);
 			if (!conf.getBoolean("taxes." + tax + ".autoEnable", true))
 			{
@@ -422,7 +420,7 @@ public class TaxManager
 			}
 			else
 			{
-				this.cashFlow.getLogger().info(cashFlow.prefix + " Enabling " + tax);
+				this.plugin.getLogger().info(CashFlow.TAG + " Enabling " + tax);
 			}
 		}
 	}
@@ -434,7 +432,7 @@ public class TaxManager
 		for (String player : users)
 		{
 			if (interval == 0
-					&& this.cashFlow.getServer().getPlayer(player) != null)
+					&& this.plugin.getServer().getPlayer(player) != null)
 			{
 				tempPlayerList.add(player);
 			}
@@ -444,7 +442,7 @@ public class TaxManager
 
 	public void disableTax(String tax)
 	{
-		for (Taxer t : this.taxTasks)
+		for (TaxTask t : this.taxTasks)
 		{
 			if (t.getName().equals(tax))
 			{
@@ -462,8 +460,7 @@ public class TaxManager
 		List<String> exceptedPlayers = conf.getStringList("taxes." + taxName
 				+ ".exceptedPlayers");
 
-		return PermissionsManager.getUsers(groups, players,
-				exceptedPlayers);
+		return PermissionsManager.getUsers(groups, players, exceptedPlayers);
 	}
 
 	public void payTax(String taxName)
@@ -485,8 +482,8 @@ public class TaxManager
 		}
 		// Update last paid time to current time
 		final String time = "" + System.currentTimeMillis();
-		cashFlow.getConfig().set("taxes." + taxName + ".lastPaid", time);
-		cashFlow.saveConfig();
+		plugin.getConfig().set("taxes." + taxName + ".lastPaid", time);
+		plugin.saveConfig();
 	}
 
 	public void payTaxToUser(String user, String taxName)
@@ -498,9 +495,10 @@ public class TaxManager
 		double taxRate = 0;
 		boolean withdraw = true;
 		boolean ico5 = false;
-		if (this.cashFlow.eco.getName().equals("iConomy 5")
-				|| this.cashFlow.eco.getName().equals("Essentials Economy")
-				|| this.cashFlow.eco.getName().equals("BOSEconomy"))
+		if (this.plugin.getEconomy().getName().equals("iConomy 5")
+				|| this.plugin.getEconomy().getName()
+						.equals("Essentials Economy")
+				|| this.plugin.getEconomy().getName().equals("BOSEconomy"))
 		{
 			ico5 = true;
 		}
@@ -509,23 +507,23 @@ public class TaxManager
 				"EconomyResponse object not initialized.");
 		if (ico5)
 		{
-			er = this.cashFlow.eco.withdrawPlayer(user, 0);
+			er = this.plugin.getEconomy().withdrawPlayer(user, 0);
 		}
 		else
 		{
-			er = this.cashFlow.eco.bankBalance(user);
+			er = this.plugin.getEconomy().bankBalance(user);
 		}
 		if (er.type == EconomyResponse.ResponseType.SUCCESS)
 		{
-			Player player = this.cashFlow.getServer().getPlayer(user);
+			Player player = this.plugin.getServer().getPlayer(user);
 			double balance = 0;
 			if (ico5)
 			{
-				balance = this.cashFlow.eco.getBalance(user);
+				balance = this.plugin.getEconomy().getBalance(user);
 			}
 			else
 			{
-				balance = this.cashFlow.eco.bankBalance(user).balance;
+				balance = this.plugin.getEconomy().bankBalance(user).balance;
 			}
 			if (tax.contains("%"))
 			{
@@ -548,11 +546,11 @@ public class TaxManager
 
 				if (ico5)
 				{
-					er = this.cashFlow.eco.withdrawPlayer(user, taxRate);
+					er = this.plugin.getEconomy().withdrawPlayer(user, taxRate);
 				}
 				else
 				{
-					er = this.cashFlow.eco.bankWithdraw(user, taxRate);
+					er = this.plugin.getEconomy().bankWithdraw(user, taxRate);
 				}
 				if (er.type == EconomyResponse.ResponseType.SUCCESS)
 				{
@@ -570,36 +568,38 @@ public class TaxManager
 						{
 							message += " to " + receiver + ".";
 						}
-						player.sendMessage(ChatColor.GREEN + cashFlow.prefix
+						player.sendMessage(ChatColor.GREEN + CashFlow.TAG
 								+ ChatColor.BLUE + message);
 					}
 				}
 				else
 				{
 					withdraw = false;
-					this.cashFlow.getLogger().warning(this.cashFlow.prefix + " "
-							+ er.errorMessage + ": " + user);
+					this.plugin.getLogger().warning(
+							CashFlow.TAG + " " + er.errorMessage + ": " + user);
 				}
 
 				if (!(receiver.equals("null")) && withdraw)
 				{
 					if (ico5)
 					{
-						er = this.cashFlow.eco.depositPlayer(receiver, taxRate);
+						er = this.plugin.getEconomy().depositPlayer(receiver,
+								taxRate);
 					}
 					else
 					{
-						er = this.cashFlow.eco.bankDeposit(receiver, taxRate);
+						er = this.plugin.getEconomy().bankDeposit(receiver,
+								taxRate);
 					}
 					if (er.type == EconomyResponse.ResponseType.SUCCESS)
 					{
-						if (this.cashFlow.getServer().getPlayer(receiver) != null)
+						if (this.plugin.getServer().getPlayer(receiver) != null)
 						{
-							Player receiverPlayer = this.cashFlow.getServer()
+							Player receiverPlayer = this.plugin.getServer()
 									.getPlayer(receiver);
 							// TODO colorize
 							receiverPlayer.sendMessage(ChatColor.GREEN
-									+ cashFlow.prefix + ChatColor.BLUE
+									+ CashFlow.TAG + ChatColor.BLUE
 									+ " You have received " + conf.prefix
 									+ String.format("%.2f", taxRate)
 									+ conf.suffix + " in tax from " + user
@@ -608,21 +608,21 @@ public class TaxManager
 					}
 					else
 					{
-						this.cashFlow.getLogger()
-								.warning(this.cashFlow.prefix
+						this.plugin.getLogger().warning(
+								CashFlow.TAG
 										+ " "
-										+ this.cashFlow.eco.bankBalance(user).errorMessage
-										+ ": " + receiver);
+										+ this.plugin.getEconomy().bankBalance(
+												user).errorMessage + ": "
+										+ receiver);
 					}
 				}
 				else
 				{
-					if (this.cashFlow.getServer().getPlayer(receiver) != null)
+					if (this.plugin.getServer().getPlayer(receiver) != null)
 					{
-						Player receiverPlayer = this.cashFlow.getServer()
+						Player receiverPlayer = this.plugin.getServer()
 								.getPlayer(receiver);
-						receiverPlayer.sendMessage(ChatColor.RED
-								+ cashFlow.prefix
+						receiverPlayer.sendMessage(ChatColor.RED + CashFlow.TAG
 								+ " Could not retrieve tax from '"
 								+ ChatColor.GOLD + user + ChatColor.RED + "'.");
 					}
@@ -641,7 +641,7 @@ public class TaxManager
 					{
 						message += " to " + receiver + ".";
 					}
-					player.sendMessage(ChatColor.RED + cashFlow.prefix
+					player.sendMessage(ChatColor.RED + CashFlow.TAG
 							+ ChatColor.BLUE + message);
 				}
 			}
@@ -660,7 +660,7 @@ public class TaxManager
 
 	public void disable()
 	{
-		for (Taxer taxTask : taxTasks)
+		for (TaxTask taxTask : taxTasks)
 		{
 			taxTask.cancel();
 		}
@@ -685,18 +685,18 @@ public class TaxManager
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Tax '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " Tax '"
 					+ ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 		}
 		else if (taxes.contains(userName))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " '"
 					+ ChatColor.GOLD + userName + ChatColor.RED
 					+ "' is already listed as excepted.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " '"
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " '"
 					+ ChatColor.GOLD + userName + ChatColor.GREEN
 					+ "' added as an exception.");
 			exceptedPlayers.add(userName);
@@ -718,18 +718,18 @@ public class TaxManager
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Tax '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " Tax '"
 					+ ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 		}
 		else if (!(exceptedPlayers.contains(userName)))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + " '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + " '"
 					+ ChatColor.GOLD + userName + ChatColor.RED
 					+ "' not found.");
 		}
 		else
 		{
-			sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " '"
+			sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " '"
 					+ ChatColor.GOLD + userName + ChatColor.GREEN
 					+ "' removed as an exception.");
 			exceptedPlayers.remove(userName);
@@ -746,7 +746,7 @@ public class TaxManager
 
 		if (!(taxes.contains(taxName)))
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix + "Tax '"
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG + "Tax '"
 					+ ChatColor.GRAY + taxName + ChatColor.RED + "' not found.");
 			return;
 		}
@@ -755,7 +755,7 @@ public class TaxManager
 			double percentIncome = Double.parseDouble(tax.split("%")[0]);
 			if (percentIncome > 100 || percentIncome <= 0)
 			{
-				sender.sendMessage(ChatColor.RED + cashFlow.prefix
+				sender.sendMessage(ChatColor.RED + CashFlow.TAG
 						+ " Please choose a % of income between 0 and 100.");
 				return;
 			}
@@ -763,7 +763,7 @@ public class TaxManager
 
 		conf.setProperty("taxes." + taxName + ".tax", tax);
 		conf.save();
-		sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " Rate of tax '"
+		sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " Rate of tax '"
 				+ ChatColor.GRAY + taxName + ChatColor.GREEN + "' is set to '"
 				+ ChatColor.LIGHT_PURPLE + tax + ChatColor.GREEN + "'.");
 	}

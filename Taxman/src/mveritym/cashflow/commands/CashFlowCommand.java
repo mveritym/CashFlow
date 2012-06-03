@@ -2,12 +2,12 @@ package mveritym.cashflow.commands;
 
 import mveritym.cashflow.CashFlow;
 import mveritym.cashflow.database.Buffer;
+import mveritym.cashflow.managers.SalaryManager;
+import mveritym.cashflow.managers.TaxManager;
 import mveritym.cashflow.permissions.PermissionNode;
 import mveritym.cashflow.permissions.PermissionsManager;
+import mveritym.cashflow.tasks.CFTask;
 import mveritym.cashflow.tasks.ImportPlayersTask;
-import mveritym.cashflow.taxer.SalaryManager;
-import mveritym.cashflow.taxer.TaxManager;
-import mveritym.cashflow.taxer.Taxer;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -18,13 +18,13 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 public class CashFlowCommand implements CommandExecutor {
-	private CashFlow cashFlow;
+	private CashFlow plugin;
 	private TaxManager taxManager;
 	private SalaryManager salaryManager;
 
-	public CashFlowCommand(CashFlow cf,
+	public CashFlowCommand(CashFlow plugin,
 			TaxManager tax, SalaryManager salary) {
-		cashFlow = cf;
+		this.plugin = plugin;
 		taxManager = tax;
 		salaryManager = salary;
 	}
@@ -48,7 +48,7 @@ public class CashFlowCommand implements CommandExecutor {
 		}
 		if (!playerCanDo && !isConsole)
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG
 					+ " Lack permission: cashflow.basic");
 			return true;
 		}
@@ -66,7 +66,7 @@ public class CashFlowCommand implements CommandExecutor {
 			}
 			catch (IllegalArgumentException e)
 			{
-				sender.sendMessage(ChatColor.RED + cashFlow.prefix
+				sender.sendMessage(ChatColor.RED + CashFlow.TAG
 						+ " Syntax error. For help, use /cashflow");
 			}
 		return true;
@@ -80,7 +80,7 @@ public class CashFlowCommand implements CommandExecutor {
 				this.taxManager.enable();
 				this.salaryManager.enable();
 				Buffer.getInstance().start();
-				sender.sendMessage(ChatColor.YELLOW + cashFlow.prefix
+				sender.sendMessage(ChatColor.YELLOW + CashFlow.TAG
 						+ " Taxes and salaries " + ChatColor.GREEN
 						+ "enabled.");
 				break;
@@ -88,7 +88,7 @@ public class CashFlowCommand implements CommandExecutor {
 				this.taxManager.disable();
 				this.salaryManager.disable();
 				Buffer.getInstance().cancelBuffer();
-				sender.sendMessage(ChatColor.YELLOW + cashFlow.prefix
+				sender.sendMessage(ChatColor.YELLOW + CashFlow.TAG
 						+ " Taxes and salaries " + ChatColor.RED
 						+ "disabled.");
 				break;
@@ -99,7 +99,7 @@ public class CashFlowCommand implements CommandExecutor {
 				this.taxManager.enable();
 				this.salaryManager.enable();
 				Buffer.getInstance().start();
-				sender.sendMessage(ChatColor.YELLOW + cashFlow.prefix
+				sender.sendMessage(ChatColor.YELLOW + CashFlow.TAG
 						+ " Taxes and salaries restarted.");
 				break;
 			case setworld:
@@ -108,20 +108,20 @@ public class CashFlowCommand implements CommandExecutor {
 					if (PermissionsManager.setWorld(args[1]))
 					{
 						sender.sendMessage(ChatColor.GREEN
-								+ cashFlow.prefix + " World set to: "
+								+ CashFlow.TAG + " World set to: "
 								+ ChatColor.GRAY + args[1]);
 					}
 					else
 					{
 						sender.sendMessage(ChatColor.YELLOW
-								+ cashFlow.prefix + " World "
+								+ CashFlow.TAG + " World "
 								+ ChatColor.GRAY + args[1]
 								+ ChatColor.YELLOW + " not found.");
 					}
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED + cashFlow.prefix
+					sender.sendMessage(ChatColor.RED + CashFlow.TAG
 							+ " World not given.");
 				}
 				break;
@@ -129,16 +129,16 @@ public class CashFlowCommand implements CommandExecutor {
 				if (args.length == 2)
 				{
 					String worldName = args[1];
-					World w = this.cashFlow.getServer().getWorld(
+					World w = this.plugin.getServer().getWorld(
 							worldName);
 					if (w != null)
 					{
-						cashFlow.getServer()
+						plugin.getServer()
 						.getScheduler()
-						.scheduleAsyncDelayedTask(cashFlow,
-								new ImportPlayersTask(cashFlow, sender, worldName));
+						.scheduleAsyncDelayedTask(plugin,
+								new ImportPlayersTask(plugin, sender, worldName));
 						sender.sendMessage(ChatColor.YELLOW
-								+ cashFlow.prefix
+								+ CashFlow.TAG
 								+ " Importing players of world '"
 								+ ChatColor.GRAY + worldName
 								+ ChatColor.YELLOW
@@ -147,14 +147,14 @@ public class CashFlowCommand implements CommandExecutor {
 					else
 					{
 						sender.sendMessage(ChatColor.YELLOW
-								+ cashFlow.prefix + " World '"
+								+ CashFlow.TAG + " World '"
 								+ ChatColor.GRAY + worldName
 								+ ChatColor.YELLOW + "' not found.");
 					}
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED + cashFlow.prefix
+					sender.sendMessage(ChatColor.RED + CashFlow.TAG
 							+ " World name not given.");
 				}
 				break;
@@ -162,12 +162,12 @@ public class CashFlowCommand implements CommandExecutor {
 				sender.sendMessage(ChatColor.GRAY + "====="
 						+ ChatColor.WHITE + "CashFlow Status"
 						+ ChatColor.GRAY + "=====");
-				for (Taxer t : this.taxManager.taxTasks)
+				for (CFTask t : this.taxManager.taxTasks)
 				{
 					sender.sendMessage(ChatColor.RED + t.getName()
 							+ ChatColor.GRAY + " : " + t.getState());
 				}
-				for (Taxer t : this.salaryManager.salaryTasks)
+				for (CFTask t : this.salaryManager.salaryTasks)
 				{
 					sender.sendMessage(ChatColor.GREEN + t.getName()
 							+ ChatColor.GRAY + " : " + t.getState());

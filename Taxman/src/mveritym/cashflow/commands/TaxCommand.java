@@ -1,9 +1,9 @@
 package mveritym.cashflow.commands;
 
 import mveritym.cashflow.CashFlow;
+import mveritym.cashflow.managers.TaxManager;
 import mveritym.cashflow.permissions.PermissionNode;
 import mveritym.cashflow.permissions.PermissionsManager;
-import mveritym.cashflow.taxer.TaxManager;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -13,12 +13,12 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 public class TaxCommand implements CommandExecutor {
-	private CashFlow cashFlow;
+	private CashFlow plugin;
 	private TaxManager taxManager;
 
 	public TaxCommand (CashFlow plugin, TaxManager tax)
 	{
-		cashFlow = plugin;
+		this.plugin = plugin;
 		taxManager = tax;
 	}
 
@@ -42,7 +42,7 @@ public class TaxCommand implements CommandExecutor {
 		}
 		if (!playerCanDo && !isConsole)
 		{
-			sender.sendMessage(ChatColor.RED + cashFlow.prefix
+			sender.sendMessage(ChatColor.RED + CashFlow.TAG
 					+ " Lack permission: cashflow." + command.getName());
 			return true;
 		}
@@ -90,13 +90,13 @@ public class TaxCommand implements CommandExecutor {
 						}
 						catch (Exception e)
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + CashFlow.TAG
 									+ " Invalid interval.");
 						}
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + cashFlow.prefix
+						sender.sendMessage(ChatColor.RED + CashFlow.TAG
 								+ " Incorrect number of arguments.");
 					}
 					break;
@@ -110,7 +110,7 @@ public class TaxCommand implements CommandExecutor {
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + cashFlow.prefix + " No tax name given.");
+						sender.sendMessage(ChatColor.RED + CashFlow.TAG + " No tax name given.");
 					}
 					break;
 				case apply:
@@ -125,7 +125,7 @@ public class TaxCommand implements CommandExecutor {
 							}
 							else
 							{
-								sender.sendMessage(ChatColor.RED + cashFlow.prefix
+								sender.sendMessage(ChatColor.RED + CashFlow.TAG
 										+ " You must install a permissions plugin to use this command.");
 							}
 						}
@@ -135,12 +135,12 @@ public class TaxCommand implements CommandExecutor {
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix + " Incorrect argument.");
+							sender.sendMessage(ChatColor.RED + CashFlow.TAG + " Incorrect argument.");
 						}
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + cashFlow.prefix
+						sender.sendMessage(ChatColor.RED + CashFlow.TAG
 								+ " Incorrect number of arguments.");
 					}
 					break;
@@ -157,7 +157,7 @@ public class TaxCommand implements CommandExecutor {
 							}
 							else
 							{
-								sender.sendMessage(ChatColor.RED + cashFlow.prefix
+								sender.sendMessage(ChatColor.RED + CashFlow.TAG
 										+ " You must install a permissions plugin to use this command.");
 							}
 						}
@@ -167,12 +167,12 @@ public class TaxCommand implements CommandExecutor {
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix  + " Incorrect argument.");
+							sender.sendMessage(ChatColor.RED + CashFlow.TAG  + " Incorrect argument.");
 						}
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + cashFlow.prefix
+						sender.sendMessage(ChatColor.RED + CashFlow.TAG
 								+ " Incorrect number of arguments.");
 					}
 					break;
@@ -183,7 +183,7 @@ public class TaxCommand implements CommandExecutor {
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + cashFlow.prefix
+						sender.sendMessage(ChatColor.RED + CashFlow.TAG
 								+ " Incorrect number of arguments.");
 					}
 					break;
@@ -194,7 +194,7 @@ public class TaxCommand implements CommandExecutor {
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + cashFlow.prefix
+						sender.sendMessage(ChatColor.RED + CashFlow.TAG
 								+ " Incorrect number of arguments.");
 					}
 					break;
@@ -208,7 +208,7 @@ public class TaxCommand implements CommandExecutor {
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + cashFlow.prefix
+						sender.sendMessage(ChatColor.RED + CashFlow.TAG
 								+ " Incorrect number of arguments.");
 					}
 					break;
@@ -226,18 +226,18 @@ public class TaxCommand implements CommandExecutor {
 							}
 							this.taxManager.setOnlineOnly(args[1],
 									Boolean.parseBoolean(booleanString), onlineInterval);
-							sender.sendMessage(ChatColor.GREEN + cashFlow.prefix
+							sender.sendMessage(ChatColor.GREEN + CashFlow.TAG
 									+ " Online only set to " + ChatColor.GRAY+ args[1]);
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + CashFlow.TAG
 									+ " Online only can only be set to true or false.");
 						}
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + cashFlow.prefix
+						sender.sendMessage(ChatColor.RED + CashFlow.TAG
 								+ " Incorrect number of arguments.");
 					}
 					break;
@@ -250,7 +250,7 @@ public class TaxCommand implements CommandExecutor {
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + cashFlow.prefix
+						sender.sendMessage(ChatColor.RED + CashFlow.TAG
 								+ " Incorrect number of arguments.");
 					}
 					break;
@@ -258,69 +258,69 @@ public class TaxCommand implements CommandExecutor {
 					if (args.length == 2)
 					{
 						String taxName = args[1];
-						if (cashFlow.getPluginConfig().getStringList("taxes.list")
+						if (plugin.getPluginConfig().getStringList("taxes.list")
 								.contains(taxName))
 						{
-							this.cashFlow.getLogger().info(cashFlow.prefix
+							this.plugin.getLogger().info(CashFlow.TAG
 									+ " Paying tax " + taxName);
-							sender.sendMessage(cashFlow.prefix
+							sender.sendMessage(CashFlow.TAG
 									+ " Paying tax " + taxName);
 							this.taxManager.payTax(taxName);
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + cashFlow.prefix
+							sender.sendMessage(ChatColor.RED + CashFlow.TAG
 									+ " Invalid tax name: " + taxName);
 						}
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + cashFlow.prefix + " No tax name given");
+						sender.sendMessage(ChatColor.RED + CashFlow.TAG + " No tax name given");
 					}
 					break;
 				case enable:
 					if (args.length == 2)
 					{
 						String taxName = args[1];
-						if (cashFlow.getPluginConfig().getStringList("taxes.list")
+						if (plugin.getPluginConfig().getStringList("taxes.list")
 								.contains(taxName))
 						{
-							sender.sendMessage(ChatColor.GREEN + cashFlow.prefix + " Enabling tax - "
+							sender.sendMessage(ChatColor.GREEN + CashFlow.TAG + " Enabling tax - "
 									+ ChatColor.GOLD + taxName);
 							this.taxManager.enableTax(taxName);
 						}
 						else
 						{
 							sender.sendMessage(ChatColor.RED
-									+ cashFlow.prefix + " Invalid tax name: " + taxName);
+									+ CashFlow.TAG + " Invalid tax name: " + taxName);
 						}
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + cashFlow.prefix + " No tax name given");
+						sender.sendMessage(ChatColor.RED + CashFlow.TAG + " No tax name given");
 					}
 					break;
 				case disable:
 					if (args.length == 2)
 					{
 						String taxName = args[1];
-						if (cashFlow.getPluginConfig().getStringList("taxes.list")
+						if (plugin.getPluginConfig().getStringList("taxes.list")
 								.contains(taxName))
 						{
 
 							sender.sendMessage(ChatColor.YELLOW
-									+ cashFlow.prefix + " Disabling tax - " + ChatColor.AQUA + taxName);
+									+ CashFlow.TAG + " Disabling tax - " + ChatColor.AQUA + taxName);
 							this.taxManager.disableTax(taxName);
 						}
 						else
 						{
 							sender.sendMessage(ChatColor.RED
-									+ cashFlow.prefix + " Invalid tax name: " + taxName);
+									+ CashFlow.TAG + " Invalid tax name: " + taxName);
 						}
 					}
 					else
 					{
-						sender.sendMessage(ChatColor.RED + cashFlow.prefix + " No tax name given");
+						sender.sendMessage(ChatColor.RED + CashFlow.TAG + " No tax name given");
 					}
 					break;
 				default:
@@ -329,7 +329,7 @@ public class TaxCommand implements CommandExecutor {
 			}
 			}catch (IllegalArgumentException e)
 			{
-				sender.sendMessage(ChatColor.RED + cashFlow.prefix
+				sender.sendMessage(ChatColor.RED + CashFlow.TAG
 						+ " Syntax error. For help, use /tax");
 			}
 		}

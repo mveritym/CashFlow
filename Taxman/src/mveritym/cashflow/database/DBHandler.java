@@ -3,12 +3,13 @@ package mveritym.cashflow.database;
 import java.sql.SQLException;
 
 import mveritym.cashflow.CashFlow;
-import mveritym.cashflow.Config;
+import mveritym.cashflow.config.Config;
 import mveritym.cashflow.database.SQLibrary.MySQL;
 import mveritym.cashflow.database.SQLibrary.SQLite;
 import mveritym.cashflow.database.SQLibrary.Database.Query;
 
-public class DBHandler {
+public class DBHandler
+{
 	// Class Variables
 	private CashFlow plugin;
 	private Config config;
@@ -16,7 +17,8 @@ public class DBHandler {
 	private MySQL mysql;
 	private boolean useMySQL;
 
-	public DBHandler(CashFlow ks, Config conf) {
+	public DBHandler(CashFlow ks, Config conf)
+	{
 		plugin = ks;
 		config = conf;
 		useMySQL = config.useMySQL;
@@ -31,69 +33,78 @@ public class DBHandler {
 		}
 	}
 
-	private void checkTables() {
+	private void checkTables()
+	{
 		if (useMySQL)
 		{
 			// Connect to mysql database
-			mysql = new MySQL(plugin.getLogger(), plugin.prefix, config.host,
+			mysql = new MySQL(plugin.getLogger(), CashFlow.TAG, config.host,
 					config.port, config.database, config.user, config.password);
 			// Check if master table exists
-			if (!mysql.checkTable(config.tablePrefix + "cashflow"))
+			if (!mysql.checkTable(Table.CASHFLOW.getName()))
 			{
-				plugin.getLogger().info(plugin.prefix + " Created master list table");
+				plugin.getLogger().info(
+						CashFlow.TAG + " Created master list table");
 				// Master table
+				// TODO primary key row id
 				mysql.createTable("CREATE TABLE "
-						+ config.tablePrefix
-						+ "cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, `check` INTEGER, UNIQUE(`playername`));");
+						+ Table.CASHFLOW.getName()
+						+ " (playername varchar(32) NOT NULL, laston REAL, check INT, UNIQUE(`playername`));");
 			}
-			if (!mysql.checkTable(config.tablePrefix + "buffer"))
+			if (!mysql.checkTable(Table.BUFFER.getName()))
 			{
-				plugin.getLogger().info(plugin.prefix + " Created buffer table");
+				plugin.getLogger().info(CashFlow.TAG + " Created buffer table");
 				// Table to save buffer items
+				// TODO primary key row id
 				mysql.createTable("CREATE TABLE "
-						+ config.tablePrefix
-						+ "buffer (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
+						+ Table.BUFFER.getName()
+						+ " (name varchar(32) NOT NULL, contract TEXT NOT NULL, tax INT NOT NULL);");
 			}
 		}
 		else
 		{
 			// Connect to sql database
-			sqlite = new SQLite(plugin.getLogger(), plugin.prefix, "database", plugin
-					.getDataFolder().getAbsolutePath());
+			sqlite = new SQLite(plugin.getLogger(), CashFlow.TAG, "database",
+					plugin.getDataFolder().getAbsolutePath());
 			// Check if master table exists
-			if (!sqlite.checkTable(config.tablePrefix + "cashflow"))
+			if (!sqlite.checkTable(Table.CASHFLOW.getName()))
 			{
-				plugin.getLogger().info(plugin.prefix + " Created master list table");
+				plugin.getLogger().info(
+						CashFlow.TAG + " Created master list table");
 				// Master table
+				// TODO primary key row id
 				sqlite.createTable("CREATE TABLE "
-						+ config.tablePrefix
+						+ Table.CASHFLOW.getName()
 						+ "cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, `check` INTEGER, UNIQUE(`playername`));");
 			}
-			if (!sqlite.checkTable(config.tablePrefix + "buffer"))
+			if (!sqlite.checkTable(Table.BUFFER.getName()))
 			{
-				plugin.getLogger().info(plugin.prefix + " Created buffer table");
+				plugin.getLogger().info(CashFlow.TAG + " Created buffer table");
 				// Table to save buffer items
+				// TODO primary key row id
 				sqlite.createTable("CREATE TABLE "
-						+ config.tablePrefix
-						+ "buffer (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
+						+ Table.BUFFER.getName()
+						+ " (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
 			}
 		}
 	}
 
-	private void importSQL() {
+	private void importSQL()
+	{
 		// Connect to sql database
 		try
 		{
 			StringBuilder sb = new StringBuilder();
 			// Grab local SQLite database
-			sqlite = new SQLite(plugin.getLogger(), plugin.prefix, "database", plugin
-					.getDataFolder().getAbsolutePath());
+			sqlite = new SQLite(plugin.getLogger(), CashFlow.TAG, "database",
+					plugin.getDataFolder().getAbsolutePath());
 			// Copy items
-			Query rs = sqlite.select("SELECT * FROM " + config.tablePrefix
-					+ "cashflow;");
+			Query rs = sqlite.select("SELECT * FROM "
+					+ Table.CASHFLOW.getName() + ";");
 			if (rs.getResult().next())
 			{
-				plugin.getLogger().info(plugin.prefix + " Importing master table...");
+				plugin.getLogger().info(
+						CashFlow.TAG + " Importing master table...");
 				do
 				{
 					boolean hasLast = false;
@@ -111,8 +122,8 @@ public class DBHandler {
 					{
 						// Ignore
 					}
-					sb.append("INSERT INTO " + config.tablePrefix
-							+ "cashflow (playername");
+					sb.append("INSERT INTO " + Table.CASHFLOW.getName()
+							+ " (playername");
 					if (hasLast)
 					{
 						sb.append(",laston");
@@ -126,44 +137,45 @@ public class DBHandler {
 					final String query = sb.toString();
 					mysql.standardQuery(query);
 					sb = new StringBuilder();
-				}
-				while (rs.getResult().next());
+				} while (rs.getResult().next());
 			}
 			rs.closeQuery();
 			sb = new StringBuilder();
 			// Copy players
-			rs = sqlite.select("SELECT * FROM " + config.tablePrefix
-					+ "buffer;");
+			rs = sqlite.select("SELECT * FROM " + Table.BUFFER.getName() + ";");
 			if (rs.getResult().next())
 			{
-				plugin.getLogger().info(plugin.prefix + " Importing buffer...");
+				plugin.getLogger().info(CashFlow.TAG + " Importing buffer...");
 				do
 				{
+					// TODO use prepared statement
 					final String name = rs.getResult().getString("name");
-					final String contract = rs.getResult().getString("contract");
+					final String contract = rs.getResult()
+							.getString("contract");
 					final int tax = rs.getResult().getInt("tax");
-					sb.append("INSERT INTO " + config.tablePrefix
-							+ "buffer (name,contract,tax) VALUES('" + name
-							+ "','" + contract + "','" + tax + "');");
+					sb.append("INSERT INTO " + Table.BUFFER.getName()
+							+ " (name,contract,tax) VALUES('" + name + "','"
+							+ contract + "','" + tax + "');");
 					final String query = sb.toString();
 					mysql.standardQuery(query);
 					sb = new StringBuilder();
-				}
-				while (rs.getResult().next());
+				} while (rs.getResult().next());
 			}
 			rs.closeQuery();
-			plugin.getLogger()
-					.info(plugin.prefix + " Done importing SQLite into MySQL");
+			plugin.getLogger().info(
+					CashFlow.TAG + " Done importing SQLite into MySQL");
 		}
 		catch (SQLException e)
 		{
-			plugin.getLogger().warning(plugin.prefix + " SQL Exception on Import");
+			plugin.getLogger().warning(
+					CashFlow.TAG + " SQL Exception on Import");
 			e.printStackTrace();
 		}
 
 	}
 
-	public boolean checkConnection() {
+	public boolean checkConnection()
+	{
 		boolean connected = false;
 		if (useMySQL)
 		{
@@ -176,7 +188,8 @@ public class DBHandler {
 		return connected;
 	}
 
-	public void close() {
+	public void close()
+	{
 		if (useMySQL)
 		{
 			mysql.close();
@@ -187,7 +200,8 @@ public class DBHandler {
 		}
 	}
 
-	public Query select(String query) {
+	public Query select(String query)
+	{
 		if (useMySQL)
 		{
 			return mysql.select(query);
@@ -198,7 +212,8 @@ public class DBHandler {
 		}
 	}
 
-	public void standardQuery(String query) {
+	public void standardQuery(String query)
+	{
 		if (useMySQL)
 		{
 			mysql.standardQuery(query);
@@ -209,7 +224,8 @@ public class DBHandler {
 		}
 	}
 
-	public void createTable(String query) {
+	public void createTable(String query)
+	{
 		if (useMySQL)
 		{
 			mysql.createTable(query);
