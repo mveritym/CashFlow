@@ -3,6 +3,8 @@ package mveritym.cashflow;
 import java.util.EnumMap;
 import java.util.Map.Entry;
 
+import org.bukkit.ChatColor;
+
 import mveritym.cashflow.config.LocalizeConfig;
 
 public enum LocalString
@@ -25,7 +27,11 @@ public enum LocalString
 
 	public String parseString(EnumMap<Flag, String> replace)
 	{
-		String out = CashFlow.colorizeText(string);
+		/**
+		 * Thanks to @Njol for the following
+		 * http://forums.bukkit.org/threads/multiple-classes-config-colours.79719/#post-1154761
+		 */
+		String out = ChatColor.translateAlternateColorCodes('&', string);
 		if (replace != null)
 		{
 			for (Entry<Flag, String> entry : replace.entrySet())
