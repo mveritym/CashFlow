@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>mveritym.cashflow</groupId>
   <artifactId>CashFlow</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.19-SNAPSHOT</version>
   <name>CashFlow</name>
   <description>Taxation plugin for Minecraft economies.</description>
   <scm>
