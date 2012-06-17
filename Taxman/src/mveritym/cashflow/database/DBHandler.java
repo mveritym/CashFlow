@@ -75,7 +75,7 @@ public class DBHandler
 				// TODO primary key row id
 				sqlite.createTable("CREATE TABLE "
 						+ Table.CASHFLOW.getName()
-						+ "cashflow (`playername` varchar(32) NOT NULL, `laston` REAL, `check` INTEGER, UNIQUE(`playername`));");
+						+ " (playername varchar(32) NOT NULL, laston REAL, check INTEGER, UNIQUE(playername));");
 			}
 			if (!sqlite.checkTable(Table.BUFFER.getName()))
 			{
@@ -84,7 +84,7 @@ public class DBHandler
 				// TODO primary key row id
 				sqlite.createTable("CREATE TABLE "
 						+ Table.BUFFER.getName()
-						+ " (`name` varchar(32) NOT NULL, `contract` TEXT NOT NULL, `tax` INTEGER NOT NULL);");
+						+ " (name varchar(32) NOT NULL, contract TEXT NOT NULL, tax INTEGER NOT NULL);");
 			}
 		}
 	}
