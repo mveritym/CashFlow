@@ -49,7 +49,7 @@ public class DBHandler
 				// TODO primary key row id
 				mysql.createTable("CREATE TABLE "
 						+ Table.CASHFLOW.getName()
-						+ " (playername varchar(32) NOT NULL, laston REAL, check INT, UNIQUE(`playername`));");
+						+ " (playername varchar(32) NOT NULL, laston REAL, checks INT, UNIQUE(`playername`));");
 			}
 			if (!mysql.checkTable(Table.BUFFER.getName()))
 			{
@@ -75,7 +75,7 @@ public class DBHandler
 				// TODO primary key row id
 				sqlite.createTable("CREATE TABLE "
 						+ Table.CASHFLOW.getName()
-						+ " (playername varchar(32) NOT NULL, laston REAL, check INTEGER, UNIQUE(playername));");
+						+ " (playername varchar(32) NOT NULL, laston REAL, checks INTEGER, UNIQUE(playername));");
 			}
 			if (!sqlite.checkTable(Table.BUFFER.getName()))
 			{
