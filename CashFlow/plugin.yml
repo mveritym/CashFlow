@@ -1,5 +1,5 @@
 name: CashFlow
-main: com.mveritym.cashflow.CashFlow
+main: mveritym.cashflow.CashFlow
 version: 2.0
 softdepend: [BOSEconomy7, MultiCurrency, Essentials, iCo5, iCo6, bPermissions, bPermissions2, PermissionsEX, PermissionsBukkit]
 depend: [Vault]
