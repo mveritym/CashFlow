@@ -1,0 +1,72 @@
+name: CashFlow
+main: com.mveritym.cashflow.CashFlow
+version: 2.0
+softdepend: [BOSEconomy7, MultiCurrency, Essentials, iCo5, iCo6, bPermissions, bPermissions2, PermissionsEX, PermissionsBukkit]
+depend: [Vault]
+authors:
+  - Perichor
+  - Mitsugaru
+commands:
+    tax:
+      description: Provides access to tax commands.
+      usage: |
+           Usage:
+           /<command> create <taxname> <tax[%]> <interval> [payee] - Creates a tax
+           /<command> delete <taxname> - Deletes a tax
+           /<command> apply group <taxname> <groupnames> - Applies groups to a tax (comma separated)
+           /<command> remove group <taxname> <groupnames> - Removes a group from a tax (comma separated)
+           /<command> apply player <taxname> <playernames> - Applies players to a tax (comma separated)
+           /<command> remove player <taxname> <playernames> - Removes a player from a tax (comma separated)
+           /<command> addexception <taxname> <playername> - Adds the player as an exception (case sensitive!)
+           /<command> removeexception <taxname> <playername> - Removes the player as an exception (case sensitive!)
+           /<command> list - Lists each tax
+           /<command> info <taxname> - Lists information about a tax
+           /<command> setonlineonly <taxname> <true|false> [interval] - Sets a particular tax to be collected only from players who have been online in the last x hours.
+           /<command> setrate <taxname> <tax> - Sets the tax rate
+           /<command> enable <salaryname> - Enables given tax.
+           /<command> disable <salaryname> - Disables given tax.
+    salary:
+      description: Provides access to salary commands.
+      usage: |
+          Usage:
+          /<command> create <salaryname> <salary> <interval> [employer] - Creates a salary
+          /<command> delete <salaryname> - Deletes a salary
+          /<command> apply group <salaryname> <groupnames> - Applies groups to a salary (comma separated)
+          /<command> apply player <salaryname> <playernames> - Applies players to a salary (comma separated)
+          /<command> remove group <salaryname> <groupnames> - Removes groups from a salary (comma separated)
+          /<command> remove player <salaryname> <playernames> - Removes players from a salary (comma separated)
+          /<command> addexception <salaryname> <playername> - Adds the player as an exception
+          /<command> removeexception <salaryname> <playername> - Removes the player as an exception
+          /<command> list - Lists each salary
+          /<command> info <salaryname> - Lists information about a salary
+          /<command> setonlineonly <salaryname> <true|false> [interval] - Sets a particular salary to be paid only to players who have been online in the last x hours.
+          /<command> setrate <salaryname> <salary> - Sets the salary rate
+          /<command> enable <salaryname> - Enables given salary.
+          /<command> disable <salaryname> - Disables given salary.
+    cashflow:
+        description: Lets you enable, disable, restart or set the world.
+        usage: |
+            Usage:
+            /<command> enable - Enables payment of taxes and salaries.
+            /<command> disable - Disables payment of taxes and salaries.
+            /<command> restart - Disables then enables payment of taxes and salaries. Use this to refresh timer threads.
+            /<command> setworld <world> - Specifies the world name so you can create taxes/salaries that go to/come from offline players.
+            /<command> addplayers <world> - adds player names from the world's player.dat files to internal database.
+            /<command> status - Check status of all taxes/salaries and number of buffered operations.
+permissions:
+    cashflow.*:
+        description: Allows access to all cashflow commands.
+        children:
+            cashflow.tax: true
+            cashflow.salary: true
+            cashflow.basic: true
+        default: false
+    cashflow.tax:
+        description: Allows control of tax commands.
+        default: op
+    cashflow.salary:
+        description: Allows control of salary commands.
+        default: op
+    cashflow.basic:
+        description: Allows access to the enable, disable, restart and setworld commands.
+        default: op
